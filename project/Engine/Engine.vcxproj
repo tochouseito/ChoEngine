@@ -211,6 +211,9 @@
     <ClInclude Include="include\Platform\WinApp.h" />
     <ClInclude Include="include\Graphics\ShaderCompiler.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\Header.hlsli" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

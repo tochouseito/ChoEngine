@@ -4,9 +4,11 @@
 #define ENGINECREATE_FUNCTION
 #define RUNTIMEMODE_EDITOR
 // Engine
+// #include "Engine/include/Main/Engine.h"
 #include "Cho/TheatriaEngineAPI.h"
 // Windows
 #include <Windows.h>
+// C++
 #include <memory>
 #include <string>
 
@@ -79,6 +81,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	std::unique_ptr<Engine, decltype(&theatria::DestroyEngine)> engine(
 		theatria::CreateEngine(RuntimeMode::Editor), theatria::DestroyEngine);// エンジンの生成
 	theatria::SetEngine(engine.get());// エンジンのポインタをセット
+    //std::unique_ptr<Theatria::Engine> engine =
+    //    std::make_unique<Theatria::Engine>();// エンジンの生成
 
 	// BuildWatcherコントローラー
 	BuildWatcherController buildWatcher;
