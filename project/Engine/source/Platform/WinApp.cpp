@@ -1,7 +1,11 @@
 #include "pch.h"
 #include "include/Platform/WinApp.h"
+#include <cstdint>
 #include <timeapi.h>
 #include <shellapi.h>
+#include <ole2.h>
+#include "../ChoEditor/resource.h"
+#pragma comment(lib,"winmm.lib")
 
 // === ImGui ===
 #include <External/imgui/include/imgui.h>
@@ -44,7 +48,7 @@ bool Theatria::Platform::WinApp::CreateWindowApp()
     // カーソル
     m_WC.hCursor = LoadCursor(nullptr, IDC_ARROW);
     // アイコン
-    m_WC.hIcon = LoadIcon(m_WC.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+    m_WC.hIcon = LoadIcon(m_WC.hInstance, MAKEINTRESOURCE(IDI_MAIN_ICON));
     // ウィンドウクラスを登録する
     RegisterClass(&m_WC);
     // ウィンドウサイズを表す構造体にクライアント領域を入れる

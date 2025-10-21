@@ -24,8 +24,6 @@ namespace Theatria::Platform
         /// @return 終了ならtrue、継続ならfalse
         static bool ProcessMessage();
     private:
-
-
         static HWND         m_HWND; ///< ウィンドウハンドル
         static WNDCLASS     m_WC;   ///< ウィンドウクラス
         static UINT64       m_WindowWidth;  ///< ウィンドウ幅

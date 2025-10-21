@@ -22,62 +22,66 @@ std::vector<std::wstring> WinApp::m_DropFiles; // ドロップされたファイ
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WinApp::WindowProc(HWND hWnd, UINT msg,
-	WPARAM wparam, LPARAM lparam) {
-//#ifdef _DEBUG
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wparam, lparam)) {
-		return true;
-	}
-//#endif
-	// メッセージに応じてゲーム固有の処理を行う
-	switch (msg) {
-	case WM_GETMINMAXINFO:
-	{
-		MINMAXINFO* pMinMaxInfo = reinterpret_cast<MINMAXINFO*>(lparam);
-		pMinMaxInfo->ptMinTrackSize.x = 800; // 最小幅を設定（例：800）
-		pMinMaxInfo->ptMinTrackSize.y = 600; // 最小高さを設定（例：600）
-		break;
-	}
+    WPARAM wparam, LPARAM lparam)
+{
+    //#ifdef _DEBUG
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wparam, lparam))
+    {
+        return true;
+    }
+    //#endif
+        // メッセージに応じてゲーム固有の処理を行う
+    switch (msg)
+    {
+    case WM_GETMINMAXINFO:
+    {
+        MINMAXINFO* pMinMaxInfo = reinterpret_cast<MINMAXINFO*>(lparam);
+        pMinMaxInfo->ptMinTrackSize.x = 800; // 最小幅を設定（例：800）
+        pMinMaxInfo->ptMinTrackSize.y = 600; // 最小高さを設定（例：600）
+        break;
+    }
 
-	case WM_DROPFILES:
-	{
-		// ドロップされたファイルの処理
-		HDROP hDrop = (HDROP)wparam;
-		UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
+    case WM_DROPFILES:
+    {
+        // ドロップされたファイルの処理
+        HDROP hDrop = (HDROP)wparam;
+        UINT fileCount = DragQueryFileW(hDrop, 0xFFFFFFFF, NULL, 0);
 
-		m_DropFiles.clear();
+        m_DropFiles.clear();
 
-		for (UINT i = 0; i < fileCount; ++i)
-		{
-			WCHAR filePathW[MAX_PATH];
-			DragQueryFile(hDrop, i, filePathW, MAX_PATH);
-			
-			std::wstring filePath(filePathW);
-			// ドロップされたファイルのパスを保存
-			m_DropFiles.push_back(filePath);
-		}
-		DragFinish(hDrop);
-		m_IsDropFiles = true;
-	}
+        for (UINT i = 0; i < fileCount; ++i)
+        {
+            WCHAR filePathW[MAX_PATH];
+            DragQueryFile(hDrop, i, filePathW, MAX_PATH);
 
-	case WM_SIZE:
-		if (wparam != SIZE_MINIMIZED) {
-			int width = LOWORD(lparam);
-			int height = HIWORD(lparam);
-			OnWindowResize(static_cast<UINT64>(width), static_cast<UINT>(height));
-		}
-		break;
+            std::wstring filePath(filePathW);
+            // ドロップされたファイルのパスを保存
+            m_DropFiles.push_back(filePath);
+        }
+        DragFinish(hDrop);
+        m_IsDropFiles = true;
+    }
+    break;
+    case WM_SIZE:
+        if (wparam != SIZE_MINIMIZED)
+        {
+            int width = LOWORD(lparam);
+            int height = HIWORD(lparam);
+            OnWindowResize(static_cast<UINT64>(width), static_cast<UINT>(height));
+        }
+        break;
 
-	case WM_KILLFOCUS:
-		m_IsKillfocus = true;
-		break;
+    case WM_KILLFOCUS:
+        m_IsKillfocus = true;
+        break;
 
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		m_IsRun = false;
-		return 0;
-	}
-	// 標準のメッセージ処理を行う
-	return DefWindowProc(hWnd, msg, wparam, lparam);
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        m_IsRun = false;
+        return 0;
+    }
+    // 標準のメッセージ処理を行う
+    return DefWindowProc(hWnd, msg, wparam, lparam);
 }
 
 // ゲームウィンドウの作成

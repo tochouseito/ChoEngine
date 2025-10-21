@@ -141,6 +141,7 @@ Theatria::Engine::Engine()
 {
     // COM初期化
     HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+    hr;
     m_Run = Initialize();
 }
 
