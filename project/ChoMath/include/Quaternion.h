@@ -1,239 +1,126 @@
-#pragma once
+﻿#pragma once
 #include <cmath>
-#include "Matrix4.h"
+#include <limits>
 
-/// <summary>
-/// クォータニオン構造体
-/// </summary>
-struct Quaternion final {
-    float x, y, z, w;
+namespace Theatria::Math
+{
+    /// @brief クォータニオン構造体（w + xi + yj + zk）
+    struct Quaternion final
+    {
+        float x, y, z, w;
 
-    // コンストラクタ
-    constexpr Quaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 1.0f)
-        : x(x), y(y), z(z), w(w) {}
+        /*================ コンストラクタ/初期化 ================*/
+        /// @brief デフォルトは単位（0,0,0,1）
+        constexpr Quaternion(float x_ = 0.0f, float y_ = 0.0f, float z_ = 0.0f, float w_ = 1.0f) : x(x_), y(y_), z(z_), w(w_) {}
+        /// @brief 単位に初期化
+        void Initialize() { x = 0.0f; y = 0.0f; z = 0.0f; w = 1.0f; }
 
-    // 初期化
-    void Initialize() {
-        x = 0.0f; y = 0.0f; z = 0.0f; w = 1.0f;
-    }
+        /*================ 四則/積 ================*/
+        /// @brief 和
+        Quaternion operator+(const Quaternion& o) const { return { x + o.x, y + o.y, z + o.z, w + o.w }; }
+        /// @brief 差
+        Quaternion operator-(const Quaternion& o) const { return { x - o.x, y - o.y, z - o.z, w - o.w }; }
+        /// @brief スカラー乗算
+        Quaternion operator*(float s) const { return { x * s, y * s, z * s, w * s }; }
+        /// @brief スカラー除算（0割は単位を返す）
+        Quaternion operator/(float s) const { return (s == 0.0f) ? Identity() : Quaternion{ x / s,y / s,z / s,w / s }; }
 
-    // 加算（演算子）
-    Quaternion operator+(const Quaternion& other) const {
-        return { x + other.x, y + other.y, z + other.z, w + other.w };
-    }
-
-    // 減算（演算子）
-    Quaternion operator-(const Quaternion& other) const {
-        return { x - other.x, y - other.y, z - other.z, w - other.w };
-    }
-
-    // スカラー乗算（演算子）
-    Quaternion operator*(float scalar) const {
-        return { x * scalar, y * scalar, z * scalar, w * scalar };
-    }
-
-    // スカラー除算（演算子）
-    Quaternion operator/(float scalar) const {
-        if (scalar == 0.0f) {
-            return { 0.0f, 0.0f, 0.0f, 1.0f }; // デフォルトの単位クォータニオンを返す
-        }
-        return { x / scalar, y / scalar, z / scalar, w / scalar };
-    }
-
-    // クォータニオンの積 (this * other)
-    Quaternion Multiply(const Quaternion& other) const {
-        /*return {
-            other.w * x + other.x * w + other.y * z - other.z * y,
-            other.w * y - other.x * z + other.y * w + other.z * x,
-            other.w * z + other.x * y - other.y * x + other.z * w,
-            other.w * w - other.x * x - other.y * y - other.z * z
-        };*/
-        return {
-            w * other.x + x * other.w + y * other.z - z * other.y, // x
-            w * other.y - x * other.z + y * other.w + z * other.x, // y
-            w * other.z + x * other.y - y * other.x + z * other.w, // z
-            w * other.w - x * other.x - y * other.y - z * other.z  // w
-        };
-    }
-
-    // クォータニオン積（演算子）
-    Quaternion operator*(const Quaternion& other) const {
-        return Multiply(other);
-    }
-
-    // 共役クォータニオン
-    void Conjugate() {
-        x = -x;
-        y = -y;
-        z = -z;
-        w = w;
-    }
-
-    // ノルム（大きさ）の計算
-    float Norm() const {
-        return std::sqrt(x * x + y * y + z * z + w * w);
-    }
-
-    // 内積
-    float Dot(const Quaternion& other) const {
-        return x * other.x + y * other.y + z * other.z + w * other.w;
-    }
-
-    // 正規化
-    Quaternion Normalize() {
-        float norm = Norm();
-        if (norm == 0.0f) {
-            x = 0.0f;y = 0.0f;z = 0.0f;w = 1.0f;
-        } else {
-            x /= norm;y /= norm;z /= norm;w /= norm;
-        }
-		return *this;
-    }
-
-    // 逆クォータニオン
-    void Inverse() {
-        Quaternion q = { x,y,z,w };
-        Quaternion conjugate = Quaternion::Conjugate(q);
-        float norm = Norm();
-        float normSq = norm * norm;
-        if (normSq == 0.0f) {
-            x = 0.0f;y = 0.0f;z = 0.0f;w = 1.0f;
-        } else {
-            x = conjugate.x / normSq;y = conjugate.y / normSq;
-            z = conjugate.z / normSq; w = conjugate.w / normSq;
-        }
-    }
-public:// 静的メンバ
-
-    // 線形補間（Lerp）
-    static Quaternion Lerp(const Quaternion& start, const Quaternion& end, float t) {
-        Quaternion result = (start * (1.0f - t) + end * t);
-        result.Normalize();
-        return result;
-    }
-
-    // 球面線形補間（Slerp）
-    static Quaternion Slerp(const Quaternion& start, const Quaternion& end, float t) {
-        // クォータニオンの内積を計算
-		float dot = start.Dot(end);
-        const float threshold = 0.9995f;
-
-        // クォータニオンが反対向きの場合、内積が負になるので符号を反転
-        if (dot < 0.0f) {
-            dot = -dot;
-            Quaternion negQ1 = { -end.x, -end.y, -end.z, -end.w };
-            return Slerp(start, negQ1, t);
-        }
-
-        // 内積が閾値以上の場合、線形補間を使用
-        if (dot > threshold) {
-            Quaternion result = {
-                start.x + t * (end.x - start.x),
-                start.y + t * (end.y - start.y),
-                start.z + t * (end.z - start.z),
-                start.w + t * (end.w - start.w)
+        /// @brief 積（this * o）
+        Quaternion Multiply(const Quaternion& o) const
+        {
+            return {
+                w * o.x + x * o.w + y * o.z - z * o.y,
+                w * o.y - x * o.z + y * o.w + z * o.x,
+                w * o.z + x * o.y - y * o.x + z * o.w,
+                w * o.w - x * o.x - y * o.y - z * o.z
             };
-            // 正規化
-            float norm = std::sqrt(result.x * result.x + result.y * result.y + result.z * result.z + result.w * result.w);
-            return { result.x / norm, result.y / norm, result.z / norm, result.w / norm };
+        }
+        /// @brief 積（演算子）
+        Quaternion operator*(const Quaternion& o) const { return Multiply(o); }
+
+        /*================ 基本演算 ================*/
+        /// @brief 共役（その場で反転）
+        void Conjugate() { x = -x; y = -y; z = -z; /* wはそのまま */ }
+        /// @brief ノルム
+        float Norm() const { return std::sqrt(x * x + y * y + z * z + w * w); }
+        /// @brief 内積
+        float Dot(const Quaternion& o) const { return x * o.x + y * o.y + z * o.z + w * o.w; }
+        /// @brief 正規化（その場）
+        Quaternion Normalize()
+        {
+            float n = Norm();
+            if (n == 0.0f) { Initialize(); }
+            else { x /= n; y /= n; z /= n; w /= n; }
+            return *this;
+        }
+        /// @brief 逆（その場）
+        void Inverse()
+        {
+            Quaternion c = ConjugateCopy(*this);
+            float n = Norm(), ns = n * n;
+            if (ns == 0.0f) { Initialize(); }
+            else { x = c.x / ns; y = c.y / ns; z = c.z / ns; w = c.w / ns; }
         }
 
-        // 角度を計算
-        float theta_0 = std::acos(dot);  // θ0 = angle between input vectors
-        float theta = theta_0 * t;       // θ = angle between q0 and result
-        float sin_theta = std::sin(theta); // Compute this value only once
-        float sin_theta_0 = std::sin(theta_0); // Compute this value only once
-
-        float s0 = std::cos(theta) - dot * sin_theta / sin_theta_0;  // s0 = sin((1 - t) * theta) / sin(theta)
-        float s1 = sin_theta / sin_theta_0; // s1 = sin(t * theta) / sin(theta)
-
-        return {
-            s0 * start.x + s1 * end.x,
-            s0 * start.y + s1 * end.y,
-            s0 * start.z + s1 * end.z,
-            s0 * start.w + s1 * end.w
-        };
-
-    }
-
-    // 単位クォータニオン
-    static Quaternion Identity() {
-        return { 0.0f, 0.0f, 0.0f, 1.0f };
-    }
-
-    // 共役クォータニオン
-    static Quaternion Conjugate(const Quaternion& q) {
-        Quaternion result;
-        result.x = -q.x;
-        result.y = -q.y;
-        result.z = -q.z;
-        result.w = q.w;
-        return result;
-    }
-
-    // 正規化
-    static Quaternion Normalize(const Quaternion& q) {
-        Quaternion result;
-        float norm = q.Norm();
-        if (norm == 0.0f) {
-            result.x = 0.0f; result.y = 0.0f; result.z = 0.0f; result.w = 1.0f;
-        } else {
-            result.x /= norm; result.y /= norm; result.z /= norm; result.w /= norm;
+    public: /*================ 静的ユーティリティ ================*/
+        /// @brief 線形補間（正規化付き）
+        static Quaternion Lerp(const Quaternion& a, const Quaternion& b, float t)
+        {
+            Quaternion r = a * (1.0f - t) + b * t; return r.Normalize();
         }
-        return result;
-    }
 
-    // 逆クォータニオン
-    static Quaternion Inverse(const Quaternion& q) {
-        Quaternion result;
-        Quaternion conjugate = Quaternion::Conjugate(q);
-        float norm = q.Norm();
-        float normSq = norm * norm;
-        if (normSq == 0.0f) {
-            result.x = 0.0f; result.y = 0.0f; result.z = 0.0f; result.w = 1.0f;
-        } else {
-            result.x = conjugate.x / normSq; result.y = conjugate.y / normSq;
-            result.z = conjugate.z / normSq; result.w = conjugate.w / normSq;
+        /// @brief 球面線形補間（大角・小角に自動対応）
+        static Quaternion Slerp(const Quaternion& a, const Quaternion& b, float t)
+        {
+            float dot = a.Dot(b);
+            Quaternion b2 = (dot < 0.0f) ? Quaternion{ -b.x,-b.y,-b.z,-b.w } : b; // 反転で最短経路
+            dot = std::fabs(dot);
+
+            const float th = 0.9995f; // ほぼ同方向ならLerpで十分
+            if (dot > th) { return Lerp(a, b2, t); }
+
+            float theta0 = std::acos(dot), theta = theta0 * t;
+            float s0 = std::cos(theta) - dot * std::sin(theta) / std::sin(theta0);
+            float s1 = std::sin(theta) / std::sin(theta0);
+            Quaternion r{ s0 * a.x + s1 * b2.x, s0 * a.y + s1 * b2.y, s0 * a.z + s1 * b2.z, s0 * a.w + s1 * b2.w };
+            return r.Normalize();
         }
-        return result;
-    }
 
-	// 回転行列からクォータニオンを生成
-	static Quaternion FromMatrix(const Matrix4& m)
-	{
-        Quaternion q;
-        float trace = m.m[0][0] + m.m[1][1] + m.m[2][2]; // 行列のトレース（対角和）
+        /// @brief 単位
+        static Quaternion Identity() { return { 0.0f,0.0f,0.0f,1.0f }; }
 
-        if (trace > 0.0f)
+        /// @brief 共役（コピー版）
+        static Quaternion ConjugateCopy(const Quaternion& q) { return { -q.x, -q.y, -q.z, q.w }; }
+
+        /// @brief 正規化（コピー版）
+        static Quaternion Normalize(const Quaternion& q)
         {
-            float s = sqrtf(trace + 1.0f) * 2.0f; // s = 4 * qw
-            q.w = 0.25f * s;
-            q.x = (m.m[2][1] - m.m[1][2]) / s;
-            q.y = (m.m[0][2] - m.m[2][0]) / s;
-            q.z = (m.m[1][0] - m.m[0][1]) / s;
-        }else if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2])
-        {
-            float s = sqrtf(1.0f + m.m[0][0] - m.m[1][1] - m.m[2][2]) * 2.0f; // s = 4 * qx
-        q.w = (m.m[2][1] - m.m[1][2]) / s;
-        q.x = 0.25f * s;
-        q.y = (m.m[0][1] + m.m[1][0]) / s;
-        q.z = (m.m[0][2] + m.m[2][0]) / s;
-        } else if (m.m[1][1] > m.m[2][2])
-        {
-        float s = sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]) * 2.0f; // s = 4 * qy
-        q.w = (m.m[0][2] - m.m[2][0]) / s;
-        q.x = (m.m[0][1] + m.m[1][0]) / s;
-        q.y = 0.25f * s;
-        q.z = (m.m[1][2] + m.m[2][1]) / s;
-        } else
-        {
-        float s = sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]) * 2.0f; // s = 4 * qz
-        q.w = (m.m[1][0] - m.m[0][1]) / s;
-        q.x = (m.m[0][2] + m.m[2][0]) / s;
-        q.y = (m.m[1][2] + m.m[2][1]) / s;
-        q.z = 0.25f * s;
+            float n = std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+            if (n == 0.0f) return Identity();
+            return { q.x / n, q.y / n, q.z / n, q.w / n };
         }
-        q.Normalize();
-        return q;
-	}
+
+        /// @brief 逆（コピー版）
+        static Quaternion Inverse(const Quaternion& q)
+        {
+            Quaternion c = ConjugateCopy(q);
+            float n = std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w), ns = n * n;
+            return (ns == 0.0f) ? Identity() : Quaternion{ c.x / ns, c.y / ns, c.z / ns, c.w / ns };
+        }
+
+        /*================ Epsilon 比較 ================*/
+        /// @brief 既定Epsilonでの等価（|a-b|<=ε を全成分で）
+        static bool EqualsEpsilon(const Quaternion& a, const Quaternion& b)
+        {
+            const float e = 10.0f * std::numeric_limits<float>::epsilon();
+            auto ab = [](float v) { return v >= 0.0f ? v : -v; };
+            return ab(a.x - b.x) <= e && ab(a.y - b.y) <= e && ab(a.z - b.z) <= e && ab(a.w - b.w) <= e;
+        }
+        /// @brief Epsilon指定の等価
+        static bool EqualsEpsilon(const Quaternion& a, const Quaternion& b, float e)
+        {
+            auto ab = [](float v) { return v >= 0.0f ? v : -v; };
+            return ab(a.x - b.x) <= e && ab(a.y - b.y) <= e && ab(a.z - b.z) <= e && ab(a.w - b.w) <= e;
+        }
+    };
 };

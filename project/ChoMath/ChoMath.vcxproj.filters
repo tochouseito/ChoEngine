@@ -21,6 +21,9 @@
     <ClInclude Include="include\mathShapes.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="include\chomath.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="include\Matrix4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -39,18 +42,15 @@
     <ClInclude Include="include\Vector4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\chomath.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\cm_api.h">
+    <ClInclude Include="include\MathStructAllowedList.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\chomath.cpp">
+    <ClCompile Include="chomath_pch.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="chomath_pch.cpp">
+    <ClCompile Include="src\chomath.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

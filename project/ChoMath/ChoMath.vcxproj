@@ -60,7 +60,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>chomath_pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /wd4201 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -99,10 +99,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\chomath.h" />
-    <ClInclude Include="include\cm_api.h" />
     <ClInclude Include="include\mathShapes.h" />
-    <ClInclude Include="include\Matrix4.h" />
     <ClInclude Include="chomath_pch.h" />
+    <ClInclude Include="include\MathStructAllowedList.h" />
+    <ClInclude Include="include\Matrix4.h" />
     <ClInclude Include="include\Quaternion.h" />
     <ClInclude Include="include\Scale.h" />
     <ClInclude Include="include\Vector2.h" />
@@ -110,11 +110,11 @@
     <ClInclude Include="include\Vector4.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\chomath.cpp" />
     <ClCompile Include="chomath_pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\chomath.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
