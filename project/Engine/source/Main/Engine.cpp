@@ -44,7 +44,6 @@ public:
         m_pFileSystem = std::make_unique<Platform::FileSystem>();
         m_pInput = std::make_unique<Platform::Input>();
         m_pNetwork = std::make_unique<Platform::Network>();
-        m_pThread = std::make_unique<Platform::Thread>();
         m_pTimer = std::make_unique<Platform::Timer>();
         m_pWinApp = std::make_unique<Platform::WinApp>();
         m_pAllocators = std::make_unique<Core::Allocators>();
@@ -98,7 +97,6 @@ public:
         m_pAllocators.reset();
         m_pWinApp.reset();
         m_pTimer.reset();
-        m_pThread.reset();
         m_pNetwork.reset();
         m_pInput.reset();
         m_pFileSystem.reset();
@@ -106,8 +104,7 @@ public:
 private:
     std::unique_ptr<Platform::FileSystem>           m_pFileSystem;           ///< ファイルシステム
     std::unique_ptr<Platform::Input>                m_pInput;                ///< 入力システム
-    std::unique_ptr<Platform::Network>              m_pNetwork;              ///< ネットワークシステム
-    std::unique_ptr<Platform::Thread>               m_pThread;               ///< スレッドシステム
+    std::unique_ptr<Platform::Network>              m_pNetwork;             ///< スレッドシステム
     std::unique_ptr<Platform::Timer>                m_pTimer;                ///< タイマーシステム
     std::unique_ptr<Platform::WinApp>               m_pWinApp;               ///< Windowsアプリケーション
     std::unique_ptr<Core::Allocators>               m_pAllocators;           ///< アロケータシステム
