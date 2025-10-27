@@ -72,25 +72,25 @@ void physics::d2::box2dBody::SetAwake(bool flag)
 	b2Body_SetAwake(impl->body, flag); // ボディを起こす
 }
 
-Vector2 physics::d2::box2dBody::GetPosition() const
+Theatria::Math::float2 physics::d2::box2dBody::GetPosition() const
 {
 	b2Vec2 pos = b2Body_GetPosition(impl->body);
-	return Vector2(pos.x, pos.y);
+	return Theatria::Math::float2(pos.x, pos.y);
 }
 
-Vector2 physics::d2::box2dBody::GetLinearVelocity() const
+Theatria::Math::float2 physics::d2::box2dBody::GetLinearVelocity() const
 {
 	b2Vec2 velocity = b2Body_GetLinearVelocity(impl->body);
-	Vector2 result(velocity.x, velocity.y);
+	Theatria::Math::float2 result(velocity.x, velocity.y);
 	return result;
 }
 
-void physics::d2::box2dBody::SetLinearVelocity(const Vector2& velocity)
+void physics::d2::box2dBody::SetLinearVelocity(const Theatria::Math::float2& velocity)
 {
 	b2Body_SetLinearVelocity(impl->body, b2Vec2(velocity.x, velocity.y));
 }
 
-void physics::d2::box2dBody::SetTransform(const Vector2& position, const float& angle)
+void physics::d2::box2dBody::SetTransform(const Theatria::Math::float2& position, const float& angle)
 {
 	b2Body_SetTransform(impl->body , b2Vec2(position.x, position.y), b2MakeRot(angle));
 }

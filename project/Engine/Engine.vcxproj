@@ -71,14 +71,14 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
@@ -110,14 +110,14 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>

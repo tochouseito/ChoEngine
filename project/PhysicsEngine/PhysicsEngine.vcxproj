@@ -62,7 +62,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/utf-8 /wd26495 /wd4127 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /wd26495 /wd4127 /wd4201 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\External\box2d\include;$(ProjectDir)..\External\bulletphysics\include;$(SolutionDir)ChoMath;$(SolutionDir)ChoMath\include;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>
@@ -96,7 +96,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/utf-8 /wd26495 /wd4127 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /wd26495 /wd4127 /wd4201 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\External\box2d\include;$(ProjectDir)..\External\bulletphysics\include;$(SolutionDir)ChoMath;$(SolutionDir)ChoMath\include;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>

@@ -2,9 +2,9 @@
 #define D2_BODY_H
 
 #include <stdint.h>
-#include <chomath.h>
 #include <memory>
 #include <vector>
+#include "chomath.h"
 
 // Box2D, ChoPhysics
 struct b2BodyId;
@@ -35,7 +35,7 @@ namespace physics
 			Id2BodyType type = Id2_dynamicBody; // ボディタイプ
 			float gravityScale = 1.0f; // 重力スケール
 			bool fixedRotation = false; // 回転を固定するかどうか
-			Vector2 position = Vector2(0.0f, 0.0f); // 位置
+			Theatria::Math::float2 position = Theatria::Math::float2(0.0f, 0.0f); // 位置
 			float angle = 0.0f; // 角度（ラジアン）
 		};
 
@@ -55,10 +55,10 @@ namespace physics
 			// 
 			virtual void SetAwake(bool) {}
 
-			virtual Vector2 GetPosition() const { return Vector2(0.0f, 0.0f); }
-			virtual Vector2 GetLinearVelocity() const { return Vector2(0.0f, 0.0f); } // 速度を取得（デフォルトは(0,0)）
-			virtual void SetLinearVelocity(const Vector2&) {} // 速度を設定
-			virtual void SetTransform(const Vector2&,const float&) {} // 位置と角度を設定
+			virtual Theatria::Math::float2 GetPosition() const { return Theatria::Math::float2(0.0f, 0.0f); }
+			virtual Theatria::Math::float2 GetLinearVelocity() const { return Theatria::Math::float2(0.0f, 0.0f); } // 速度を取得（デフォルトは(0,0)）
+			virtual void SetLinearVelocity(const Theatria::Math::float2&) {} // 速度を設定
+			virtual void SetTransform(const Theatria::Math::float2&,const float&) {} // 位置と角度を設定
 			virtual float GetAngle() const { return 0.0f; } // 角度を取得（デフォルトは0.0f）
 
 			bool IsActive() const { return isActive; } // 有効フラグの取得
@@ -83,10 +83,10 @@ namespace physics
 			// 形状を削除
 			void DestroyShape() override;
 			void SetAwake(bool flag) override;
-			Vector2 GetPosition() const override;
-			Vector2 GetLinearVelocity() const override;
-			void SetLinearVelocity(const Vector2& velocity) override;
-			void SetTransform(const Vector2& position, const float& angle) override;
+			Theatria::Math::float2 GetPosition() const override;
+			Theatria::Math::float2 GetLinearVelocity() const override;
+			void SetLinearVelocity(const Theatria::Math::float2& velocity) override;
+			void SetTransform(const Theatria::Math::float2& position, const float& angle) override;
 			float GetAngle() const override; // 角度を取得
 		private:
 			b2BodyId GetBody();
@@ -115,10 +115,10 @@ namespace physics
 			{
 				flag; // ここで実際の処理を実装する
 			}
-			Vector2 GetPosition() const override
+			Theatria::Math::float2 GetPosition() const override
 			{
 				// 位置を取得する処理を実装
-				return Vector2(0.0f, 0.0f); // 仮の値を返す
+				return Theatria::Math::float2(0.0f, 0.0f); // 仮の値を返す
 			}
 		};
 	}

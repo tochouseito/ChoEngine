@@ -18,9 +18,9 @@ namespace physics::d3
 
 	struct Id3BodyDef
 	{
-		Vector3 position; // 位置
-		Vector3 degrees; // オイラー角
-		Vector3 halfsize; // 半径（ボックス形状の場合）
+		Theatria::Math::float3 position; // 位置
+		Theatria::Math::float3 degrees; // オイラー角
+		Theatria::Math::float3 halfsize; // 半径（ボックス形状の場合）
 		float friction = 0.5f; // 摩擦係数
 		float restitution = 0.2f; // 反発係数
 		float mass = 1.0f; // 質量
@@ -38,26 +38,26 @@ namespace physics::d3
 		// ボディの削除
 		virtual void Destroy() = 0;
 		// ボディの位置を取得
-		virtual Vector3 GetPosition() const = 0;
+		virtual Theatria::Math::float3 GetPosition() const = 0;
 		// ボディの角度を取得
-		virtual Quaternion GetQuaternion() const = 0;
-		virtual Vector3 GetRotation() const = 0; // オイラー角を取得
+		virtual Theatria::Math::Quaternion GetQuaternion() const = 0;
+		virtual Theatria::Math::float3 GetRotation() const = 0; // オイラー角を取得
 		// ボディの位置と角度を設定
-		virtual void SetTransform(const Vector3& position, const Quaternion& rotation) = 0;
-		virtual void SetTransform(const Vector3& position) = 0;
-		virtual void SetTransform(const Quaternion& rotation) = 0;
+		virtual void SetTransform(const Theatria::Math::float3& position, const Theatria::Math::Quaternion& rotation) = 0;
+		virtual void SetTransform(const Theatria::Math::float3& position) = 0;
+		virtual void SetTransform(const Theatria::Math::Quaternion& rotation) = 0;
 		// ボディの速度を取得
-		virtual Vector3 GetLinearVelocity() const = 0;
+		virtual Theatria::Math::float3 GetLinearVelocity() const = 0;
 		// ボディの速度を設定
-		virtual void SetLinearVelocity(const Vector3& velocity) = 0;
-		virtual Vector3 GetAngularVelocity() const { return Vector3::Zero(); } // 角速度を取得（デフォルトはゼロ）
-		virtual void SetAngularVelocity(const Vector3&) {} // 角速度を設定（デフォルトは何もしない）
+		virtual void SetLinearVelocity(const Theatria::Math::float3& velocity) = 0;
+		virtual Theatria::Math::float3 GetAngularVelocity() const { return Theatria::Math::float3::Zero(); } // 角速度を取得（デフォルトはゼロ）
+		virtual void SetAngularVelocity(const Theatria::Math::float3&) {} // 角速度を設定（デフォルトは何もしない）
 		// gravityScaleの設定
 		virtual void SetGravityScale(Id3World* world, const float&) = 0;
 		// LinearFactorの設定
-		virtual void SetLinearFactor(const Vector3&) = 0;
+		virtual void SetLinearFactor(const Theatria::Math::float3&) = 0;
 		// AngularFactorの設定
-		virtual void SetAngularFactor(const Vector3&) = 0;
+		virtual void SetAngularFactor(const Theatria::Math::float3&) = 0;
 		// 有効化
 		virtual bool IsActive() const = 0;
 		// 有効化・無効化
@@ -76,19 +76,19 @@ namespace physics::d3
 		~bulletBody() override = default;
 		void Create(const Id3BodyDef& bodyDef) override;
 		void Destroy() override;
-		Vector3 GetPosition() const override;
-		Quaternion GetQuaternion() const override;
-		Vector3 GetRotation() const override;
-		void SetTransform(const Vector3& position, const Quaternion& rotation) override;
-		void SetTransform(const Vector3& position) override;
-		void SetTransform(const Quaternion& rotation) override;
-		Vector3 GetLinearVelocity() const override;
-		void SetLinearVelocity(const Vector3& velocity) override;
-		Vector3 GetAngularVelocity() const override;
-		void SetAngularVelocity(const Vector3& angularVelocity) override;
+		Theatria::Math::float3 GetPosition() const override;
+		Theatria::Math::Quaternion GetQuaternion() const override;
+		Theatria::Math::float3 GetRotation() const override;
+		void SetTransform(const Theatria::Math::float3& position, const Theatria::Math::Quaternion& rotation) override;
+		void SetTransform(const Theatria::Math::float3& position) override;
+		void SetTransform(const Theatria::Math::Quaternion& rotation) override;
+		Theatria::Math::float3 GetLinearVelocity() const override;
+		void SetLinearVelocity(const Theatria::Math::float3& velocity) override;
+		Theatria::Math::float3 GetAngularVelocity() const override;
+		void SetAngularVelocity(const Theatria::Math::float3& angularVelocity) override;
 		void SetGravityScale(Id3World* world, const float& scale) override; // gravityScaleの設定
-		void SetLinearFactor(const Vector3& factor) override; // LinearFactorの設定
-		void SetAngularFactor(const Vector3& factor) override; // AngularFactorの設定
+		void SetLinearFactor(const Theatria::Math::float3& factor) override; // LinearFactorの設定
+		void SetAngularFactor(const Theatria::Math::float3& factor) override; // AngularFactorの設定
 		
 		btRigidBody* GetRigidBody() const; // Bulletの剛体データを取得
 		bool IsActive() const override; // 有効かどうかを取得
@@ -105,17 +105,17 @@ namespace physics::d3
 		// Id3Body を介して継承されました
 		void Create(const Id3BodyDef& bodyDef) override;
 		void Destroy() override;
-		Vector3 GetPosition() const override;
-		Quaternion GetQuaternion() const override;
-		Vector3 GetRotation() const override { return Vector3::Zero(); } // オイラー角を取得
-		void SetTransform(const Vector3&, const Quaternion&) override {}
-		void SetTransform(const Vector3&) override {}
-		void SetTransform(const Quaternion&) override {}
-		Vector3 GetLinearVelocity() const override;
-		void SetLinearVelocity(const Vector3& velocity) override;
+		Theatria::Math::float3 GetPosition() const override;
+		Theatria::Math::Quaternion GetQuaternion() const override;
+		Theatria::Math::float3 GetRotation() const override { return Theatria::Math::float3::Zero(); } // オイラー角を取得
+		void SetTransform(const Theatria::Math::float3&, const Theatria::Math::Quaternion&) override {}
+		void SetTransform(const Theatria::Math::float3&) override {}
+		void SetTransform(const Theatria::Math::Quaternion&) override {}
+		Theatria::Math::float3 GetLinearVelocity() const override;
+		void SetLinearVelocity(const Theatria::Math::float3& velocity) override;
 		void SetGravityScale(Id3World*, const float& scale) override { scale; } // gravityScaleの設定
-		void SetLinearFactor(const Vector3& factor) override { factor; } // LinearFactorの設定
-		void SetAngularFactor(const Vector3& factor) override { factor; } // AngularFactorの設定
+		void SetLinearFactor(const Theatria::Math::float3& factor) override { factor; } // LinearFactorの設定
+		void SetAngularFactor(const Theatria::Math::float3& factor) override { factor; } // AngularFactorの設定
 		bool IsActive() const override;
 		void SetActive(bool active) override { active; }
 		void SetBodyType(Id3World*, Id3BodyType bodyType) override { bodyType; }

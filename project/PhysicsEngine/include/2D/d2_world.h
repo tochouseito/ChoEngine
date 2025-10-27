@@ -59,8 +59,8 @@ namespace physics
 			// シュミレーションのステップ
 			virtual void Step(const float& deltaTime,const uint32_t& subStepCount) = 0;
 			// 重力を取得、設定
-			virtual Vector2 GetGravity() const = 0;
-			virtual void SetGravity(const Vector2& gravity) = 0;
+			virtual Theatria::Math::float2 GetGravity() const = 0;
+			virtual void SetGravity(const Theatria::Math::float2& gravity) = 0;
 			// ステップ後に呼び出される衝突イベント
 			virtual void ProcessEvents() = 0;
 			// イベントコールバック関数登録
@@ -85,8 +85,8 @@ namespace physics
 			Id2Body* CreateBody(const Id2BodyDef& bodyDef) override;
 			void DestroyBody(Id2Body* body) override;
 			void Step(const float& deltaTime, const uint32_t& subStepCount) override;
-			Vector2 GetGravity() const override;
-			void SetGravity(const Vector2& gravity) override;
+			Theatria::Math::float2 GetGravity() const override;
+			void SetGravity(const Theatria::Math::float2& gravity) override;
 			b2WorldId GetWorld() const; // Box2Dのワールドを取得
 			void ProcessEvents() override;
 			// イベントコールバック関数の登録
@@ -130,8 +130,8 @@ namespace physics
 			}
 			void DestroyBody(Id2Body*) override {}
 			void Step(const float& deltaTime, const uint32_t& subStepCount) override;
-			Vector2 GetGravity() const override;
-			void SetGravity(const Vector2& gravity) override;
+			Theatria::Math::float2 GetGravity() const override;
+			void SetGravity(const Theatria::Math::float2& gravity) override;
 			void ProcessEvents() override
 			{
 				// ChoPhysicsの衝突イベントを処理する実装をここに追加

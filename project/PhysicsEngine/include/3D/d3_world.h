@@ -29,8 +29,8 @@ namespace physics::d3
 		// 物理ワールドのバックエンドを取得
 		d3Backend GetBackend() const { return backend; }
 		// 重力を取得、設定
-		virtual Vector3 GetGravity() const = 0;
-		virtual void SetGravity(const Vector3& gravity) = 0;
+		virtual Theatria::Math::float3 GetGravity() const = 0;
+		virtual void SetGravity(const Theatria::Math::float3& gravity) = 0;
 		// シュミレーションのステップ
 		virtual void Step(const float& deltaTime) = 0;
 		// ボディを作成
@@ -55,8 +55,8 @@ namespace physics::d3
 		bulletWorld();
 		~bulletWorld() override;
 		// 重力の設定、取得
-		Vector3 GetGravity() const override;
-		void SetGravity(const Vector3& gravity) override;
+		Theatria::Math::float3 GetGravity() const override;
+		void SetGravity(const Theatria::Math::float3& gravity) override;
 		void Step(const float& deltaTime) override;
 		Id3Body* CreateBody(const Id3BodyDef& bodyDef)override;
 		void DestroyBody(Id3Body* body)override;
@@ -89,8 +89,8 @@ namespace physics::d3
 	public:
 		chophysicsWorld() {}
 		~chophysicsWorld() override {}
-		Vector3 GetGravity() const override { return Vector3(0,0,0); }
-		void SetGravity(const Vector3&) override {}
+		Theatria::Math::float3 GetGravity() const override { return Theatria::Math::float3(0,0,0); }
+		void SetGravity(const Theatria::Math::float3&) override {}
 		void Step(const float&) override {}
 		Id3Body* CreateBody(const Id3BodyDef&) override { return nullptr; } // ChoPhysicsの実装ではボディを作成しない
 		void DestroyBody(Id3Body*) override {} // ChoPhysicsの実装ではボディを削除しない

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <cmath>
 #include <limits>
 
@@ -112,7 +112,7 @@ namespace Theatria::Math
         /// @brief 既定Epsilonでの等価（|a-b|<=ε を全成分で）
         static bool EqualsEpsilon(const Quaternion& a, const Quaternion& b)
         {
-            const float e = 10.0f * std::numeric_limits<float>::epsilon();
+            constexpr float e = 10.0f * std::numeric_limits<float>::epsilon();
             auto ab = [](float v) { return v >= 0.0f ? v : -v; };
             return ab(a.x - b.x) <= e && ab(a.y - b.y) <= e && ab(a.z - b.z) <= e && ab(a.w - b.w) <= e;
         }

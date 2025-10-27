@@ -198,4 +198,7 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\Header.hlsli" />
+  </ItemGroup>
 </Project>

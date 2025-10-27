@@ -18,7 +18,7 @@ namespace physics
 			virtual ~Id2Polygon() = default;
 			virtual void MakeBox(const float&, const float&) {};
 			void SetSize(const float& w, const float& h) { width = w; height = h; }
-			Vector2 GetSize() const { return Vector2(width, height); } // サイズを取得
+			Theatria::Math::float2 GetSize() const { return Theatria::Math::float2(width, height); } // サイズを取得
 		protected:
 			float width = 0.0f; // 幅
 			float height = 0.0f; // 高さ

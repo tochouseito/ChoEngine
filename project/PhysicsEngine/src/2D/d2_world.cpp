@@ -89,13 +89,13 @@ void physics::d2::box2dWorld::Step(const float& deltaTime, const uint32_t& subSt
 	ProcessEvents();
 }
 
-Vector2 physics::d2::box2dWorld::GetGravity() const
+Theatria::Math::float2 physics::d2::box2dWorld::GetGravity() const
 {
 	b2Vec2 gravity = b2World_GetGravity(impl->world);
-	return Vector2(gravity.x, gravity.y); // Box2Dの重力を取得してVector2に変換
+	return Theatria::Math::float2(gravity.x, gravity.y); // Box2Dの重力を取得してTheatria::Math::float2に変換
 }
 
-void physics::d2::box2dWorld::SetGravity(const Vector2& gravity)
+void physics::d2::box2dWorld::SetGravity(const Theatria::Math::float2& gravity)
 {
 	b2Vec2 b2Gravity(gravity.x, gravity.y);
 	b2World_SetGravity(impl->world, b2Gravity); // Box2Dの重力を設定
@@ -194,12 +194,12 @@ void physics::d2::choPhysicsWorld::Step(const float& deltaTime, const uint32_t& 
 	ProcessEvents();
 }
 
-Vector2 physics::d2::choPhysicsWorld::GetGravity() const
+Theatria::Math::float2 physics::d2::choPhysicsWorld::GetGravity() const
 {
-	return Vector2();
+	return Theatria::Math::float2();
 }
 
-void physics::d2::choPhysicsWorld::SetGravity(const Vector2& gravity)
+void physics::d2::choPhysicsWorld::SetGravity(const Theatria::Math::float2& gravity)
 {
 	gravity;
 }

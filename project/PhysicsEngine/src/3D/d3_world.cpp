@@ -85,13 +85,13 @@ physics::d3::bulletWorld::~bulletWorld()
 }
 
 // 重力の設定、取得
-Vector3 physics::d3::bulletWorld::GetGravity() const
+Theatria::Math::float3 physics::d3::bulletWorld::GetGravity() const
 {
 	btVector3 gravity = impl->world->getGravity();
-	return Vector3(gravity.x(), gravity.y(), gravity.z());
+	return Theatria::Math::float3(gravity.x(), gravity.y(), gravity.z());
 }
 
-void physics::d3::bulletWorld::SetGravity(const Vector3& gravity)
+void physics::d3::bulletWorld::SetGravity(const Theatria::Math::float3& gravity)
 {
 	impl->world->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
 }

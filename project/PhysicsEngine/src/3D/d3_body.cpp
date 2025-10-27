@@ -60,21 +60,21 @@ void physics::d3::bulletBody::Destroy()
 	impl->shape.reset(); // 衝突形状の解放
 }
 
-Vector3 physics::d3::bulletBody::GetPosition() const
+Theatria::Math::float3 physics::d3::bulletBody::GetPosition() const
 {
 	btTransform transform;
 	impl->rigidBody->getMotionState()->getWorldTransform(transform);
-	return Vector3(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
+	return Theatria::Math::float3(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
 }
 
-Quaternion physics::d3::bulletBody::GetQuaternion() const
+Theatria::Math::Quaternion physics::d3::bulletBody::GetQuaternion() const
 {
 	btTransform transform;
 	impl->rigidBody->getMotionState()->getWorldTransform(transform);
-	return Quaternion(transform.getRotation().x(), transform.getRotation().y(), transform.getRotation().z(), transform.getRotation().w());
+	return Theatria::Math::Quaternion(transform.getRotation().x(), transform.getRotation().y(), transform.getRotation().z(), transform.getRotation().w());
 }
 
-Vector3 physics::d3::bulletBody::GetRotation() const
+Theatria::Math::float3 physics::d3::bulletBody::GetRotation() const
 {
 	btTransform transform = impl->rigidBody->getWorldTransform();
 	btQuaternion quat = transform.getRotation();
@@ -85,10 +85,10 @@ Vector3 physics::d3::bulletBody::GetRotation() const
 	degreesX = btDegrees(roll);
 	degreesY = btDegrees(pitch);
 	degreesZ = btDegrees(yaw);
-	return Vector3(degreesX, degreesY, degreesZ);
+	return Theatria::Math::float3(degreesX, degreesY, degreesZ);
 }
 
-void physics::d3::bulletBody::SetTransform(const Vector3& position, const Quaternion& rotation)
+void physics::d3::bulletBody::SetTransform(const Theatria::Math::float3& position, const Theatria::Math::Quaternion& rotation)
 {
 	btTransform transform = impl->rigidBody->getWorldTransform();
 	transform.setOrigin(btVector3(position.x, position.y, position.z));
@@ -97,7 +97,7 @@ void physics::d3::bulletBody::SetTransform(const Vector3& position, const Quater
 	impl->rigidBody->setWorldTransform(transform); // 剛体のワールド変換を更新
 }
 
-void physics::d3::bulletBody::SetTransform(const Vector3& position)
+void physics::d3::bulletBody::SetTransform(const Theatria::Math::float3& position)
 {
 	btTransform transform = impl->rigidBody->getWorldTransform();
 	transform.setOrigin(btVector3(position.x, position.y, position.z));
@@ -105,7 +105,7 @@ void physics::d3::bulletBody::SetTransform(const Vector3& position)
 	impl->rigidBody->setWorldTransform(transform); // 剛体のワールド変換を更新
 }
 
-void physics::d3::bulletBody::SetTransform(const Quaternion& rotation)
+void physics::d3::bulletBody::SetTransform(const Theatria::Math::Quaternion& rotation)
 {
 	btTransform transform = impl->rigidBody->getWorldTransform();
 	transform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
@@ -113,24 +113,24 @@ void physics::d3::bulletBody::SetTransform(const Quaternion& rotation)
 	impl->rigidBody->setWorldTransform(transform); // 剛体のワールド変換を更新
 }
 
-Vector3 physics::d3::bulletBody::GetLinearVelocity() const
+Theatria::Math::float3 physics::d3::bulletBody::GetLinearVelocity() const
 {
 	btVector3 linVel = impl->rigidBody->getLinearVelocity();
-	return Vector3(linVel.x(), linVel.y(), linVel.z());
+	return Theatria::Math::float3(linVel.x(), linVel.y(), linVel.z());
 }
 
-void physics::d3::bulletBody::SetLinearVelocity(const Vector3& velocity)
+void physics::d3::bulletBody::SetLinearVelocity(const Theatria::Math::float3& velocity)
 {
 	impl->rigidBody->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
 }
 
-Vector3 physics::d3::bulletBody::GetAngularVelocity() const 
+Theatria::Math::float3 physics::d3::bulletBody::GetAngularVelocity() const 
 { 
 	btVector3 angVel = impl->rigidBody->getAngularVelocity();
-	return Vector3(angVel.x(), angVel.y(), angVel.z());
+	return Theatria::Math::float3(angVel.x(), angVel.y(), angVel.z());
 }
 
-void physics::d3::bulletBody::SetAngularVelocity(const Vector3& angularVelocity)
+void physics::d3::bulletBody::SetAngularVelocity(const Theatria::Math::float3& angularVelocity)
 {
 	impl->rigidBody->setAngularVelocity(btVector3(angularVelocity.x, angularVelocity.y, angularVelocity.z));
 }
@@ -147,13 +147,13 @@ void physics::d3::bulletBody::SetGravityScale(Id3World* world, const float& scal
 	impl->rigidBody->activate(true);
 }
 
-void physics::d3::bulletBody::SetLinearFactor(const Vector3& factor)
+void physics::d3::bulletBody::SetLinearFactor(const Theatria::Math::float3& factor)
 {
 	if (!impl || !impl->rigidBody) return;
 	impl->rigidBody->setLinearFactor(btVector3(factor.x, factor.y, factor.z));
 }
 
-void physics::d3::bulletBody::SetAngularFactor(const Vector3& factor)
+void physics::d3::bulletBody::SetAngularFactor(const Theatria::Math::float3& factor)
 {
 	if (!impl || !impl->rigidBody) return;
 	impl->rigidBody->setAngularFactor(btVector3(factor.x, factor.y, factor.z));
@@ -288,22 +288,22 @@ void physics::d3::chophysicsBody::Destroy()
 {
 }
 
-Vector3 physics::d3::chophysicsBody::GetPosition() const
+Theatria::Math::float3 physics::d3::chophysicsBody::GetPosition() const
 {
-	return Vector3();
+	return Theatria::Math::float3();
 }
 
-Quaternion physics::d3::chophysicsBody::GetQuaternion() const
+Theatria::Math::Quaternion physics::d3::chophysicsBody::GetQuaternion() const
 {
-	return Quaternion();
+	return Theatria::Math::Quaternion();
 }
 
-Vector3 physics::d3::chophysicsBody::GetLinearVelocity() const
+Theatria::Math::float3 physics::d3::chophysicsBody::GetLinearVelocity() const
 {
-	return Vector3();
+	return Theatria::Math::float3();
 }
 
-void physics::d3::chophysicsBody::SetLinearVelocity(const Vector3&)
+void physics::d3::chophysicsBody::SetLinearVelocity(const Theatria::Math::float3&)
 {
 }
 
