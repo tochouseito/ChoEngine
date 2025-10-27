@@ -3,6 +3,7 @@ namespace Theatria::Platform
 {
     class Input
     {
+
     };
 };
 
