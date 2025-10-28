@@ -10,6 +10,6 @@
 #define DIRECTINPUT_VERSION 0x0800
 #endif
 #include <chomath.h>
-using namespace chomath;
+using namespace Theatria::Math;
 #include "Core/ChoLog/ChoLog.h"
 using namespace theatria;

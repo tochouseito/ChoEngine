@@ -27,7 +27,7 @@ struct RandValue
     float amplitude;
 };
 
-struct RandVector3
+struct Randfloat3
 {
     RandValue x;
     RandValue y;
@@ -35,9 +35,9 @@ struct RandVector3
 };
 struct PVASRT
 {
-    RandVector3 value;
-    RandVector3 velocity;
-    RandVector3 acceleration;
+    Randfloat3 value;
+    Randfloat3 velocity;
+    Randfloat3 acceleration;
 };
 struct EmitterSphere {
     RandValue lifeTime;

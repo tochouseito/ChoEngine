@@ -124,9 +124,9 @@ void EffectEditor::Window()
 				break;
 				break;
 			case EFFECT_SRT_TYPE::SRT_TYPE_PVA:
-				DragRandVector3("位置", &node.position.pva.value, 0.1f, 0.0f, 0.0f);
-				DragRandVector3("速度", &node.position.pva.velocity, 0.1f, 0.0f, 0.0f);
-				DragRandVector3("加速度", &node.position.pva.acceleration, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("位置", &node.position.pva.value, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("速度", &node.position.pva.velocity, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("加速度", &node.position.pva.acceleration, 0.1f, 0.0f, 0.0f);
 				break;
 			case EFFECT_SRT_TYPE::SRT_TYPE_EASING:
 				break;
@@ -162,9 +162,9 @@ void EffectEditor::Window()
 				ImGui::DragFloat3("回転", &node.rotation.value.x, 0.1f);
 				break;
 			case EFFECT_SRT_TYPE::SRT_TYPE_PVA:
-				DragRandVector3("回転", &node.rotation.pva.value, 0.1f, 0.0f, 0.0f);
-				DragRandVector3("速度", &node.rotation.pva.velocity, 0.1f, 0.0f, 0.0f);
-				DragRandVector3("加速度", &node.rotation.pva.acceleration, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("回転", &node.rotation.pva.value, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("速度", &node.rotation.pva.velocity, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("加速度", &node.rotation.pva.acceleration, 0.1f, 0.0f, 0.0f);
 				break;
 			case EFFECT_SRT_TYPE::SRT_TYPE_EASING:
 				break;
@@ -199,9 +199,9 @@ void EffectEditor::Window()
 				ImGui::DragFloat3("スケール", &node.scale.value.x, 0.1f);
 				break;
 			case EFFECT_SRT_TYPE::SRT_TYPE_PVA:
-				DragRandVector3("スケール", &node.scale.pva.value, 0.1f, 0.0f, 0.0f);
-				DragRandVector3("速度", &node.scale.pva.velocity, 0.1f, 0.0f, 0.0f);
-				DragRandVector3("加速度", &node.scale.pva.acceleration, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("スケール", &node.scale.pva.value, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("速度", &node.scale.pva.velocity, 0.1f, 0.0f, 0.0f);
+				DragRandfloat3("加速度", &node.scale.pva.acceleration, 0.1f, 0.0f, 0.0f);
 				break;
 			case EFFECT_SRT_TYPE::SRT_TYPE_EASING:
 				break;
@@ -538,7 +538,7 @@ void EffectEditor::ControlWindow()
 	ImGui::End();
 }
 
-bool EffectEditor::DragRandVector3(const char* label, RandVector3* v, float v_speed, float v_min, float v_max)
+bool EffectEditor::DragRandfloat3(const char* label, Randfloat3* v, float v_speed, float v_min, float v_max)
 {
     ImGui::PushID(label); // 識別子をプッシュ（同じ名前のコントロールが競合しないようにする）
 

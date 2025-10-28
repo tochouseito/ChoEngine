@@ -21,12 +21,12 @@ void TransformSystem::InitializeComponent(Entity e, TransformComponent& transfor
 	transform.startValue.degrees = transform.degrees;
 
 	// 度数からラジアンに変換
-	Vector3 radians = chomath::DegreesToRadians(transform.degrees);
+	float3 radians = Theatria::Math::DegreesToRadians(transform.degrees);
 
 	// 各軸のクオータニオンを作成
-	Quaternion qx = chomath::MakeRotateAxisAngleQuaternion(Vector3(1.0f, 0.0f, 0.0f), radians.x);
-	Quaternion qy = chomath::MakeRotateAxisAngleQuaternion(Vector3(0.0f, 1.0f, 0.0f), radians.y);
-	Quaternion qz = chomath::MakeRotateAxisAngleQuaternion(Vector3(0.0f, 0.0f, 1.0f), radians.z);
+	Quaternion qx = Theatria::Math::MakeRotateAxisAngleQuaternion(float3(1.0f, 0.0f, 0.0f), radians.x);
+	Quaternion qy = Theatria::Math::MakeRotateAxisAngleQuaternion(float3(0.0f, 1.0f, 0.0f), radians.y);
+	Quaternion qz = Theatria::Math::MakeRotateAxisAngleQuaternion(float3(0.0f, 0.0f, 1.0f), radians.z);
 
 	// 同時回転を累積
 	transform.quaternion = qx * qy * qz;
@@ -35,7 +35,7 @@ void TransformSystem::InitializeComponent(Entity e, TransformComponent& transfor
 	transform.quaternion.Normalize();
 
 	// アフィン変換
-	transform.matWorld = chomath::MakeAffineMatrix(transform.scale, transform.quaternion, transform.position);
+	transform.matWorld = Theatria::Math::MakeAffineMatrix(transform.scale, transform.quaternion, transform.position);
 
 	// 次のフレーム用に保存する
 	transform.prePos = transform.position;
@@ -98,40 +98,40 @@ void TransformSystem::UpdateComponent(Entity e, TransformComponent& transform)
 	}
 
 	// 度数からラジアンに変換
-	Vector3 radians = chomath::DegreesToRadians(transform.degrees);
+	float3 radians = Theatria::Math::DegreesToRadians(transform.degrees);
 	Rigidbody3DComponent* rb3d = m_pEcs->GetComponent<Rigidbody3DComponent>(e);
 	if (m_isQuaternion)
 	{
 		// クォータニオンを使用する場合
 		if (rb3d&&rb3d->runtimeBody)
 		{
-			transform.quaternion = chomath::MakeQuaternionRotation(radians, transform.preRot, rb3d->quaternion);
+			transform.quaternion = Theatria::Math::MakeQuaternionRotation(radians, transform.preRot, rb3d->quaternion);
 		}
 		else
 		{
-			transform.quaternion = chomath::MakeQuaternionRotation(radians, transform.preRot, transform.quaternion);
+			transform.quaternion = Theatria::Math::MakeQuaternionRotation(radians, transform.preRot, transform.quaternion);
 		}
 	}
 	else
 	{
 		// オイラー角を使用する場合
-		transform.quaternion = chomath::MakeEulerRotation(radians);
+		transform.quaternion = Theatria::Math::MakeEulerRotation(radians);
 	};
 
 	// スケール行列
-	transform.matScale = chomath::MakeScaleMatrix(transform.scale);
+	transform.matScale = Theatria::Math::ScaleMatrix(transform.scale);
 	// 回転行列
-	Matrix4 matRotation = Matrix4::Identity();
-	matRotation = chomath::MakeRotateMatrix(transform.quaternion);
+	float4x4 matRotation = float4x4::Identity();
+	matRotation = Theatria::Math::MakeRotateMatrix(transform.quaternion);
 	transform.matRotation = matRotation;
 	if (transform.isBillboard)
 	{
 		// メインカメラのTransformを取得
 		TransformComponent* cameraTransform = m_pEcs->GetComponent<TransformComponent>(m_pGameWorld->GetMainCamera()->GetHandle().entity);
-		matRotation = chomath::BillboardMatrix(cameraTransform->matWorld);
+		matRotation = Theatria::Math::BillboardMatrix(cameraTransform->matWorld);
 	}
 	// 平行移動行列
-	transform.matLocal = chomath::MakeTranslateMatrix(transform.position);
+	transform.matLocal = Theatria::Math::TranslateMatrix(transform.position);
 	// ワールド行列
 	transform.matWorld = transform.matScale * matRotation * transform.matLocal;
 
@@ -143,21 +143,21 @@ void TransformSystem::UpdateComponent(Entity e, TransformComponent& transform)
 	// 親があれば親のワールド行列を掛ける
 	if (transform.parent.has_value())
 	{
-		transform.matWorld = chomath::Multiply(transform.matWorld, m_pEcs->GetComponent<TransformComponent>(transform.parent.value())->matWorld);
+		transform.matWorld = transform.matWorld * m_pEcs->GetComponent<TransformComponent>(transform.parent.value())->matWorld;
 	}
 
 	// 物理コンポーネントがあれば、物理ボディの位置を更新
 	Rigidbody2DComponent* rb = m_pEcs->GetComponent<Rigidbody2DComponent>(e);
 	if (rb && rb->runtimeBody)
 	{
-		rb->runtimeBody->SetLinearVelocity(Vector2(rb->velocity.x, rb->velocity.y));
+		rb->runtimeBody->SetLinearVelocity(float2(rb->velocity.x, rb->velocity.y));
 	}
 	if(rb3d && rb3d->runtimeBody)
 	{
-		Vector3 linearF = Vector3(1.0f, 1.0f, 1.0f);
-		Vector3 velocity = rb3d->velocity;
-		Vector3 angularF = Vector3(1.0f, 1.0f, 1.0f);
-		Vector3 angularVelocity = rb3d->angularVelocity;
+		float3 linearF = float3(1.0f, 1.0f, 1.0f);
+		float3 velocity = rb3d->velocity;
+		float3 angularF = float3(1.0f, 1.0f, 1.0f);
+		float3 angularVelocity = rb3d->angularVelocity;
 		// 位置
 		if(rb3d->fixedPositionX)
 		{
@@ -204,12 +204,12 @@ void TransformSystem::UpdateComponent(Entity e, TransformComponent& transform)
 	}
 
 	// 各行列
-	transform.matLocal = chomath::MakeTranslateMatrix(transform.position);
-	transform.matRotation = chomath::MakeRotateMatrix(transform.quaternion);
-	transform.matScale = chomath::MakeScaleMatrix(transform.scale);
+	transform.matLocal = Theatria::Math::TranslateMatrix(transform.position);
+	transform.matRotation = Theatria::Math::MakeRotateMatrix(transform.quaternion);
+	transform.matScale = Theatria::Math::ScaleMatrix(transform.scale);
 
 	// 前方ベクトル
-	transform.forward = chomath::GetForwardVectorFromMatrix(transform.matRotation);
+	transform.forward = Theatria::Math::GetForwardVectorFromMatrix(transform.matRotation);
 	transform.forward.Normalize();
 
 	// 行列の転送
@@ -222,7 +222,7 @@ void TransformSystem::TransferMatrix(TransformComponent& transform)
 	// マップデータ更新
 	BUFFER_DATA_TF data = {};
 	data.matWorld = transform.matWorld;
-	data.worldInverse = chomath::Transpose(Matrix4::Inverse(transform.matWorld));
+	data.worldInverse = float4x4::Transpose((float4x4::Inverse(transform.matWorld)));
 	data.rootMatrix = transform.rootMatrix;
 	if (transform.materialID.has_value())
 	{
@@ -263,21 +263,21 @@ void CameraSystem::InitializeComponent(Entity e, TransformComponent& transform, 
 void CameraSystem::UpdateComponent(Entity e, TransformComponent& transform, CameraComponent& camera)
 {
 	// 度数からラジアンに変換
-	Vector3 radians = chomath::DegreesToRadians(transform.degrees);
+	float3 radians = Theatria::Math::DegreesToRadians(transform.degrees);
 
 	if (m_isQuaternion)
 	{
 		// クォータニオンを使用する場合
-		transform.quaternion = chomath::MakeQuaternionRotation(radians, transform.preRot, transform.quaternion);
+		transform.quaternion = Theatria::Math::MakeQuaternionRotation(radians, transform.preRot, transform.quaternion);
 	}
 	else
 	{
 		// オイラー角を使用する場合
-		transform.quaternion = chomath::MakeEulerRotation(radians);
+		transform.quaternion = Theatria::Math::MakeEulerRotation(radians);
 	};
 
 	// アフィン変換
-	transform.matWorld = chomath::MakeAffineMatrix(transform.scale, transform.quaternion, transform.position);
+	transform.matWorld = Theatria::Math::MakeAffineMatrix(transform.scale, transform.quaternion, transform.position);
 
 	// 次のフレーム用に保存する
 	transform.prePos = transform.position;
@@ -287,23 +287,23 @@ void CameraSystem::UpdateComponent(Entity e, TransformComponent& transform, Came
 	// 親があれば親のワールド行列を掛ける
 	if (transform.parent.has_value())
 	{
-		transform.matWorld = chomath::Multiply(transform.matWorld, m_pEcs->GetComponent<TransformComponent>(transform.parent.value())->matWorld);
+		transform.matWorld = transform.matWorld * m_pEcs->GetComponent<TransformComponent>(transform.parent.value())->matWorld;
 	}
 
 	// 物理コンポーネントがあれば、物理ボディの位置を更新
 	Rigidbody2DComponent* rb = m_pEcs->GetComponent<Rigidbody2DComponent>(e);
 	if (rb && rb->runtimeBody)
 	{
-		rb->runtimeBody->SetLinearVelocity(Vector2(rb->velocity.x, rb->velocity.y));
+		rb->runtimeBody->SetLinearVelocity(float2(rb->velocity.x, rb->velocity.y));
 	}
 
 	// 各行列
-	transform.matLocal = chomath::MakeTranslateMatrix(transform.position);
-	transform.matRotation = chomath::MakeRotateMatrix(transform.quaternion);
-	transform.matScale = chomath::MakeScaleMatrix(transform.scale);
+	transform.matLocal = Theatria::Math::TranslateMatrix(transform.position);
+	transform.matRotation = Theatria::Math::MakeRotateMatrix(transform.quaternion);
+	transform.matScale = Theatria::Math::ScaleMatrix(transform.scale);
 
-	camera.viewMatrix = Matrix4::Inverse(transform.matWorld);
-	camera.projectionMatrix = chomath::MakePerspectiveFovMatrix(camera.fovAngleY, camera.aspectRatio, camera.nearZ, camera.farZ);
+	camera.viewMatrix = float4x4::Inverse(transform.matWorld);
+	camera.projectionMatrix = Theatria::Math::PerspectiveFovMatrix(camera.fovAngleY, camera.aspectRatio, camera.nearZ, camera.farZ);
 	TransferMatrix(transform, camera);
 }
 
@@ -313,7 +313,7 @@ void CameraSystem::TransferMatrix(TransformComponent& transform, CameraComponent
 	data.matWorld = transform.matWorld;
 	data.view = camera.viewMatrix;
 	data.projection = camera.projectionMatrix;
-	data.projectionInverse = Matrix4::Inverse(data.projection);
+	data.projectionInverse = float4x4::Inverse(data.projection);
 	data.cameraPosition = transform.position;
 	ConstantBuffer<BUFFER_DATA_VIEWPROJECTION>* cameraBuffer = dynamic_cast<ConstantBuffer<BUFFER_DATA_VIEWPROJECTION>*>(m_pResourceManager->GetBuffer<IConstantBuffer>(camera.bufferIndex.value()));
 	cameraBuffer->UpdateData(data);
@@ -374,9 +374,9 @@ void ScriptSystem::InitializeComponent(Entity, ScriptComponent& script)
             field.minmax = saveField.second.minmax;
             field.type = saveField.second.type;
         }
-        else if (saveField.second.type == typeid(Vector3) && field.type == typeid(Vector3))
+        else if (saveField.second.type == typeid(float3) && field.type == typeid(float3))
         {
-            *static_cast<Vector3*>(field.ptr) = std::get<Vector3>(saveField.second.value);
+            *static_cast<float3*>(field.ptr) = std::get<float3>(saveField.second.value);
             field.minmax = saveField.second.minmax;
             field.type = saveField.second.type;
         }
@@ -444,9 +444,9 @@ void ScriptSystem::FinalizeComponent(Entity e, ScriptComponent& script)
             save.minmax = field.second.minmax;
             save.type = field.second.type;
         }
-        else if (field.second.type == typeid(Vector3))
+        else if (field.second.type == typeid(float3))
         {
-            save.value = *static_cast<Vector3*>(field.second.ptr);
+            save.value = *static_cast<float3*>(field.second.ptr);
             save.minmax = field.second.minmax;
             save.type = field.second.type;
         }
@@ -537,8 +537,8 @@ void Rigidbody2DSystem::InitializeComponent(Entity e, TransformComponent& transf
 	bodyDef.type = rb.bodyType;
 	bodyDef.gravityScale = rb.gravityScale;
 	bodyDef.fixedRotation = rb.fixedRotation;
-	bodyDef.position = Vector2(transform.position.x, transform.position.y);
-	float angleZ = chomath::DegreesToRadians(transform.degrees).z;
+	bodyDef.position = float2(transform.position.x, transform.position.y);
+	float angleZ = Theatria::Math::DegreesToRadians(transform.degrees).z;
 	bodyDef.angle = angleZ;
 	rb.runtimeBody = m_World->CreateBody(bodyDef);
 	rb.runtimeBody->SetAwake(true);
@@ -570,28 +570,28 @@ void Rigidbody2DSystem::UpdateComponent(Entity e, TransformComponent& transform,
 		}
 		else
 		{
-			rb.runtimeBody->SetTransform(*rb.requestedPosition, chomath::DegreesToRadians(transform.degrees).z);
+			rb.runtimeBody->SetTransform(*rb.requestedPosition, Theatria::Math::DegreesToRadians(transform.degrees).z);
 		}
 		rb.requestedPosition.reset();
 	}
-	const Vector2& pos = rb.runtimeBody->GetPosition();
+	const float2& pos = rb.runtimeBody->GetPosition();
 	transform.position.x = pos.x;
 	transform.position.y = pos.y;
 
-	Vector2 velocity = rb.runtimeBody->GetLinearVelocity();
+	float2 velocity = rb.runtimeBody->GetLinearVelocity();
 	rb.velocity.x = velocity.x;
 	rb.velocity.y = velocity.y;
 
-	Vector3 radians = {};
+	float3 radians = {};
 	if (!rb.fixedRotation)
 	{
 		radians.z = rb.runtimeBody->GetAngle(); // radians
 	}
 	else
 	{
-		radians.z = chomath::DegreesToRadians(transform.degrees).z;
+		radians.z = Theatria::Math::DegreesToRadians(transform.degrees).z;
 	}
-	Vector3 degrees = chomath::RadiansToDegrees(radians);
+	float3 degrees = Theatria::Math::RadiansToDegrees(radians);
 	transform.degrees.z = degrees.z;
 }
 
@@ -903,23 +903,23 @@ void UISpriteSystem::UpdateComponent(Entity e, UISpriteComponent& uiSprite)
 	float tex_bottom = (uiSprite.textureLeftTop.y + uiSprite.size.y) / uiSprite.size.y;
 
 	//uiSprite.scale = uiSprite.size;
-	Vector3 scale = Vector3(uiSprite.scale.x, uiSprite.scale.y, 1.0f);
-	Vector3 rotation = Vector3(0.0f, 0.0f, uiSprite.rotation);
-	Vector3 translation = Vector3(uiSprite.position.x, uiSprite.position.y, 0.0f);
-	Matrix4 worldMatrixSprite = chomath::MakeAffineMatrix(scale, rotation, translation);
+	float3 scale = float3(uiSprite.scale.x, uiSprite.scale.y, 1.0f);
+	float3 rotation = float3(0.0f, 0.0f, uiSprite.rotation);
+	float3 translation = float3(uiSprite.position.x, uiSprite.position.y, 0.0f);
+	float4x4 worldMatrixSprite = Theatria::Math::MakeAffineMatrix(scale, rotation, translation);
 
-	Matrix4 viewMatrixSprite = chomath::MakeIdentity4x4();
+	float4x4 viewMatrixSprite = float4x4::Identity();
 
-	Matrix4 projectionMatrixSprite = chomath::MakeOrthographicMatrix(0.0f, 0.0f,
+	float4x4 projectionMatrixSprite = Theatria::Math::OrthographicMatrix(0.0f, 0.0f,
 		static_cast<float>(WinApp::GetWindowWidth()), static_cast<float>(WinApp::GetWindowHeight()),
 		0.0f, 100.0f
 	);
 
-	Matrix4 worldViewProjectionMatrixSprite = chomath::Multiply(worldMatrixSprite, chomath::Multiply(viewMatrixSprite, projectionMatrixSprite));
+    float4x4 worldViewProjectionMatrixSprite = viewMatrixSprite * projectionMatrixSprite * worldMatrixSprite;
 
 	uiSprite.matWorld = worldViewProjectionMatrixSprite;
 
-	//uiSprite.material.matUV = MakeAffineMatrix(Vector3(uiSprite.uvScale.x, uiSprite.uvScale.y, 1.0f), Vector3(0.0f, 0.0f, uiSprite.uvRot), Vector3(uiSprite.uvPos.x, uiSprite.uvPos.y, 0.0f));
+	//uiSprite.material.matUV = MakeAffineMatrix(float3(uiSprite.uvScale.x, uiSprite.uvScale.y, 1.0f), float3(0.0f, 0.0f, uiSprite.uvRot), float3(uiSprite.uvPos.x, uiSprite.uvPos.y, 0.0f));
 
 	//uiSprite.constData->matWorld = uiSprite.matWorld;
 
@@ -958,7 +958,7 @@ void LightSystem::InitializeComponent(Entity e, TransformComponent& transform, L
 void LightSystem::UpdateComponent(Entity e, TransformComponent& transform, LightComponent& light)
 {
 	e;
-	Vector3 direction = chomath::TransformDirection(Vector3(0.0f, 0.0f, 1.0f), chomath::MakeRotateXYZMatrix(chomath::DegreesToRadians(transform.degrees)));
+	float3 direction = Theatria::Math::TransformDirection(float3(0.0f, 0.0f, 1.0f), Theatria::Math::RotateXYZMatrix(Theatria::Math::DegreesToRadians(transform.degrees)));
 	//direction.Normalize();
 	// ライトのワールド行列を転送
 	BUFFER_DATA_LIGHT& data = m_pResourceManager->GetLightBuffer()->GetData();
@@ -1100,13 +1100,13 @@ void AnimationSystem::ApplyAnimation(AnimationComponent& animation, ModelData* m
 				if (auto it2 = model->animations[animation.transitionIndex].nodeAnimations.find(joint.name); it2 != model->animations[animation.transitionIndex].nodeAnimations.end())
 				{
 					const NodeAnimation& rootNodeAnimation2 = (*it2).second;
-					Vector3 startTranslate = CalculateValue(rootNodeAnimation2.translate.keyframes, animation.time);
+					float3 startTranslate = CalculateValue(rootNodeAnimation2.translate.keyframes, animation.time);
 					Quaternion startRotate = CalculateValue(rootNodeAnimation2.rotate.keyframes, animation.time);
 					Scale startScale = CalculateValue(rootNodeAnimation2.scale.keyframes, animation.time);
-					Vector3 endTranslate = CalculateValue(rootNodeAnimation.translate.keyframes, animation.transitionTime);
+					float3 endTranslate = CalculateValue(rootNodeAnimation.translate.keyframes, animation.transitionTime);
 					Quaternion endRotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animation.transitionTime);
 					Scale endScale = CalculateValue(rootNodeAnimation.scale.keyframes, animation.transitionTime);
-					joint.transform.translation = Vector3::Lerp(startTranslate, endTranslate, animation.lerpTime);
+					joint.transform.translation = float3::Lerp(startTranslate, endTranslate, animation.lerpTime);
 					joint.transform.rotation = Quaternion::Slerp(startRotate, endRotate, animation.lerpTime);
 					joint.transform.scale = Scale::Lerp(startScale, endScale, animation.lerpTime);
 				}
@@ -1127,7 +1127,7 @@ void AnimationSystem::SkeletonUpdate(AnimationComponent& animation, ModelData* m
 	// すべてのJointを更新。親が若いので通常ループで処理可能になっている
 	for (Joint& joint : animation.skeleton->joints)
 	{
-		joint.localMatrix = chomath::MakeAffineMatrix(joint.transform.scale, joint.transform.rotation, joint.transform.translation);
+		joint.localMatrix = Theatria::Math::MakeAffineMatrix(joint.transform.scale, joint.transform.rotation, joint.transform.translation);
 		if (joint.parent)
 		{
 			joint.skeletonSpaceMatrix = joint.localMatrix * animation.skeleton->joints[*joint.parent].skeletonSpaceMatrix;
@@ -1152,7 +1152,7 @@ void AnimationSystem::SkinClusterUpdate(AnimationComponent& animation, ModelData
 			data.skeletonSpaceMatrix =
 				animation.skinClusters[i].inverseBindPoseMatrices[jointIndex] * animation.skeleton->joints[jointIndex].skeletonSpaceMatrix;
 			data.skeletonSpaceInverseTransposeMatrix =
-				chomath::Transpose(Matrix4::Inverse(data.skeletonSpaceMatrix));
+                float4x4::Transpose(float4x4::Inverse(data.skeletonSpaceMatrix));
 			paletteBuffer->UpdateData(data, jointIndex + offset);
 		}
 	}
@@ -1218,7 +1218,7 @@ Quaternion AnimationSystem::CalculateValue(const std::vector<KeyframeQuaternion>
 	return (*keyframes.rbegin()).value;
 }
 
-Vector3 AnimationSystem::CalculateValue(const std::vector<KeyframeVector3>& keyframes, const float& time)
+float3 AnimationSystem::CalculateValue(const std::vector<Keyframefloat3>& keyframes, const float& time)
 {
 	assert(!keyframes.empty());// キーがないものは返す値がわからないのでだめ
 	if (keyframes.size() == 1 || time <= keyframes[0].time)
@@ -1233,7 +1233,7 @@ Vector3 AnimationSystem::CalculateValue(const std::vector<KeyframeVector3>& keyf
 		{
 			// 範囲内を補間する
 			float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
-			return Vector3::Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
+			return float3::Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
 		}
 	}
 	// ここまで来た場合は一番後の時刻よりも後ろなので最後の値を返すことにする
@@ -1449,7 +1449,7 @@ void Rigidbody3DSystem::UpdateComponent(Entity e, TransformComponent& transform,
 		rb.runtimeBody = nullptr;
 		// 新しいボディを作成
 		physics::d3::Id3BodyDef bodyDef;
-		bodyDef.position = Vector3(transform.position.x, transform.position.y, transform.position.z);
+		bodyDef.position = float3(transform.position.x, transform.position.y, transform.position.z);
 		// bodyDef.userData = static_cast<void*>(&rb.selfEntity.value());
 		bodyDef.userIndex = static_cast<int>(rb.selfEntity.value());
 		bodyDef.friction = rb.friction;
@@ -1478,12 +1478,12 @@ void Rigidbody3DSystem::UpdateComponent(Entity e, TransformComponent& transform,
 	
 	// Rigidbody3DComponentに反映
 	// velocity
-	Vector3 velocity = rb.runtimeBody->GetLinearVelocity();
+	float3 velocity = rb.runtimeBody->GetLinearVelocity();
 	rb.velocity.x = velocity.x;
 	rb.velocity.y = velocity.y;
 	rb.velocity.z = velocity.z;
 	// angularVelocity
-	Vector3 angularVelocity = rb.runtimeBody->GetAngularVelocity();
+	float3 angularVelocity = rb.runtimeBody->GetAngularVelocity();
 	rb.angularVelocity.x = angularVelocity.x;
 	rb.angularVelocity.y = angularVelocity.y;
 	rb.angularVelocity.z = angularVelocity.z;

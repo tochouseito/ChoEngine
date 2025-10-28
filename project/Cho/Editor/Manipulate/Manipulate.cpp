@@ -18,8 +18,8 @@ void Manipulate::Update()
 	if (transform == nullptr) return;
 
 	CameraComponent& camera = m_dCamera->GetCameraComponent();
-	Matrix4 view = camera.viewMatrix;
-	Matrix4 projection = camera.projectionMatrix;
+	float4x4 view = camera.viewMatrix;
+	float4x4 projection = camera.projectionMatrix;
 
 	// 変換
 	float viewOut[16]{};
@@ -60,11 +60,11 @@ void Manipulate::Update()
 	if (manipulated)
 	{
 		// model (float[16]) → XMMATRIX へ変換
-		Matrix4 newMatrix = Matrix4::FromArray16(objectOut);
+		float4x4 newMatrix = float4x4::FromArray16(objectOut);
 		// 分解して各プロパティを更新
-		chomath::SRT srt = chomath::DecomposeMatrix(newMatrix);
+		Theatria::Math::SRT srt = Theatria::Math::DecomposeMatrix(newMatrix);
 		transform->position = srt.translation;
-		transform->degrees = chomath::RadiansToDegrees(srt.rotationEuler);
+		transform->degrees = Theatria::Math::RadiansToDegrees(srt.rotationEuler);
 		transform->scale = srt.scale;
 	}
 }

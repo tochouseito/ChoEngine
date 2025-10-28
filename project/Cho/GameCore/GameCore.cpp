@@ -310,7 +310,7 @@ void GameCore::RegisterECSEvents()
 			Color color;
 			c->color = color.From255(200, 200, 200);
 			c->enableLighting = true;
-			c->matUV = Matrix4::Identity();
+			c->matUV = float4x4::Identity();
 			c->shininess = 50.0f;
 			uint32_t mapID = m_EngineCommand->GetResourceManager()->GetIntegrationData(IntegrationDataType::Material)->GetMapID();
 			c->mapID = mapID;

@@ -114,7 +114,7 @@ THEATRIA_API GameObject* theatriaSystem::FindGameObjectByName(const std::wstring
 	return result;
 }
 
-THEATRIA_API GameObject* theatriaSystem::CloneGameObject(const GameObject* srcObj, Vector3 generatePosition)
+THEATRIA_API GameObject* theatriaSystem::CloneGameObject(const GameObject* srcObj, float3 generatePosition)
 {
 	EngineCommand* engineCommand = g_Engine->GetEngineCommand();
 	std::unique_ptr<CloneObjectCommand> command = std::make_unique<CloneObjectCommand>(srcObj->GetHandle());
@@ -240,12 +240,12 @@ bool theatriaSystem::Input::IsTriggerMouse(int32_t mouseNumber)
 	return g_Engine->GetEngineCommand()->GetInputManager()->IsTriggerMouse(mouseNumber);
 }
 
-const Vector2& theatriaSystem::Input::GetMouseWindowPosition()
+const float2& theatriaSystem::Input::GetMouseWindowPosition()
 {
 	return g_Engine->GetEngineCommand()->GetInputManager()->GetMouseWindowPosition();
 }
 
-Vector2 theatriaSystem::Input::GetMouseScreenPosition()
+float2 theatriaSystem::Input::GetMouseScreenPosition()
 {
 	return g_Engine->GetEngineCommand()->GetInputManager()->GetMouseScreenPosition();
 }
@@ -280,7 +280,7 @@ bool IsPressPadButton(PadButton button, int32_t stickNo)
 	return g_Engine->GetEngineCommand()->GetInputManager()->IsPressPadButton(button, stickNo);
 }
 
-Vector2 GetStickValue(LR padStick, int32_t stickNo)
+float2 GetStickValue(LR padStick, int32_t stickNo)
 {
 	return g_Engine->GetEngineCommand()->GetInputManager()->GetStickValue(padStick, stickNo);
 }

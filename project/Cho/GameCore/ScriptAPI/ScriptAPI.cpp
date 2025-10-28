@@ -10,11 +10,11 @@
 //public:
 //	ImplRigidbody2DAPI() = default;
 //	~ImplRigidbody2DAPI() = default;
-//	std::function<Vector2()> GetLastHitNormalFunc;
+//	std::function<float2()> GetLastHitNormalFunc;
 //	std::function<b2Vec2(const b2Vec2& incident, const b2Vec2& normal)> ReflectFunc;
 //	std::function<b2Vec2(const b2Vec2& start, const b2Vec2& dir, const int ReflectionCount, const float maxLength, const std::string hitTag)> RaycastWithReflectionsOnceFunc;
-//	std::function<void(const Vector2& position)> MovePositionFunc;
-//	std::function<GameObject* (const Vector2& start, const Vector2& end, const std::string hitTag)> LinecastFunc;
+//	std::function<void(const float2& position)> MovePositionFunc;
+//	std::function<GameObject* (const float2& start, const float2& end, const std::string hitTag)> LinecastFunc;
 //	std::function<void(bool isAwake)> SetAwakeFunc;
 //	// 最後の法線（内部的に保持、ただし状態は保持しないなら静的でもよい）
 //	b2Vec2 m_LastHitNormal = b2Vec2(0.0f, 1.0f); // 一時的な用途
@@ -22,10 +22,10 @@
 //Rigidbody2DAPI::Rigidbody2DAPI() : implRigidbody2DAPI(new Rigidbody2DAPI::ImplRigidbody2DAPI) {}
 //Rigidbody2DAPI::~Rigidbody2DAPI() { delete implRigidbody2DAPI; }
 //
-//Vector2 Rigidbody2DAPI::GetLastHitNormal() const
+//float2 Rigidbody2DAPI::GetLastHitNormal() const
 //{
 //	if (implRigidbody2DAPI->GetLastHitNormalFunc) { return implRigidbody2DAPI->GetLastHitNormalFunc(); }
-//	return Vector2();
+//	return float2();
 //}
 //
 //void Rigidbody2DAPI::Reflect(const b2Vec2& incident, const b2Vec2& normal)
@@ -38,12 +38,12 @@
 //	return implRigidbody2DAPI->RaycastWithReflectionsOnceFunc(start, dir, ReflectionCount, maxLength, hitTag);
 //}
 //
-//void Rigidbody2DAPI::MovePosition(const Vector2& position)
+//void Rigidbody2DAPI::MovePosition(const float2& position)
 //{
 //	if (implRigidbody2DAPI->MovePositionFunc) { implRigidbody2DAPI->MovePositionFunc(position); }
 //}
 //
-//GameObject* Rigidbody2DAPI::Linecast(const Vector2& start, const Vector2& end, const std::string hitTag)
+//GameObject* Rigidbody2DAPI::Linecast(const float2& start, const float2& end, const std::string hitTag)
 //{
 //	return implRigidbody2DAPI->LinecastFunc(start, end, hitTag);
 //}
@@ -69,12 +69,12 @@
 //	data = rb;
 //	if (rb)
 //	{
-//		implRigidbody2DAPI->GetLastHitNormalFunc = [this]() -> Vector2 {
+//		implRigidbody2DAPI->GetLastHitNormalFunc = [this]() -> float2 {
 //			if (auto* t = m_ECS->GetComponent<Rigidbody2DComponent>(m_Entity))
 //			{
-//				return Vector2(implRigidbody2DAPI->m_LastHitNormal.x, implRigidbody2DAPI->m_LastHitNormal.y);
+//				return float2(implRigidbody2DAPI->m_LastHitNormal.x, implRigidbody2DAPI->m_LastHitNormal.y);
 //			}
-//			return Vector2();
+//			return float2();
 //			};
 //		implRigidbody2DAPI->ReflectFunc = [this](const b2Vec2& incident, const b2Vec2& normal) -> b2Vec2 {
 //			if (auto* t = m_ECS->GetComponent<Rigidbody2DComponent>(m_Entity))
@@ -112,7 +112,7 @@
 //			}
 //			return resultPoint;
 //			};
-//		implRigidbody2DAPI->MovePositionFunc = [this](const Vector2& position) {
+//		implRigidbody2DAPI->MovePositionFunc = [this](const float2& position) {
 //			if (auto* t = m_ECS->GetComponent<Rigidbody2DComponent>(m_Entity))
 //			{
 //				if (t->runtimeBody)
@@ -121,7 +121,7 @@
 //				}
 //			}
 //			};
-//		implRigidbody2DAPI->LinecastFunc = [this](const Vector2& start, const Vector2& end, const std::string hitTag) -> GameObject* {
+//		implRigidbody2DAPI->LinecastFunc = [this](const float2& start, const float2& end, const std::string hitTag) -> GameObject* {
 //			if (auto* t = m_ECS->GetComponent<Rigidbody2DComponent>(m_Entity))
 //			{
 //				RayCastCallback callback(m_ObjectContainer, hitTag);
@@ -162,15 +162,15 @@
 //	std::function<MouseMove()> GetMouseMoveFunc;
 //	std::function<bool(const int32_t& mouseNumber)> IsPressMouseFunc;
 //	std::function<bool(const int32_t& buttonNumber)> IsTriggerMouseFunc;
-//	std::function<const Vector2& ()> GetMouseWindowPositionFunc;
-//	std::function<Vector2()> GetMouseScreenPositionFunc;
+//	std::function<const float2& ()> GetMouseWindowPositionFunc;
+//	std::function<float2()> GetMouseScreenPositionFunc;
 //	std::function<bool(const int32_t& stickNo, XINPUT_STATE& out)> GetJoystickStateFunc;
 //	std::function<bool(const int32_t& stickNo, XINPUT_STATE& out)> GetJoystickStatePreviousFunc;
 //	std::function<void(const int32_t& stickNo, const int32_t& deadZoneL, const int32_t& deadZoneR)> SetJoystickDeadZoneFunc;
 //	std::function<size_t()> GetNumberOfJoysticksFunc;
 //	std::function<bool(const PadButton& button, int32_t stickNo)> IsTriggerPadButtonFunc;
 //	std::function<bool(const PadButton& button, int32_t stickNo)> IsPressPadButtonFunc;
-//	std::function<Vector2(const LR& padStick, int32_t stickNo)> GetStickValueFunc;
+//	std::function<float2(const LR& padStick, int32_t stickNo)> GetStickValueFunc;
 //	std::function<float(const LR& LorR, int32_t stickNo)> GetLRTriggerFunc;
 //};
 //InputAPI::InputAPI() : implInputAPI(new InputAPI::ImplInputAPI) {}
@@ -206,12 +206,12 @@
 //	return implInputAPI->IsTriggerMouseFunc(buttonNumber);
 //}
 //
-//const Vector2& InputAPI::GetMouseWindowPosition()
+//const float2& InputAPI::GetMouseWindowPosition()
 //{
 //	return implInputAPI->GetMouseWindowPositionFunc();
 //}
 //
-//Vector2 InputAPI::GetMouseScreenPosition()
+//float2 InputAPI::GetMouseScreenPosition()
 //{
 //	return implInputAPI->GetMouseScreenPositionFunc();
 //}
@@ -246,7 +246,7 @@
 //	return implInputAPI->IsPressPadButtonFunc(button, stickNo);
 //}
 //
-//Vector2 InputAPI::GetStickValue(const LR& padStick, int32_t stickNo)
+//float2 InputAPI::GetStickValue(const LR& padStick, int32_t stickNo)
 //{
 //	return implInputAPI->GetStickValueFunc(padStick, stickNo);
 //}
@@ -277,10 +277,10 @@
 //	implInputAPI->IsTriggerMouseFunc = [this](const int32_t& buttonNumber) -> bool {
 //		return data->IsTriggerMouse(buttonNumber);
 //		};
-//	implInputAPI->GetMouseWindowPositionFunc = [this]() -> const Vector2& {
+//	implInputAPI->GetMouseWindowPositionFunc = [this]() -> const float2& {
 //		return data->GetMouseWindowPosition();
 //		};
-//	implInputAPI->GetMouseScreenPositionFunc = [this]() -> Vector2 {
+//	implInputAPI->GetMouseScreenPositionFunc = [this]() -> float2 {
 //		return data->GetMouseScreenPosition();
 //		};
 //	implInputAPI->GetJoystickStateFunc = [this](const int32_t& stickNo, XINPUT_STATE& out) -> bool {
@@ -301,7 +301,7 @@
 //	implInputAPI->IsPressPadButtonFunc = [this](const PadButton& button, int32_t stickNo) -> bool {
 //		return data->IsPressPadButton(button, stickNo);
 //		};
-//	implInputAPI->GetStickValueFunc = [this](const LR& padStick, int32_t stickNo) -> Vector2 {
+//	implInputAPI->GetStickValueFunc = [this](const LR& padStick, int32_t stickNo) -> float2 {
 //		return data->GetStickValue(padStick, stickNo);
 //		};
 //	implInputAPI->GetLRTriggerFunc = [this](const LR& LorR, int32_t stickNo) -> float {
@@ -314,42 +314,42 @@
 //public:
 //	ImplEmitterAPI() = default;
 //	~ImplEmitterAPI() = default;
-//	std::function<void(const Vector3& position)> SetPositionFunc;
-//	std::function<void(const Vector3& velocity)> SetVelocityFunc;
-//	std::function<void(const Vector3& acceleration)> SetAccelerationFunc;
-//	std::function<void(const Vector3& rotation)> SetRotationFunc;
-//	std::function<void(const Vector3& scale)> SetScaleFunc;
-//	std::function<void(const Vector3& color)> SetColorFunc;
+//	std::function<void(const float3& position)> SetPositionFunc;
+//	std::function<void(const float3& velocity)> SetVelocityFunc;
+//	std::function<void(const float3& acceleration)> SetAccelerationFunc;
+//	std::function<void(const float3& rotation)> SetRotationFunc;
+//	std::function<void(const float3& scale)> SetScaleFunc;
+//	std::function<void(const float3& color)> SetColorFunc;
 //};
 //EmitterAPI::EmitterAPI() : implEmitterAPI(new EmitterAPI::ImplEmitterAPI) {}
 //EmitterAPI::~EmitterAPI() { delete implEmitterAPI; }
 //
-//void EmitterAPI::SetPosition(const Vector3& position)
+//void EmitterAPI::SetPosition(const float3& position)
 //{
 //	if (implEmitterAPI->SetPositionFunc) { implEmitterAPI->SetPositionFunc(position); }
 //}
 //
-//void EmitterAPI::SetVelocity(const Vector3& velocity)
+//void EmitterAPI::SetVelocity(const float3& velocity)
 //{
 //	if (implEmitterAPI->SetVelocityFunc) { implEmitterAPI->SetVelocityFunc(velocity); }
 //}
 //
-//void EmitterAPI::SetAcceleration(const Vector3& acceleration)
+//void EmitterAPI::SetAcceleration(const float3& acceleration)
 //{
 //	if (implEmitterAPI->SetAccelerationFunc) { implEmitterAPI->SetAccelerationFunc(acceleration); }
 //}
 //
-//void EmitterAPI::SetRotation(const Vector3& rotation)
+//void EmitterAPI::SetRotation(const float3& rotation)
 //{
 //	if (implEmitterAPI->SetRotationFunc) { implEmitterAPI->SetRotationFunc(rotation); }
 //}
 //
-//void EmitterAPI::SetScale(const Vector3& scale)
+//void EmitterAPI::SetScale(const float3& scale)
 //{
 //	if (implEmitterAPI->SetScaleFunc) { implEmitterAPI->SetScaleFunc(scale); }
 //}
 //
-//void EmitterAPI::SetColor(const Vector3& color)
+//void EmitterAPI::SetColor(const float3& color)
 //{
 //	if (implEmitterAPI->SetColorFunc) { implEmitterAPI->SetColorFunc(color); }
 //}
@@ -370,37 +370,37 @@
 //	data = emitter;
 //	if (emitter)
 //	{
-//		/*implEmitterAPI->SetPositionFunc = [this](const Vector3& position) {
+//		/*implEmitterAPI->SetPositionFunc = [this](const float3& position) {
 //			if (auto* t = m_ECS->GetComponent<EmitterComponent>(m_Entity))
 //			{
 //				t->position = position;
 //			}
 //			};
-//		implEmitterAPI->SetVelocityFunc = [this](const Vector3& velocity) {
+//		implEmitterAPI->SetVelocityFunc = [this](const float3& velocity) {
 //			if (auto* t = m_ECS->GetComponent<EmitterComponent>(m_Entity))
 //			{
 //				t->velocity = velocity;
 //			}
 //			};
-//		implEmitterAPI->SetAccelerationFunc = [this](const Vector3& acceleration) {
+//		implEmitterAPI->SetAccelerationFunc = [this](const float3& acceleration) {
 //			if (auto* t = m_ECS->GetComponent<EmitterComponent>(m_Entity))
 //			{
 //				t->acceleration = acceleration;
 //			}
 //			};
-//		implEmitterAPI->SetRotationFunc = [this](const Vector3& rotation) {
+//		implEmitterAPI->SetRotationFunc = [this](const float3& rotation) {
 //			if (auto* t = m_ECS->GetComponent<EmitterComponent>(m_Entity))
 //			{
 //				t->rotation = rotation;
 //			}
 //			};
-//		implEmitterAPI->SetScaleFunc = [this](const Vector3& scale) {
+//		implEmitterAPI->SetScaleFunc = [this](const float3& scale) {
 //			if (auto* t = m_ECS->GetComponent<EmitterComponent>(m_Entity))
 //			{
 //				t->scale = scale;
 //			}
 //			};
-//		implEmitterAPI->SetColorFunc = [this](const Vector3& color) {
+//		implEmitterAPI->SetColorFunc = [this](const float3& color) {
 //			if (auto* t = m_ECS->GetComponent<EmitterComponent>(m_Entity))
 //			{
 //				t->color = color;
@@ -414,12 +414,12 @@
 //public:
 //	ImplParticleAPI() = default;
 //	~ImplParticleAPI() = default;
-//	std::function<void(const Vector3& position)> EmitFunc;
+//	std::function<void(const float3& position)> EmitFunc;
 //};
 //ParticleAPI::ParticleAPI() : implParticleAPI(new ParticleAPI::ImplParticleAPI) {}
 //ParticleAPI::~ParticleAPI() { delete implParticleAPI; }
 //
-//void ParticleAPI::Emit(const Vector3& position)
+//void ParticleAPI::Emit(const float3& position)
 //{
 //	if (implParticleAPI->EmitFunc) { implParticleAPI->EmitFunc(position); }
 //}
@@ -440,7 +440,7 @@
 //	data = particle;
 //	if (particle)
 //	{
-//		implParticleAPI->EmitFunc = [this](const Vector3& position) {
+//		implParticleAPI->EmitFunc = [this](const float3& position) {
 //			if (auto* t = m_ECS->GetComponent<EmitterComponent>(m_Entity))
 //			{
 //				TransformComponent* transform = m_ECS->GetComponent<TransformComponent>(m_Entity);
@@ -459,30 +459,30 @@
 //public:
 //	ImplEffectAPI() = default;
 //	~ImplEffectAPI() = default;
-//	std::function<void(const Vector3& position)> SetPositionFunc;
-//	std::function<void(const Vector3& rotation)> SetRotationFunc;
-//	std::function<void(const Vector3& scale)> SetScaleFunc;
-//	std::function<void(const Vector3& color)> SetColorFunc;
+//	std::function<void(const float3& position)> SetPositionFunc;
+//	std::function<void(const float3& rotation)> SetRotationFunc;
+//	std::function<void(const float3& scale)> SetScaleFunc;
+//	std::function<void(const float3& color)> SetColorFunc;
 //};
 //EffectAPI::EffectAPI() : implEffectAPI(new EffectAPI::ImplEffectAPI) {}
 //EffectAPI::~EffectAPI() { delete implEffectAPI; }
 //
-//void EffectAPI::SetPosition(const Vector3& position)
+//void EffectAPI::SetPosition(const float3& position)
 //{
 //	if (implEffectAPI->SetPositionFunc) { implEffectAPI->SetPositionFunc(position); }
 //}
 //
-//void EffectAPI::SetRotation(const Vector3& rotation)
+//void EffectAPI::SetRotation(const float3& rotation)
 //{
 //	if (implEffectAPI->SetRotationFunc) { implEffectAPI->SetRotationFunc(rotation); }
 //}
 //
-//void EffectAPI::SetScale(const Vector3& scale)
+//void EffectAPI::SetScale(const float3& scale)
 //{
 //	if (implEffectAPI->SetScaleFunc) { implEffectAPI->SetScaleFunc(scale); }
 //}
 //
-//void EffectAPI::SetColor(const Vector3& color)
+//void EffectAPI::SetColor(const float3& color)
 //{
 //	if (implEffectAPI->SetColorFunc) { implEffectAPI->SetColorFunc(color); }
 //}
@@ -503,7 +503,7 @@
 //	data = effect;
 //	if (effect)
 //	{
-//		/*implEffectAPI->SetPositionFunc = [this](const Vector3& position) {
+//		/*implEffectAPI->SetPositionFunc = [this](const float3& position) {
 //			if (auto* t = m_ECS->GetComponent<EffectComponent>(m_Entity))
 //			{
 //				t->position = position;
@@ -862,7 +862,7 @@
 //	data = animation;
 //}
 
-void theatriaSystem::Rigidbody3D::SetTransform(const Vector3& pos)
+void theatriaSystem::Rigidbody3D::SetTransform(const float3& pos)
 {
 	data->runtimeBody->SetTransform(pos);
 }

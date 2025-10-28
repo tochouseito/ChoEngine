@@ -15,7 +15,7 @@ struct RandValue
     float amplitude;    // 振幅
 };
 
-struct RandVector3
+struct Randfloat3
 {
     RandValue x;
     RandValue y;
@@ -63,20 +63,20 @@ enum class EFFECT_SPEED_TYPE
 
 struct EasingValue
 {
-    RandVector3 startPoint;     // 始点
-    RandVector3 endPoint;       // 終点
+    Randfloat3 startPoint;     // 始点
+    Randfloat3 endPoint;       // 終点
     uint32_t easingType;            // イージングタイプ
     uint32_t startSpeedType;        // 始点速度タイプ
     uint32_t endSpeedType;          // 終点速度タイプ
     uint32_t isMedianPoint;         // 中間点有効
-    RandVector3 medianPoint;    // 中間点
+    Randfloat3 medianPoint;    // 中間点
 };
 
 struct PVA
 {
-    RandVector3 value = {};          // 値
-    RandVector3 velocity = {};       // 速度
-    RandVector3 acceleration = {};   // 加速度
+    Randfloat3 value = {};          // 値
+    Randfloat3 velocity = {};       // 速度
+    Randfloat3 acceleration = {};   // 加速度
 };
 
 enum class EFFECT_SRT_TYPE
@@ -89,7 +89,7 @@ enum class EFFECT_SRT_TYPE
 struct EffectSRT
 {
     uint32_t type = 0;          // タイプ
-    Vector3 value;       // 値
+    float3 value;       // 値
     PVA pva;            // 値、速度、加速度
     EasingValue easing; // イージング値
 };
@@ -138,14 +138,14 @@ enum class UV_TYPE
 
 struct UVConstantValue
 {
-    Vector2 startPoint;  // 開始UV
-    Vector2 scale;       // スケール
+    float2 startPoint;  // 開始UV
+    float2 scale;       // スケール
 };
 
 struct UVAnimationParameter
 {
-    Vector2 startPoint;      // 開始UV
-    Vector2 scale;           // スケール
+    float2 startPoint;      // 開始UV
+    float2 scale;           // スケール
     uint32_t oneTime;           // 1回分の時間
     uint32_t widthSheetCount;   // 横の枚数
     uint32_t heightSheetCount;  // 縦の枚数
@@ -233,10 +233,10 @@ struct SpriteVertexColor
 
 struct SpriteVertexPosition
 {
-    Vector2 leftBottom = { -0.5f,-0.5f };  // 左下座標
-    Vector2 rightBottom={ 0.5f,-0.5f }; // 右下座標
-    Vector2 leftTop = { -0.5f,0.5f };     // 左上座標
-    Vector2 rightTop = { 0.5f,0.5f };    // 右上座標
+    float2 leftBottom = { -0.5f,-0.5f };  // 左下座標
+    float2 rightBottom={ 0.5f,-0.5f }; // 右下座標
+    float2 leftTop = { -0.5f,0.5f };     // 左上座標
+    float2 rightTop = { 0.5f,0.5f };    // 右上座標
 };
 
 struct EffectSprite
@@ -267,8 +267,8 @@ struct EffectRing
     float endAngle;
     uint32_t placement;
     uint32_t VertexCount;
-    Vector2 outerRing;
-    Vector2 innerRing;
+    float2 outerRing;
+    float2 innerRing;
     float centerRatio;
     Color outerRingColor;
     Color centerColor;
@@ -336,15 +336,15 @@ struct EffectRootData
 
 struct EffectParticlePVA
 {
-    Vector3 value;
-	Vector3 velocity;
-	Vector3 acceleration;
+    float3 value;
+	float3 velocity;
+	float3 acceleration;
 };
 struct EffectParticle
 {
-    Vector3 wPos;
-	Vector3 wRot;
-	Vector3 wScl;
+    float3 wPos;
+	float3 wRot;
+	float3 wScl;
 	EffectParticlePVA position;         // 位置
 	EffectParticlePVA rotation;         // 回転
 	EffectParticlePVA scale;            // スケール

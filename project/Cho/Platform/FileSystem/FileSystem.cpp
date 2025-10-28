@@ -386,7 +386,7 @@ bool theatria::FileSystem::LoadGameSettings(const std::wstring& filePath)
 		// 重力の読み込み,値がなければデフォルト値を使用
         if (j.contains("gravity") && j["gravity"].is_array() && j["gravity"].size() >= 3)
         {
-            settings.gravity = Vector3(
+            settings.gravity = float3(
                 j["gravity"][0].get<float>(),
                 j["gravity"][1].get<float>(),
                 j["gravity"][2].get<float>()
@@ -394,7 +394,7 @@ bool theatria::FileSystem::LoadGameSettings(const std::wstring& filePath)
         }
         else
         {
-            settings.gravity = Vector3(0.0f, -9.81f, 0.0f);
+            settings.gravity = float3(0.0f, -9.81f, 0.0f);
         }
         settings.titleBar = std::filesystem::path(j.value("titleBar", "Theatria Engine")).wstring();
         settings.exeName = std::filesystem::path(j.value("exeName", "TheatriaGame")).wstring();
@@ -709,8 +709,8 @@ bool theatria::FileSystem::LoadSceneFile(const std::wstring& filePath, EngineCom
                         auto& end = lineJson["end"];
                         auto& color = lineJson["color"];
 
-                        l.line.start = Vector3{ start[0], start[1], start[2] };
-                        l.line.end = Vector3{ end[0], end[1], end[2] };
+                        l.line.start = float3{ start[0], start[1], start[2] };
+                        l.line.end = float3{ end[0], end[1], end[2] };
                         l.line.color = Color{ color[0], color[1], color[2], color[3] };
 
 						// LineRendererComponentの保存
@@ -871,9 +871,9 @@ bool theatria::FileSystem::SaveGameParameter(const std::wstring& filePath, const
     } else if (std::holds_alternative<bool>(value))
     {
         target = std::get<bool>(value);
-    } else if (std::holds_alternative<Vector3>(value))
+    } else if (std::holds_alternative<float3>(value))
     {
-        const Vector3& v = std::get<Vector3>(value);
+        const float3& v = std::get<float3>(value);
         target = { v.x, v.y, v.z };
     }
     // 書き込み
@@ -915,7 +915,7 @@ bool theatria::FileSystem::LoadGameParameter(const std::wstring& filePath, const
         outValue = val.get<bool>();
     } else if (val.is_array() && val.size() == 3 && val[0].is_number()) 
     {
-        outValue = Vector3{ val[0].get<float>(), val[1].get<float>(), val[2].get<float>() };
+        outValue = float3{ val[0].get<float>(), val[1].get<float>(), val[2].get<float>() };
     } else{
         return false;
     }
@@ -1145,12 +1145,12 @@ json theatria::Serialization::ToJson(const ScriptComponent& s, ScriptContainer* 
                 j["fields"][field.first]["value"] = std::get<bool>(field.second.value);
                 j["fields"][field.first]["type"] = "bool";
             }
-            else if (field.second.type == typeid(Vector3))
+            else if (field.second.type == typeid(float3))
             {
-                Vector3 v = std::get<Vector3>(field.second.value);
+                float3 v = std::get<float3>(field.second.value);
                 j["fields"][field.first]["name"] = field.first;
                 j["fields"][field.first]["value"] = { v.x, v.y, v.z };
-                j["fields"][field.first]["type"] = "Vector3";
+                j["fields"][field.first]["type"] = "float3";
             }
         }
     }
@@ -1422,8 +1422,8 @@ bool theatria::FileSystem::LoadProjectFolder(const std::wstring& projectFolderPa
     // 全ファイル走査（サブディレクトリ含む）
     ScanFolder(path,engineCommand);
     engineCommand->GetResourceManager()->SetSkyboxTextureName(g_GameSettings.skyTexName);
-	Vector3 gravityVector3 = g_GameSettings.gravity;
-    std::unique_ptr<SetGravityCommand> setGravity = std::make_unique<SetGravityCommand>(gravityVector3);
+	float3 gravityfloat3 = g_GameSettings.gravity;
+    std::unique_ptr<SetGravityCommand> setGravity = std::make_unique<SetGravityCommand>(gravityfloat3);
     engineCommand->ExecuteCommand(std::move(setGravity));
 	// 最初のシーンをロード
     engineCommand->GetEditorManager()->ChangeEditingScene(g_GameSettings.startScene);
@@ -2766,9 +2766,9 @@ void theatria::Deserialization::FromJson(const json& j, ScriptComponent& s, Scri
             saved.type = typeid(bool);
             saved.value = jval.get<bool>();
         }
-        else if (typeStr == "Vector3")
+        else if (typeStr == "float3")
         {
-            Vector3 v{};
+            float3 v{};
             if (jval.is_array() && jval.size() >= 3)
             {
                 v.x = jval[0].get<float>();
@@ -2786,7 +2786,7 @@ void theatria::Deserialization::FromJson(const json& j, ScriptComponent& s, Scri
             {
                 continue; // 不正
             }
-            saved.type = typeid(Vector3);
+            saved.type = typeid(float3);
             saved.value = v;
         }
         else
@@ -2887,7 +2887,7 @@ void theatria::Deserialization::FromJson(const json& j, EmitterComponent& e)
         }
         };
 
-    auto ReadRandVector3Array = [&](const json& jarr, RandVector3& out) {
+    auto ReadRandfloat3Array = [&](const json& jarr, Randfloat3& out) {
         if (jarr.is_array() && jarr.size() == 3)
         {
             if (jarr[0].contains("x")) ReadRandValue(jarr[0]["x"], out.x);
@@ -2897,9 +2897,9 @@ void theatria::Deserialization::FromJson(const json& j, EmitterComponent& e)
         };
 
     auto ReadPVAArray = [&](const json& jpva, PVA& out) {
-        if (jpva.contains("value")) ReadRandVector3Array(jpva["value"], out.value);
-        if (jpva.contains("velocity")) ReadRandVector3Array(jpva["velocity"], out.velocity);
-        if (jpva.contains("acceleration")) ReadRandVector3Array(jpva["acceleration"], out.acceleration);
+        if (jpva.contains("value")) ReadRandfloat3Array(jpva["value"], out.value);
+        if (jpva.contains("velocity")) ReadRandfloat3Array(jpva["velocity"], out.velocity);
+        if (jpva.contains("acceleration")) ReadRandfloat3Array(jpva["acceleration"], out.acceleration);
         };
 
     if (j.contains("position"))

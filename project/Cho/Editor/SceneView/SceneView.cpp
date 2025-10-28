@@ -23,14 +23,14 @@ void SceneView::Window()
     // ウィンドウ内で利用可能な領域のサイズを取得
     ImVec2 availableSize = ImGui::GetContentRegionAvail();
 	ImVec2 contentPos = ImGui::GetCursorScreenPos(); // コンテンツの位置を取得
-	m_Manipulate->SetContent(Vector2(contentPos.x, contentPos.y), Vector2(availableSize.x, availableSize.y));
+	m_Manipulate->SetContent(float2(contentPos.x, contentPos.y), float2(availableSize.x, availableSize.y));
 
     //ImVec2 windowPos = ImGui::GetWindowPos(); // 現在のImGuiウィンドウの位置を取得
     //float diffY = ImGui::GetWindowSize().y- ImGui::GetContentRegionAvail().y;
     //windowPos.y += diffY;
     //ImVec2 windowSize = ImGui::GetContentRegionAvail(); // 現在のImGuiウィンドウのサイズを取得
 
-    //Vector2 vec = CheckAndWarpMouseInImGuiWindow();
+    //float2 vec = CheckAndWarpMouseInImGuiWindow();
     /*if (vec.x != 0.0f || vec.y != 0.0f) {
 
     }*/

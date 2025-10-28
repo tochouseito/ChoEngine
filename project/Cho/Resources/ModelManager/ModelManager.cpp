@@ -169,7 +169,7 @@ bool ModelManager::LoadModelFile(const std::filesystem::path& filePath)
 					for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex)
 					{
 						aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
-						KeyframeVector3 keyframe;
+						Keyframefloat3 keyframe;
 						keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond); // 時間を秒単位に変換
 						keyframe.value = { -keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z }; // 右手座標系を左手座標系に変換
 						nodeAnimation.translate.keyframes.push_back(keyframe);
@@ -220,7 +220,7 @@ bool ModelManager::LoadModelFile(const std::filesystem::path& filePath)
 			std::memset(skinCluster.influenceData.data.data(), 0, sizeof(ConstBufferDataVertexInfluence) * vertexCount);// Influenceの初期化
 			/*InverseBindPoseMatrixの保存領域を作成*/
 			skinCluster.inverseBindPoseMatrices.resize(modelData.skeleton.joints.size());
-			std::generate(skinCluster.inverseBindPoseMatrices.begin(), skinCluster.inverseBindPoseMatrices.end(), []() { return chomath::MakeIdentity4x4(); });
+			std::generate(skinCluster.inverseBindPoseMatrices.begin(), skinCluster.inverseBindPoseMatrices.end(), []() { return float4x4::Identity(); });
 			meshData.skinCluster = skinCluster;
 
 			for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
@@ -234,10 +234,10 @@ bool ModelManager::LoadModelFile(const std::filesystem::path& filePath)
 				aiQuaternion rotate;
 				bindPoseMatrixAssimp.Decompose(scale, rotate, translate);// 成分を抽出
 				/*左手系のBindPoseMatrixを作る*/
-				Matrix4 bindPoseMatrix = chomath::MakeAffineMatrix(
+				float4x4 bindPoseMatrix = Theatria::Math::MakeAffineMatrix(
 					{ scale.x,scale.y,scale.z }, { rotate.x,-rotate.y,-rotate.z,rotate.w }, { -translate.x,translate.y,translate.z });
 				/*InverseBindPoseMatrixにする*/
-				jointWeightData.inverseBindPoseMatrix = Matrix4::Inverse(bindPoseMatrix);
+				jointWeightData.inverseBindPoseMatrix = float4x4::Inverse(bindPoseMatrix);
 
 				for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex)
 				{
@@ -600,8 +600,8 @@ void ModelManager::CreateSphere()
 	meshData.name = modelName;
 	// 頂点数とインデックス数
 	uint32_t kSubdivision = 32; // 分割数
-	float kLonEvery = 2.0f * PiF / kSubdivision;
-	float kLatEvery = PiF / kSubdivision;
+	float kLonEvery = 2.0f * PI / kSubdivision;
+	float kLatEvery = PI / kSubdivision;
 	uint32_t vertices = kSubdivision * kSubdivision * 4;
 	uint32_t indices = kSubdivision * kSubdivision * 6;
 	// メモリ確保
@@ -612,7 +612,7 @@ void ModelManager::CreateSphere()
 	// 緯度の方向に分割　-π/2 ～ π/2
 	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex)
 	{
-		float lat = -PiF / 2.0f + kLatEvery * latIndex; // 現在の緯度
+		float lat = -PI / 2.0f + kLatEvery * latIndex; // 現在の緯度
 
 		// 経度の方向に分割 0 ～ 2π
 		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
@@ -737,7 +737,7 @@ void ModelManager::CreateRing()
 	const uint32_t kRingDivide = 32; // 分割数
 	const float kOuterRadius = 1.0f; // 外半径
 	const float kInnerRadius = 0.2f; // 内半径
-	const float radianPerDivide = 2.0f * PiF / static_cast<float>(kRingDivide); // 分割あたりのラジアン
+	const float radianPerDivide = 2.0f * PI / static_cast<float>(kRingDivide); // 分割あたりのラジアン
 	// 各分割セグメントは4つの頂点（外側2点、内側2点）を持つ
 	uint32_t vertices = kRingDivide * 4;
 	// 各分割セグメントは2つの三角形（6つのインデックス）で構成される
@@ -837,7 +837,7 @@ void ModelManager::CreateCylinder()
 	const float kTopRadius = 1.0f;           // 上部半径
 	const float kBottomRadius = 1.0f;        // 下部半径
 	const float kHeight = 3.0f;              // 高さ
-	const float radianPerDivide = 2.0f * PiF / static_cast<float>(kCylinderDivide);
+	const float radianPerDivide = 2.0f * PI / static_cast<float>(kCylinderDivide);
 
 	// 頂点数とインデックス数（側面のみ）
 	const uint32_t vertices = kCylinderDivide * 4;
@@ -1024,7 +1024,7 @@ Node ModelManager::ReadNode(aiNode* node,const std::string& parentName)
 	result.transform.scale = { scale.x,scale.y,scale.z };// scaleはそのまま
 	result.transform.rotation = { rotate.x,-rotate.y,-rotate.z,rotate.w };// x軸を反転。さらに回転方向が逆なので軸を反転させる
 	result.transform.translation = { -translate.x,translate.y,translate.z };// x軸を反転
-	result.localMatrix = chomath::MakeAffineMatrix(result.transform.scale, result.transform.rotation, result.transform.translation);
+	result.localMatrix = Theatria::Math::MakeAffineMatrix(result.transform.scale, result.transform.rotation, result.transform.translation);
 	result.name = node->mName.C_Str();// Node名を格納
 	result.parentName = parentName;// 親Node名を格納
 	result.children.resize(node->mNumChildren);// 子供の数だけ確保
@@ -1041,7 +1041,7 @@ int32_t ModelManager::CreateJoint(const Node& node, const std::optional<int32_t>
 	Joint joint;
 	joint.name = node.name;
 	joint.localMatrix = node.localMatrix;
-	joint.skeletonSpaceMatrix = chomath::MakeIdentity4x4();
+	joint.skeletonSpaceMatrix = float4x4::Identity();
 	joint.transform = node.transform;
 	joint.index = static_cast<int32_t>(joints.size());// 現在登録されている数をIndexに
 	joint.parent = parent;

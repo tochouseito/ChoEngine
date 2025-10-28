@@ -168,5 +168,18 @@ namespace Theatria::Math
 				a.x * b.y - a.y * b.x
 			};
 		}
+        /// @brief 線形補間
+        /// @param start 
+        /// @param end 
+        /// @param t 
+        /// @return 
+        static Scale Lerp(const Scale& start, const Scale& end, float t) noexcept
+        {
+            return {
+                start.x + (end.x - start.x) * t,
+                start.y + (end.y - start.y) * t,
+                start.z + (end.z - start.z) * t
+            };
+        }
 	};
 } // namespace math

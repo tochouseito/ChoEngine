@@ -16,7 +16,7 @@ namespace Theatria::Platform
         using secs = std::chrono::seconds;// 秒
 
         /// @brief コンストラクタ
-        constexpr Timer() noexcept
+        Timer() noexcept
         {
             Reset();
         }

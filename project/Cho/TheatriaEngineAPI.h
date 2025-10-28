@@ -8,7 +8,7 @@
 #endif
 #include <variant>
 #include <optional>
-using GameParameterVariant = std::variant<int, float, bool, Vector3>;
+using GameParameterVariant = std::variant<int, float, bool, float3>;
 class GameObject;
 class TheatriaEngine;
 namespace theatria
@@ -45,7 +45,7 @@ namespace theatriaSystem
 	// ゲームオブジェクト取得
 	THEATRIA_API GameObject* FindGameObjectByName(const std::wstring& name);
 	// ゲームオブジェクト複製
-	THEATRIA_API GameObject* CloneGameObject(const GameObject* srcObj, Vector3 generatePosition);
+	THEATRIA_API GameObject* CloneGameObject(const GameObject* srcObj, float3 generatePosition);
 	// ゲームオブジェクト削除
 	THEATRIA_API void DestroyGameObject(GameObject* obj);
 	// デルタタイム取得
@@ -105,9 +105,9 @@ namespace theatriaSystem
 		// マウスのトリガーをチェック。押した瞬間だけtrueになる
 		THEATRIA_API bool IsTriggerMouse(int32_t buttonNumber);
 		// マウスの位置を取得する（ウィンドウ座標系）
-		THEATRIA_API const Vector2& GetMouseWindowPosition();
+		THEATRIA_API const float2& GetMouseWindowPosition();
 		// マウスの位置を取得する（ウィンドウ座標系）
-		THEATRIA_API Vector2 GetMouseScreenPosition();
+		THEATRIA_API float2 GetMouseScreenPosition();
 		// 現在のジョイスティック状態を取得する
 		THEATRIA_API bool GetJoystickState(int32_t stickNo, XINPUT_STATE& out);
 		// 前回のジョイスティック状態を取得する
@@ -121,7 +121,7 @@ namespace theatriaSystem
 		// 接続されているジョイスティック数を取得する
 		THEATRIA_API bool IsPressPadButton(PadButton button, int32_t stickNo);
 		// 接続されているジョイスティック数を取得する
-		THEATRIA_API Vector2 GetStickValue(LR padStick, int32_t stickNo);
+		THEATRIA_API float2 GetStickValue(LR padStick, int32_t stickNo);
 		// 接続されているジョイスティック数を取得する
 		THEATRIA_API float GetLRTrigger(LR LorR, int32_t stickNo);
 	};

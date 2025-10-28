@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "MathStructAllowedList.h"
 #include <cstdint>
 #include <cmath>
@@ -167,6 +167,15 @@ namespace Theatria::Math
 				a.x * b.y - a.y * b.x
 			};
 		}
+        /// @brief 線形補間
+        /// @param a 
+        /// @param b 
+        /// @param t 
+        /// @return 
+        static constexpr Vector3 Lerp(const Vector3& a, const Vector3& b, float t) noexcept
+        {
+            return a + (b - a) * static_cast<T>(t);
+        }
 	};
 
 	using int3 = Vector3<int>;

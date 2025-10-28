@@ -33,9 +33,9 @@ public:
 	// ホイールスクロール量を取得する
 	int32_t GetWheel() const;
 	// マウスの位置を取得する（ウィンドウ座標系）
-	const Vector2& GetMouseWindowPosition() const;
+	const float2& GetMouseWindowPosition() const;
 	// マウスの位置を取得する（スクリーン座標系）
-	Vector2 GetMouseScreenPosition() const;
+	float2 GetMouseScreenPosition() const;
 	// 現在のジョイスティック状態を取得する
 	bool GetJoystickState(const int32_t& stickNo, XINPUT_STATE& out) const;
 	// 前回のジョイスティック状態を取得する
@@ -52,12 +52,12 @@ public:
 	// パッドの押されているボタン、スティックの値を取得
 	bool IsTriggerPadButton(const PadButton& button, int32_t stickNo = 0);
 	bool IsPressPadButton(const PadButton& button, int32_t stickNo = 0);
-	Vector2 GetStickValue(const LR& padStick, int32_t stickNo = 0);
+	float2 GetStickValue(const LR& padStick, int32_t stickNo = 0);
 	float GetLRTrigger(const LR& LorR, int32_t stickNo = 0);
-	Vector2 CheckAndWarpMouse();
+	float2 CheckAndWarpMouse();
 private:
 	bool IsTriggerTrigger(const LR& LorR, int32_t stickNo = 0);
-	Vector2 ApplyRadialDeadZone(int16_t rawX, int16_t rawY, int deadZone);
+	float2 ApplyRadialDeadZone(int16_t rawX, int16_t rawY, int deadZone);
 public:
 	ComPtr<IDirectInput8> m_DirectInput = nullptr;
 	ComPtr<IDirectInputDevice8> m_Keyboard = nullptr;
@@ -67,7 +67,7 @@ public:
 	BYTE m_PreKey[256] = {};
 	DIMOUSESTATE2 m_Mouse = {};
 	DIMOUSESTATE2 m_MousePre = {};
-	Vector2 m_MousePosition;
+	float2 m_MousePosition;
 	int32_t m_LeftStickDeadZone = XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
 	int32_t m_RightStickDeadZone = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
 	int32_t m_TriggerDeadZone = XINPUT_GAMEPAD_TRIGGER_THRESHOLD;

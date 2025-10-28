@@ -12,7 +12,7 @@
 #include "Core/Utility/Components.h"
 using namespace std::filesystem;
 using json = nlohmann::json;
-using GameParameterVariant = std::variant<int, float, bool, Vector3>;
+using GameParameterVariant = std::variant<int, float, bool, float3>;
 class GameScene;
 class GameWorld;
 class SceneManager;
@@ -66,7 +66,7 @@ namespace theatria
         float fixedDeltaTime = 1.0f / 60.0f;
         bool debugMode = false;
         std::wstring skyTexName;
-		Vector3 gravity = { 0.0f, 0.0f, 0.0f }; // 重力
+		float3 gravity = { 0.0f, 0.0f, 0.0f }; // 重力
         std::wstring titleBar = L"Theatria Engine";
         std::wstring exeName = L"TheatriaGame";
     };

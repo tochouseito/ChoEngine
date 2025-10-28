@@ -72,7 +72,7 @@ void InputManager::Update()
 		POINT point;
 		GetCursorPos(&point);
 		ScreenToClient(WinApp::GetHWND(), &point);
-		m_MousePosition = Vector2(static_cast<float>(point.x), static_cast<float>(point.y));
+		m_MousePosition = float2(static_cast<float>(point.x), static_cast<float>(point.y));
 
 		// XInputコントローラーの入力取得
 		for (int i = 0; i < 4; ++i)
@@ -89,7 +89,7 @@ void InputManager::Update()
 					joystick.statePre = joystick.state;
 
 					// 左スティック（補正値で上書き）
-					Vector2 leftStick = ApplyRadialDeadZone(
+					float2 leftStick = ApplyRadialDeadZone(
 						joystick.state.xInput.Gamepad.sThumbLX,
 						joystick.state.xInput.Gamepad.sThumbLY,
 						m_LeftStickDeadZone);
@@ -98,7 +98,7 @@ void InputManager::Update()
 					joystick.state.xInput.Gamepad.sThumbLY = static_cast<SHORT>(leftStick.y * 32767.0f);
 
 					// 右スティック
-					Vector2 rightStick = ApplyRadialDeadZone(
+					float2 rightStick = ApplyRadialDeadZone(
 						joystick.state.xInput.Gamepad.sThumbRX,
 						joystick.state.xInput.Gamepad.sThumbRY,
 						m_RightStickDeadZone);
@@ -173,17 +173,17 @@ int32_t InputManager::GetWheel() const
 	return m_Mouse.lZ;
 }
 
-const Vector2& InputManager::GetMouseWindowPosition() const
+const float2& InputManager::GetMouseWindowPosition() const
 {
 	return m_MousePosition;
 }
 
-Vector2 InputManager::GetMouseScreenPosition() const
+float2 InputManager::GetMouseScreenPosition() const
 {
 	// マウス位置の取得
 	POINT point;
 	GetCursorPos(&point);
-	Vector2 result = Vector2(static_cast<float>(point.x), static_cast<float>(point.y));
+	float2 result = float2(static_cast<float>(point.x), static_cast<float>(point.y));
 	return result;
 }
 
@@ -259,9 +259,9 @@ bool InputManager::IsPressPadButton(const PadButton& button, int32_t stickNo)
 	return false;
 }
 
-Vector2 InputManager::GetStickValue(const LR& padStick, int32_t stickNo)
+float2 InputManager::GetStickValue(const LR& padStick, int32_t stickNo)
 {
-	Vector2 result{ 0.0f,0.0f };
+	float2 result{ 0.0f,0.0f };
 
 	XINPUT_STATE currentState;
 	if (!GetJoystickState(stickNo, currentState))
@@ -308,7 +308,7 @@ float InputManager::GetLRTrigger(const LR& LorR, int32_t stickNo)
 	return value;
 }
 
-Vector2 InputManager::CheckAndWarpMouse()
+float2 InputManager::CheckAndWarpMouse()
 {
 	if (IsPressMouse(Left) ||
 		IsPressMouse(Right) ||
@@ -351,7 +351,7 @@ Vector2 InputManager::CheckAndWarpMouse()
 		}
 
 		// マウスの相対移動量を補正
-		Vector2 result = { deltaX,deltaY };
+		float2 result = { deltaX,deltaY };
 		return result;
 	} else
 	{
@@ -391,7 +391,7 @@ bool InputManager::IsTriggerTrigger(const LR& LorR, int32_t stickNo)
 	return value[0] > 0.8f && value[1] <= 0.8f;
 }
 
-Vector2 InputManager::ApplyRadialDeadZone(int16_t rawX, int16_t rawY, int deadZone)
+float2 InputManager::ApplyRadialDeadZone(int16_t rawX, int16_t rawY, int deadZone)
 {
 	float x = static_cast<float>(rawX);
 	float y = static_cast<float>(rawY);
@@ -399,7 +399,7 @@ Vector2 InputManager::ApplyRadialDeadZone(int16_t rawX, int16_t rawY, int deadZo
 
 	if (magnitude < static_cast<float>(deadZone))
 	{
-		return Vector2(0.0f, 0.0f);
+		return float2(0.0f, 0.0f);
 	}
 
 	float norm = (magnitude - deadZone) / (32767.0f - deadZone);
@@ -407,5 +407,5 @@ Vector2 InputManager::ApplyRadialDeadZone(int16_t rawX, int16_t rawY, int deadZo
 
 	float scale = norm / magnitude;
 
-	return Vector2(x * scale, y * scale);
+	return float2(x * scale, y * scale);
 }

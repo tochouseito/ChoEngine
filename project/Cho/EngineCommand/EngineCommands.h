@@ -260,15 +260,15 @@ private:
 class SetGravityCommand : public IEngineCommand
 {
 public:
-	SetGravityCommand(const Vector3& gravity) :
+	SetGravityCommand(const float3& gravity) :
 		m_Gravity(gravity)
 	{
 	}
 	bool Execute(EngineCommand* edit)override;
 	bool Undo(EngineCommand* edit)override;
 private:
-	Vector3 m_Gravity;
-	Vector3 m_PreGravity;
+	float3 m_Gravity;
+	float3 m_PreGravity;
 };
 // Audioコンポーネント追加
 class AddAudioComponent :public IEngineCommand

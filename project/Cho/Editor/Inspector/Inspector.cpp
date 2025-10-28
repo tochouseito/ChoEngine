@@ -328,9 +328,9 @@ void Inspector::ScriptComponentView(GameObject* object)
             {
                 ImGui::Checkbox(field.first.c_str(), static_cast<bool*>(field.second.ptr));
             }
-            else if (field.second.type == typeid(Vector3))
+            else if (field.second.type == typeid(float3))
             {
-                Vector3* vec = static_cast<Vector3*>(field.second.ptr);
+                float3* vec = static_cast<float3*>(field.second.ptr);
                 ImGui::DragFloat3(field.first.c_str(), &vec->x, 0.1f);
             }
             else
@@ -368,9 +368,9 @@ void Inspector::ScriptComponentView(GameObject* object)
                 {
                     ImGui::Checkbox(field.first.c_str(), &std::get<bool>(field.second.value));
                 }
-                else if (field.second.type == typeid(Vector3))
+                else if (field.second.type == typeid(float3))
                 {
-                    Vector3 vec = std::get<Vector3>(field.second.value);
+                    float3 vec = std::get<float3>(field.second.value);
                     ImGui::DragFloat3(field.first.c_str(), &vec.x, 0.1f);
                 }
                 else
@@ -574,25 +574,25 @@ void Inspector::EmitterComponentView(GameObject* object)
 		// position
 		if(ImGui::BeginTabItem("Position"))
 		{
-			EffectEditor::DragRandVector3("位置", &emitter->position.value, 0.1f, 0.0f, 0.0f);
-			EffectEditor::DragRandVector3("速度", &emitter->position.velocity, 0.1f, 0.0f, 0.0f);
-			EffectEditor::DragRandVector3("加速度", &emitter->position.acceleration, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("位置", &emitter->position.value, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("速度", &emitter->position.velocity, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("加速度", &emitter->position.acceleration, 0.1f, 0.0f, 0.0f);
 			ImGui::EndTabItem();
 		}
 		// rotation
 		if (ImGui::BeginTabItem("Rotation"))
 		{
-			EffectEditor::DragRandVector3("回転", &emitter->rotation.value, 0.1f, 0.0f, 0.0f);
-			EffectEditor::DragRandVector3("速度", &emitter->rotation.velocity, 0.1f, 0.0f, 0.0f);
-			EffectEditor::DragRandVector3("加速度", &emitter->rotation.acceleration, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("回転", &emitter->rotation.value, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("速度", &emitter->rotation.velocity, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("加速度", &emitter->rotation.acceleration, 0.1f, 0.0f, 0.0f);
 			ImGui::EndTabItem();
 		}
 		// scale
 		if (ImGui::BeginTabItem("Scale"))
 		{
-			EffectEditor::DragRandVector3("スケール", &emitter->scale.value, 0.1f, 0.0f, 0.0f);
-			EffectEditor::DragRandVector3("速度", &emitter->scale.velocity, 0.1f, 0.0f, 0.0f);
-			EffectEditor::DragRandVector3("加速度", &emitter->scale.acceleration, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("スケール", &emitter->scale.value, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("速度", &emitter->scale.velocity, 0.1f, 0.0f, 0.0f);
+			EffectEditor::DragRandfloat3("加速度", &emitter->scale.acceleration, 0.1f, 0.0f, 0.0f);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

@@ -19,16 +19,16 @@
 // 頂点データ構造体
 struct VertexData
 {
-	Vector4 position = { 0.0f };
-	Vector2 texCoord = { 0.0f };
-	Vector3 normal = { 0.0f };
+    float4 position;
+    float2 texCoord;
+	float3 normal;
 	Color color = { 1.0f,1.0f,1.0f,1.0f };
 	uint32_t vertexID = 0;
 };
 struct Node
 {
 	NodeTransform transform;
-	Matrix4 localMatrix;
+	float4x4 localMatrix;
 	std::string name;
 	std::string parentName;
 	std::vector<Node> children;

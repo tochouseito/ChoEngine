@@ -39,8 +39,8 @@ private:
 	// カメラの移動速度
 	const float moveSpeed = 0.1f;
 
-	Vector2 mousePos;
-	Vector2 deltaMousePos;
-	Vector2 preMousePos;
+	float2 mousePos;
+	float2 deltaMousePos;
+	float2 preMousePos;
 };
 

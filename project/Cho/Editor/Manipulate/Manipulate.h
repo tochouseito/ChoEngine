@@ -22,14 +22,14 @@ public:
 	void Update() override;
 	void Window() override;
 private:
-	void SetContent(Vector2 pos, Vector2 size)
+	void SetContent(float2 pos, float2 size)
 	{
 		m_ContentPos = pos;
 		m_ContentSize = size;
 	}
 
 	DebugCamera* m_dCamera = nullptr;
-	Vector2 m_ContentPos{};
-	Vector2 m_ContentSize{};
+	float2 m_ContentPos{};
+	float2 m_ContentSize{};
 };
 

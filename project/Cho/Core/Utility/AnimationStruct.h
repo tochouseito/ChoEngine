@@ -4,10 +4,12 @@
 #include <map>
 #include <optional>
 
+using namespace Theatria::Math;
+
 // Node用Transform構造体
 struct NodeTransform
 {
-	Vector3 translation = { 0.0f, 0.0f, 0.0f };
+	float3 translation = { 0.0f, 0.0f, 0.0f };
 	Quaternion rotation = { 0.0f, 0.0f, 0.0f,1.0f };
 	Scale scale = { 1.0f, 1.0f, 1.0f };
 };
@@ -20,7 +22,7 @@ struct Keyframe
 	float time = 0.0f;
 	T value;
 };
-using KeyframeVector3 = Keyframe<Vector3>;
+using Keyframefloat3 = Keyframe<float3>;
 using KeyframeQuaternion = Keyframe<Quaternion>;
 using KeyframeScale = Keyframe<Scale>;
 
@@ -33,15 +35,15 @@ struct NodeAnimation
 {
 	AnimationCurve<Scale> scale;
 	AnimationCurve<Quaternion> rotate;
-	AnimationCurve<Vector3> translate;
+	AnimationCurve<float3> translate;
 };
 
 // ジョイント
 struct Joint
 {
 	NodeTransform transform;// Transform情報
-	Matrix4 localMatrix;
-	Matrix4 skeletonSpaceMatrix;// skeletonSpaceでの変換行列
+	float4x4 localMatrix;
+	float4x4 skeletonSpaceMatrix;// skeletonSpaceでの変換行列
 	std::string name;// 名前
 	std::vector<int32_t> children;// 子JointのIndexのリスト。いなければ空
 	int32_t index = 0;// 自身のIndex
@@ -64,7 +66,7 @@ struct VertexWeightData
 };
 struct JointWeightData
 {
-	Matrix4 inverseBindPoseMatrix;
+	float4x4 inverseBindPoseMatrix;
 	std::vector<VertexWeightData> vertexWeights;
 };
 // skinning
@@ -86,8 +88,8 @@ struct InfluenceData
 };
 struct ConstBufferDataWell
 {
-	Matrix4 skeletonSpaceMatrix;// 位置用
-	Matrix4 skeletonSpaceInverseTransposeMatrix;// 法線用
+	float4x4 skeletonSpaceMatrix;// 位置用
+	float4x4 skeletonSpaceInverseTransposeMatrix;// 法線用
 };
 struct PaletteData
 {
@@ -96,7 +98,7 @@ struct PaletteData
 };
 struct SkinCluster
 {
-	std::vector<Matrix4> inverseBindPoseMatrices;
+	std::vector<float4x4> inverseBindPoseMatrices;
 	PaletteData paletteData;
 	InfluenceData influenceData;
 	//uint32_t skinningBufferIndex = 0;

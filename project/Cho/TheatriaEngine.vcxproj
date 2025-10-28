@@ -466,7 +466,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)External\assimp\include;$(SolutionDir)External\imgui\include;$(SolutionDir)External\nlohmann;$(SolutionDir)ChoMath\include;$(ProjectDir)GameCore\Marionnette;$(ProjectDir)Core\Utility;$(ProjectDir)pch\;$(SolutionDir)ChoMath;$(SolutionDir)External\DirectXTex\;$(SolutionDir)External\imgui_Extensions;$(SolutionDir)PhysicsEngine\include;$(SolutionDir)External\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -533,7 +533,7 @@ xcopy "$(SolutionDir)Cho\TheaReflectDeclare.h" "$(TargetDir)Cho\" /E /I /Y</Comm
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)External\assimp\include;$(SolutionDir)External\imgui\include;$(SolutionDir)External\nlohmann;$(SolutionDir)ChoMath\include;$(ProjectDir)GameCore\Marionnette;$(ProjectDir)Core\Utility;$(ProjectDir)pch\;$(SolutionDir)ChoMath;$(SolutionDir)External\DirectXTex\;$(SolutionDir)External\imgui_Extensions;$(SolutionDir)PhysicsEngine\include;$(SolutionDir)External\assimp\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

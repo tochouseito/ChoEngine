@@ -22,10 +22,10 @@ class GameObject;
 // 初期値を保存するための構造体
 struct TransformStartValue
 {
-	Vector3 translation = { 0.0f, 0.0f, 0.0f };
+	float3 translation = { 0.0f, 0.0f, 0.0f };
 	Quaternion rotation = { 0.0f, 0.0f, 0.0f,1.0f };
 	Scale scale = { 1.0f, 1.0f, 1.0f };
-	Vector3 degrees = { 0.0f, 0.0f, 0.0f };
+	float3 degrees = { 0.0f, 0.0f, 0.0f };
 };
 
 struct TransformComponent : public IComponentTag
@@ -37,23 +37,23 @@ struct TransformComponent : public IComponentTag
 	// ムーブコンストラクタ（移動）
 	TransformComponent(TransformComponent&&) noexcept = default;
 
-	Vector3 position = { 0.0f, 0.0f, 0.0f };			// 位置
+	float3 position = { 0.0f, 0.0f, 0.0f };			// 位置
 	Quaternion quaternion = { 0.0f, 0.0f, 0.0f,1.0f };	// 回転
 	Scale scale = { 1.0f, 1.0f, 1.0f };					// スケール
-	Matrix4 matWorld = chomath::MakeIdentity4x4();		// ワールド行列
-	Matrix4 rootMatrix = chomath::MakeIdentity4x4();	// ルートのワールド行列
-	Vector3 degrees = { 0.0f,0.0f,0.0f };				// 度数表示,操作用変数
-	Vector3 prePos = { 0.0f,0.0f,0.0f };				// 位置差分計算用
-	Vector3 preRot = { 0.0f,0.0f,0.0f };				// 回転差分計算用
+    float4x4 matWorld = float4x4::Identity();		// ワールド行列
+	float4x4 rootMatrix = float4x4::Identity();	// ルートのワールド行列
+	float3 degrees = { 0.0f,0.0f,0.0f };				// 度数表示,操作用変数
+	float3 prePos = { 0.0f,0.0f,0.0f };				// 位置差分計算用
+	float3 preRot = { 0.0f,0.0f,0.0f };				// 回転差分計算用
 	Scale preScale = { 1.0f,1.0f,1.0f };				// スケール差分計算用
 	std::wstring parentName = L"";						// 親の名前
 	std::vector<std::wstring> childNames;				// 子供の名前
 	std::optional<uint32_t> parent = std::nullopt;		// 親のEntity
-	Matrix4 matLocal = chomath::MakeIdentity4x4();	// ローカル行列
-	Matrix4 matRotation = chomath::MakeIdentity4x4();	// 回転行列
-	Matrix4 matScale = chomath::MakeIdentity4x4();	// スケール行列
+	float4x4 matLocal = float4x4::Identity();	// ローカル行列
+	float4x4 matRotation = float4x4::Identity();	// 回転行列
+	float4x4 matScale = float4x4::Identity();	// スケール行列
 	int tickPriority = 0;								// Tick優先度
-	Vector3 forward = { 0.0f, 0.0f, 1.0f };			// 前方向ベクトル
+	float3 forward = { 0.0f, 0.0f, 1.0f };			// 前方向ベクトル
 	std::optional<uint32_t> mapID = std::nullopt;		// マップインデックス
 	TransformStartValue startValue;						// 初期値保存用
 	std::optional<uint32_t> materialID = std::nullopt;	// マテリアルID
@@ -98,8 +98,8 @@ struct TransformComponent : public IComponentTag
 		position.Initialize();
 		quaternion.Initialize();
 		scale.Initialize();
-		matWorld = chomath::MakeIdentity4x4();
-		rootMatrix = chomath::MakeIdentity4x4();
+		matWorld = float4x4::Identity();
+		rootMatrix = float4x4::Identity();
 		degrees.Initialize();
 		prePos.Initialize();
 		preRot.Initialize();
@@ -131,9 +131,9 @@ struct CameraComponent : public IComponentTag
     // 深度限界（奥側）
     float farZ = 1000.0f;
 	// View行列
-	Matrix4 viewMatrix = chomath::MakeIdentity4x4();
+	float4x4 viewMatrix = float4x4::Identity();
 	// Projection行列
-	Matrix4 projectionMatrix = chomath::MakeIdentity4x4();
+	float4x4 projectionMatrix = float4x4::Identity();
 	// バッファーインデックス
 	std::optional<uint32_t> bufferIndex = std::nullopt;
 
@@ -281,7 +281,7 @@ struct ScriptComponent : public IComponentTag
     };
     struct FieldVal  // 保存用
     {
-        using Value = std::variant<int, float, Vector3, bool>;
+        using Value = std::variant<int, float, float3, bool>;
         Value value;
         std::type_index type = typeid(void);
         std::pair<uint32_t, uint32_t> minmax = { 0, 0 };
@@ -292,8 +292,8 @@ struct ScriptComponent : public IComponentTag
 // ライン描画コンポーネント
 struct LineData
 {
-	Vector3 start;	// 始点
-	Vector3 end;	// 終点
+	float3 start;	// 始点
+	float3 end;	// 終点
 	Color color;	// 色
 };
 
@@ -351,9 +351,9 @@ struct Rigidbody2DComponent : public IComponentTag
 	bool isCollisionStay = false; // 衝突中フラグ
 	std::optional<Entity> otherEntity = std::nullopt; // 衝突したオブジェクトID
 	std::optional<Entity> selfEntity = std::nullopt; // 自分のオブジェクトID
-	std::optional<Vector2> requestedPosition = std::nullopt; // 位置リクエスト
+	std::optional<float2> requestedPosition = std::nullopt; // 位置リクエスト
 	//std::optional<b2Vec2> requestedVelocity = std::nullopt; // 速度リクエスト
-	Vector2 velocity = { 0.0f, 0.0f }; // 速度
+	float2 velocity = { 0.0f, 0.0f }; // 速度
 
 	Rigidbody2DComponent& operator=(const Rigidbody2DComponent& other)
 	{
@@ -502,12 +502,12 @@ struct Rigidbody3DComponent : public IComponentTag
 	bool fixedRotationY = false; // Y軸回転固定
 	bool fixedRotationZ = false; // Z軸回転固定
 	physics::d3::Id3BodyType bodyType = physics::d3::Id3BodyType::DYNAMIC; // ボディタイプ
-	Vector3 halfsize = { 0.5f, 0.5f, 0.5f }; // 半径（ボックス形状の場合）
-	Vector3 preHalfsize = { 0.5f,0.5f,0.5f };
-	Vector3 velocity = { 0.0f, 0.0f, 0.0f }; // 速度
-	Vector3 angularVelocity = { 0.0f, 0.0f, 0.0f }; // 角速度
+	float3 halfsize = { 0.5f, 0.5f, 0.5f }; // 半径（ボックス形状の場合）
+	float3 preHalfsize = { 0.5f,0.5f,0.5f };
+	float3 velocity = { 0.0f, 0.0f, 0.0f }; // 速度
+	float3 angularVelocity = { 0.0f, 0.0f, 0.0f }; // 角速度
 	Quaternion quaternion = { 0.0f, 0.0f, 0.0f, 1.0f }; // 回転
-	std::optional<Vector3> requestedPosition = std::nullopt; // 位置リクエスト
+	std::optional<float3> requestedPosition = std::nullopt; // 位置リクエスト
 	physics::d3::Id3Body* runtimeBody = nullptr; // 物理エンジンのボディ
 	std::optional<Entity> otherEntity = std::nullopt; // 衝突したオブジェクトID
 	std::optional<Entity> selfEntity = std::nullopt; // 自分のオブジェクトID
@@ -568,7 +568,7 @@ struct BoxCollider3DComponent : public IComponentTag
 	BoxCollider3DComponent(const BoxCollider3DComponent&) = default;
 	// ムーブコンストラクタ（移動）
 	BoxCollider3DComponent(BoxCollider3DComponent&&) noexcept = default;
-	Vector3 halfExtents = { 0.5f, 0.5f, 0.5f }; // 半径
+	float3 halfExtents = { 0.5f, 0.5f, 0.5f }; // 半径
 	float density = 1.0f; // 密度
 	float friction = 0.3f; // 摩擦係数
 	float restitution = 0.0f; // 反発係数
@@ -607,7 +607,7 @@ struct MaterialComponent : public IComponentTag
 	bool enableLighting = true;
 	bool enableTexture = false;
 	bool uvFlipY = false;
-	Matrix4 matUV;
+	float4x4 matUV;
 	float shininess = 50.0f;
 	float cubeUVScale = 1.0f;	// キューブマップのUVスケール
 	std::wstring textureName = L"";	// テクスチャ名
@@ -638,7 +638,7 @@ struct MaterialComponent : public IComponentTag
 		enableLighting = true;
 		enableTexture = false;
 		uvFlipY = false;
-		matUV = chomath::MakeIdentity4x4();
+		matUV = float4x4::Identity();
 		shininess = 50.0f;
 		textureName = L"";
 		textureID = std::nullopt;
@@ -718,7 +718,7 @@ struct ParticleComponent : public IComponentTag
 	ParticleComponent(ParticleComponent&&) noexcept = default;
 
 	uint32_t count = 1024;// パーティクル数
-	Matrix4 matBillboard = chomath::MakeIdentity4x4();
+	float4x4 matBillboard = float4x4::Identity();
 	float time = 0.0f;
 	float deltaTime = 0.0f;
 	// バッファーインデックス
@@ -743,7 +743,7 @@ struct ParticleComponent : public IComponentTag
 	void Initialize()
 	{
 		count = 1024;
-		matBillboard = chomath::MakeIdentity4x4();
+		matBillboard = float4x4::Identity();
 		time = 0.0f;
 		deltaTime = 0.0f;
 		bufferIndex = std::nullopt;
@@ -788,17 +788,17 @@ struct UISpriteComponent : public IComponentTag
 	// ムーブコンストラクタ（移動）
 	UISpriteComponent(UISpriteComponent&&) noexcept = default;
 
-	Vector2 position{ 0.0f,0.0f };// 位置
+	float2 position{ 0.0f,0.0f };// 位置
 	float rotation = 0.0f;// Z軸回転
-	Vector2 scale = { 1.0f,1.0f };// スケール
-	Matrix4 matWorld = chomath::MakeIdentity4x4();
-	Vector2 uvPos = { 0.0f,0.0f };
+	float2 scale = { 1.0f,1.0f };// スケール
+	float4x4 matWorld = float4x4::Identity();
+	float2 uvPos = { 0.0f,0.0f };
 	float uvRot = 0.0f;
-	Vector2 uvScale = { 1.0f,1.0f };
-	Vector2 anchorPoint = { 0.0f,0.0f };// アンカーポイント
-	Vector2 size = { 64.0f,64.0f };// サイズ
-	Vector2 textureLeftTop = { 0.0f,0.0f };// テクスチャの左上座標
-	Vector2 textureSize = { 64.0f,64.0f };// テクスチャのサイズ
+	float2 uvScale = { 1.0f,1.0f };
+	float2 anchorPoint = { 0.0f,0.0f };// アンカーポイント
+	float2 size = { 64.0f,64.0f };// サイズ
+	float2 textureLeftTop = { 0.0f,0.0f };// テクスチャの左上座標
+	float2 textureSize = { 64.0f,64.0f };// テクスチャのサイズ
 
 	std::optional<uint32_t> mapID = std::nullopt;
 
@@ -827,7 +827,7 @@ struct UISpriteComponent : public IComponentTag
 		position.Initialize();
 		rotation = 0.0f;
 		scale.Initialize();
-		matWorld = chomath::MakeIdentity4x4();
+		matWorld = float4x4::Identity();
 		uvPos.Initialize();
 		uvRot = 0.0f;
 		uvScale.Initialize();

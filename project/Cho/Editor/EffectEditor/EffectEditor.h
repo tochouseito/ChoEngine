@@ -15,7 +15,7 @@ public:
 	void Update() override;
 	void Window() override;
 	// RandValue用ImGui
-	static bool DragRandVector3(const char* label, RandVector3* v, float v_speed, float v_min, float v_max);
+	static bool DragRandfloat3(const char* label, Randfloat3* v, float v_speed, float v_min, float v_max);
 private:
 	void ControlWindow();
 };

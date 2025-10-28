@@ -9,8 +9,7 @@
 #include "include/Platform/Timer.h"
 #include "include/Platform/WinApp.h"
 #include "include/Core/Allocators.h"
-#include "include/Core/CommandSystem.h"
-#include "include/Core/EventSystem.h"
+#include "include/Core/EventCommand.h"
 #include "include/Core/FileController.h"
 #include "include/Core/JobSystem.h"
 #include "include/Core/LogAssert.h"
@@ -41,14 +40,11 @@ class Engine::Impl
 public:
     Impl()
     {
-        m_pFileSystem = std::make_unique<Platform::FileSystem>();
         m_pInput = std::make_unique<Platform::Input>();
         m_pNetwork = std::make_unique<Platform::Network>();
         m_pTimer = std::make_unique<Platform::Timer>();
         m_pWinApp = std::make_unique<Platform::WinApp>();
         m_pAllocators = std::make_unique<Core::Allocators>();
-        m_pCommandSystem = std::make_unique<Core::CommandSystem>();
-        m_pEventSystem = std::make_unique<Core::EventSystem>();
         m_pFileController = std::make_unique<Core::FileController>();
         m_pJobSystem = std::make_unique<Core::JobSystem>();
         m_pLogAssert = std::make_unique<Core::LogAssert>();
@@ -92,24 +88,18 @@ public:
         m_pLogAssert.reset();
         m_pJobSystem.reset();
         m_pFileController.reset();
-        m_pEventSystem.reset();
-        m_pCommandSystem.reset();
         m_pAllocators.reset();
         m_pWinApp.reset();
         m_pTimer.reset();
         m_pNetwork.reset();
         m_pInput.reset();
-        m_pFileSystem.reset();
     }
 private:
-    std::unique_ptr<Platform::FileSystem>           m_pFileSystem;           ///< ファイルシステム
     std::unique_ptr<Platform::Input>                m_pInput;                ///< 入力システム
-    std::unique_ptr<Platform::Network>              m_pNetwork;             ///< スレッドシステム
+    std::unique_ptr<Platform::Network>              m_pNetwork;              ///< スレッドシステム
     std::unique_ptr<Platform::Timer>                m_pTimer;                ///< タイマーシステム
     std::unique_ptr<Platform::WinApp>               m_pWinApp;               ///< Windowsアプリケーション
     std::unique_ptr<Core::Allocators>               m_pAllocators;           ///< アロケータシステム
-    std::unique_ptr<Core::CommandSystem>            m_pCommandSystem;        ///< コマンドシステム
-    std::unique_ptr<Core::EventSystem>              m_pEventSystem;          ///< イベントシステム
     std::unique_ptr<Core::FileController>           m_pFileController;       //< ファイルコントローラ
     std::unique_ptr<Core::JobSystem>                m_pJobSystem;            ///< ジョブシステム
     std::unique_ptr<Core::LogAssert>                m_pLogAssert;            ///< ログアサートシステム

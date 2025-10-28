@@ -4,7 +4,7 @@
 #include "GameCore/ScriptAPI/ScriptAPI.h"
 
 
-using ObjectParameter = std::variant<int, float, bool, Vector3>;
+using ObjectParameter = std::variant<int, float, bool, float3>;
 class ECSManager;
 class ResourceManager;
 

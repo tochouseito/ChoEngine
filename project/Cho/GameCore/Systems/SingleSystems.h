@@ -482,7 +482,7 @@ private:
 	void InitializeComponent([[maybe_unused]] Entity e, AnimationComponent& animation);
 	void UpdateComponent([[maybe_unused]] Entity e, AnimationComponent& animation);
 	void FinalizeComponent([[maybe_unused]] Entity e, AnimationComponent& animation);
-	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, const float& time);
+	float3 CalculateValue(const std::vector<Keyframefloat3>& keyframes, const float& time);
 	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, const float& time);
 	Scale CalculateValue(const std::vector<KeyframeScale>& keyframes, const float& time);
 	void timeUpdate(AnimationComponent& animation, ModelData* model);

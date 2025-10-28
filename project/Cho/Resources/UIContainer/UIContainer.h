@@ -8,9 +8,9 @@
 
 struct UIVertexData
 {
-	Vector4 position;
-	Vector2 texCoord;
-	Vector4 color;
+	float4 position;
+	float2 texCoord;
+	float4 color;
 	uint32_t vertexID;
 };
 

@@ -256,7 +256,7 @@ void ResourceManager::CreateDummyMaterial()
 	data.color = color.From255(200, 200, 200);
 	/*data.enableLighting = true;
 	data.enableTexture = false;
-	data.matUV = Matrix4::Identity();
+	data.matUV = float4x4::Identity();
 	data.shininess = 0.0f;
 	data.textureId = 0;*/
 	pIntegrationBuffer->UpdateData(data, mapID);

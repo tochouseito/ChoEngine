@@ -17,7 +17,7 @@ namespace theatria
 			std::string projectVersion = "0.1.0";		// プロジェクトバージョン
 			std::wstring projectPath = L"";				// プロジェクトパス
 			std::string startScene = "MainScene";		// 開始シーン
-			Vector3 gravity = { 0.0f, -9.81f, 0.0f };	// 重力
+			float3 gravity = { 0.0f, -9.81f, 0.0f };	// 重力
 			std::string skyTexture = "";				// スカイテクスチャ
 
 			// エンジン設定
@@ -39,7 +39,7 @@ namespace theatria
 		std::string GetProjectVersion() const { return configData.projectVersion; }
 		std::wstring GetProjectPath() const { return configData.projectPath; }
 		std::string GetStartScene() const { return configData.startScene; }
-		Vector3 GetGravity() const { return configData.gravity; }
+		float3 GetGravity() const { return configData.gravity; }
 		std::string GetSkyTexture() const { return configData.skyTexture; }
 
 		std::string GetEngineVersion() const { return configData.engineVersion; }
@@ -56,7 +56,7 @@ namespace theatria
 		void SetProjectVersion(const std::string& version) { configData.projectVersion = version; }
 		void SetProjectPath(const std::wstring& path) { configData.projectPath = path; }
 		void SetStartScene(const std::string& scene) { configData.startScene = scene; }
-		void SetGravity(const Vector3& g) { configData.gravity = g; }
+		void SetGravity(const float3& g) { configData.gravity = g; }
 		void SetSkyTexture(const std::string& texture) { configData.skyTexture = texture; }
 
 		void SetEngineVersion(const std::string& version) { configData.engineVersion = version; }

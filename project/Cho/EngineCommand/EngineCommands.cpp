@@ -276,10 +276,10 @@ bool SetGravityCommand::Execute(EngineCommand* edit)
 	if (!world) { return false; }
 	if (!world3D) { return false; }
 	// 重力を取得
-	Vector3 gravity = world3D->GetGravity();
-	m_PreGravity = Vector3(gravity.x, gravity.y,gravity.z);
+	float3 gravity = world3D->GetGravity();
+	m_PreGravity = float3(gravity.x, gravity.y,gravity.z);
 	// 重力を設定
-	world->SetGravity(Vector2(m_Gravity.x, m_Gravity.y));
+	world->SetGravity(float2(m_Gravity.x, m_Gravity.y));
 	world3D->SetGravity(m_Gravity);
 	return true;
 }
@@ -388,7 +388,7 @@ bool CreateEffectCommand::Execute(EngineCommand* edit)
 	// 各パラメータの初期値
 	nodedata.common.lifeTime.median = 60.0f;
 	nodedata.common.emitCountMax = 20;
-	nodedata.scale.value = Vector3(1.0f, 1.0f, 1.0f);
+	nodedata.scale.value = float3(1.0f, 1.0f, 1.0f);
 	nodedata.scale.pva.value.x.median = 1.0f;
 	nodedata.scale.pva.value.y.median = 1.0f;
 	nodedata.scale.pva.value.z.median = 1.0f;
@@ -433,7 +433,7 @@ bool AddEffectNodeCommand::Execute(EngineCommand* edit)
 	EffectSprite sprite;
 	nodedata.drawMesh = sprite;
 	nodedata.name = "NewNode";
-	nodedata.scale.value = Vector3(1.0f, 1.0f, 1.0f);
+	nodedata.scale.value = float3(1.0f, 1.0f, 1.0f);
 	nodedata.scale.pva.value.x.median = 1.0f;
 	nodedata.scale.pva.value.y.median = 1.0f;
 	nodedata.scale.pva.value.z.median = 1.0f;

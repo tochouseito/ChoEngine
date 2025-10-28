@@ -6,7 +6,7 @@ struct RandValue
     float amplitude;
 };
 
-struct RandVector3
+struct Randfloat3
 {
     RandValue x;
     RandValue y;
@@ -15,20 +15,20 @@ struct RandVector3
 
 struct PVA
 {
-    RandVector3 value;
-    RandVector3 velocity;
-    RandVector3 acceleration;
+    Randfloat3 value;
+    Randfloat3 velocity;
+    Randfloat3 acceleration;
 };
 
 struct EasingValue
 {
-    RandVector3 startPoint;
-    RandVector3 endPoint;
+    Randfloat3 startPoint;
+    Randfloat3 endPoint;
     uint easingType;
     uint startSpeedType;
     uint endSpeedType;
     uint isMedianPoint;
-    RandVector3 medianPoint;
+    Randfloat3 medianPoint;
 };
 
 static const uint SRT_TYPE_STANDARD = 0;

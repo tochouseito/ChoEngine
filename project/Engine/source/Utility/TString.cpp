@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "include/Utility/TString.h"
 
-std::wstring Theatria::Utility::TString::ToUTF16(const std::string& utf8Str)
+std::wstring Theatria::Utility::ToUTF16(const std::string& utf8Str)
 {
     if (utf8Str.empty()) return {};
     int size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
@@ -15,7 +15,7 @@ std::wstring Theatria::Utility::TString::ToUTF16(const std::string& utf8Str)
     return ws;
 }
 
-std::string Theatria::Utility::TString::ToUTF8(const std::wstring& utf16Str)
+std::string Theatria::Utility::ToUTF8(const std::wstring& utf16Str)
 {
     if (utf16Str.empty()) return {};
     // 無効文字検出を有効化

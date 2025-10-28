@@ -234,7 +234,7 @@ namespace theatriaSystem
             return data != nullptr;
         }
 
-        void SetTransform(const Vector3& pos);
+        void SetTransform(const float3& pos);
         void SetTransform(const Quaternion& rot);
 
     private:
@@ -313,13 +313,13 @@ namespace theatriaSystem
 //struct CHO_API TransformAPI
 //{
 //	// 関数
-//	Vector3& position() { return data->position; }
-//	Vector3& rotation() { return data->degrees; }
+//	float3& position() { return data->position; }
+//	float3& rotation() { return data->degrees; }
 //	Quaternion& quaternion() { return data->rotation; }
 //	Scale& scale() { return data->scale; }
-//	Matrix4& worldMatrix() { return data->matWorld; }
+//	float4x4& worldMatrix() { return data->matWorld; }
 //	void SetParent(Entity parent) { data->parent = parent; }
-//	Vector3& forward() { return data->forward; }
+//	float3& forward() { return data->forward; }
 //
 //private:
 //	friend class GameObject;
@@ -351,8 +351,8 @@ namespace theatriaSystem
 //struct CHO_API LineRendererAPI
 //{
 //	// 関数
-//	Vector3& start(uint32_t index) { return (*data)[index].line.start; }
-//	Vector3& end(uint32_t index) { return (*data)[index].line.end; }
+//	float3& start(uint32_t index) { return (*data)[index].line.start; }
+//	float3& end(uint32_t index) { return (*data)[index].line.end; }
 //	Color& color(uint32_t index) { return (*data)[index].line.color; }
 //private:
 //	friend class GameObject;
@@ -370,22 +370,22 @@ namespace theatriaSystem
 //	Rigidbody2DAPI();
 //	~Rigidbody2DAPI();
 //	// 関数
-//	Vector2& velocity() { return data->velocity; }
+//	float2& velocity() { return data->velocity; }
 //	void SetBodyType(b2BodyType type) { data->bodyType = type; }
 //	void SetFixedRotation(bool fixed) { data->fixedRotation = fixed; }
 //	void SetActive(bool active) { data->isActive = active; }
 //
 //	// 関数ポインタのラッパー
 //	// 法線取得（RaycastOnce の直後のみ有効）
-//	Vector2 GetLastHitNormal() const;
+//	float2 GetLastHitNormal() const;
 //	// 反射ベクトルを計算
 //	void Reflect(const b2Vec2& incident, const b2Vec2& normal);
 //	// 反射Raycast（指定回数分反射する）
 //	b2Vec2 RaycastWithReflectionsOnce(const b2Vec2& start, const b2Vec2& dir, const int ReflectionCount, const float maxLength, const std::string hitTag);
 //	// 瞬間移動
-//	void MovePosition(const Vector2& position);
+//	void MovePosition(const float2& position);
 //	// ライン上の最初にヒットしたオブジェクトを取得
-//	GameObject* Linecast(const Vector2& start, const Vector2& end, const std::string hitTag);
+//	GameObject* Linecast(const float2& start, const float2& end, const std::string hitTag);
 //	// 強制的に物理計算
 //	void SetAwake(bool isAwake);
 //private:
@@ -459,9 +459,9 @@ namespace theatriaSystem
 //	// マウスのトリガーをチェック。押した瞬間だけtrueになる
 //	bool IsTriggerMouse(const int32_t& buttonNumber);
 //	// マウスの位置を取得する（ウィンドウ座標系）
-//	const Vector2& GetMouseWindowPosition();
+//	const float2& GetMouseWindowPosition();
 //	// マウスの位置を取得する（ウィンドウ座標系）
-//	Vector2 GetMouseScreenPosition();
+//	float2 GetMouseScreenPosition();
 //	// 現在のジョイスティック状態を取得する
 //	bool GetJoystickState(const int32_t& stickNo, XINPUT_STATE& out);
 //	// 前回のジョイスティック状態を取得する
@@ -475,7 +475,7 @@ namespace theatriaSystem
 //	// 接続されているジョイスティック数を取得する
 //	bool IsPressPadButton(const PadButton& button, int32_t stickNo);
 //	// 接続されているジョイスティック数を取得する
-//	Vector2 GetStickValue(const LR& padStick, int32_t stickNo);
+//	float2 GetStickValue(const LR& padStick, int32_t stickNo);
 //	// 接続されているジョイスティック数を取得する
 //	float GetLRTrigger(const LR& LorR, int32_t stickNo);
 //private:
@@ -494,12 +494,12 @@ namespace theatriaSystem
 //	EmitterAPI();
 //	~EmitterAPI();
 //	// 関数ポインタのラッパー
-//	void SetPosition(const Vector3& position);
-//	void SetVelocity(const Vector3& velocity);
-//	void SetAcceleration(const Vector3& acceleration);
-//	void SetRotation(const Vector3& rotation);
-//	void SetScale(const Vector3& scale);
-//	void SetColor(const Vector3& color);
+//	void SetPosition(const float3& position);
+//	void SetVelocity(const float3& velocity);
+//	void SetAcceleration(const float3& acceleration);
+//	void SetRotation(const float3& rotation);
+//	void SetScale(const float3& scale);
+//	void SetColor(const float3& color);
 //	
 //private:
 //	friend class GameObject;
@@ -520,7 +520,7 @@ namespace theatriaSystem
 //	ParticleAPI();
 //	~ParticleAPI();
 //	// 関数ポインタのラッパー
-//	void Emit(const Vector3& position);
+//	void Emit(const float3& position);
 //private:
 //	friend class GameObject;
 //	void Initialize(const Entity& entity, ECSManager* ecs, ObjectContainer* objectContainer, ResourceManager* resourceManager);
@@ -541,10 +541,10 @@ namespace theatriaSystem
 //	EffectAPI();
 //	~EffectAPI();
 //	// 関数ポインタのラッパー
-//	void SetPosition(const Vector3& position);
-//	void SetRotation(const Vector3& rotation);
-//	void SetScale(const Vector3& scale);
-//	void SetColor(const Vector3& color);
+//	void SetPosition(const float3& position);
+//	void SetRotation(const float3& rotation);
+//	void SetScale(const float3& scale);
+//	void SetColor(const float3& color);
 //private:
 //	friend class GameObject;
 //	void Initialize(const Entity& entity, ECSManager* ecs, ObjectContainer* objectContainer, ResourceManager* resourceManager);
@@ -561,10 +561,10 @@ namespace theatriaSystem
 //struct CHO_API UISpriteAPI
 //{
 //	// 関数
-//	Vector2& position() { return data->position; }
+//	float2& position() { return data->position; }
 //	float& rotation() { return data->rotation; }
-//	Vector2& scale() { return data->scale; }
-//	Vector2& anchorPoint() { return data->anchorPoint; }
+//	float2& scale() { return data->scale; }
+//	float2& anchorPoint() { return data->anchorPoint; }
 //private:
 //	friend class GameObject;
 //	void Initialize(const Entity& entity, ECSManager* ecs, ObjectContainer* objectContainer, ResourceManager* resourceManager);
