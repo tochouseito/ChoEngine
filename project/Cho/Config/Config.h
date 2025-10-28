@@ -4,6 +4,7 @@
 
 namespace theatria
 {
+    using namespace Theatria::Math;
 	/*
 	* エンジン、プロジェクトの設定や構成を保持するクラス
 	*/
@@ -17,7 +18,7 @@ namespace theatria
 			std::string projectVersion = "0.1.0";		// プロジェクトバージョン
 			std::wstring projectPath = L"";				// プロジェクトパス
 			std::string startScene = "MainScene";		// 開始シーン
-			float3 gravity = { 0.0f, -9.81f, 0.0f };	// 重力
+			Theatria::Math::float3 gravity = { 0.0f, -9.81f, 0.0f };	// 重力
 			std::string skyTexture = "";				// スカイテクスチャ
 
 			// エンジン設定

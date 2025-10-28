@@ -4,6 +4,7 @@
 #include <vector>
 #include <wrl.h>
 using namespace Microsoft::WRL;
+using namespace Theatria::Math;
 
 class InputManager
 {
