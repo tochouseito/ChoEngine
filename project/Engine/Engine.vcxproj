@@ -125,14 +125,13 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Core\EventCommand.cpp" />
     <ClCompile Include="source\Core\FrameCounter.cpp" />
     <ClCompile Include="source\Main\Engine.cpp" />
     <ClCompile Include="source\Graphics\ShaderCompiler.cpp" />
     <ClCompile Include="source\Core\Allocators.cpp" />
     <ClCompile Include="source\Audio\AudioEngine.cpp" />
-    <ClCompile Include="source\Core\CommandSystem.cpp" />
     <ClCompile Include="source\Graphics\DescriptorAllocator.cpp" />
-    <ClCompile Include="source\Core\EventSystem.cpp" />
     <ClCompile Include="source\Core\FileController.cpp" />
     <ClCompile Include="source\Platform\FileSystem.cpp" />
     <ClCompile Include="source\Graphics\FrameGraph.cpp" />
@@ -182,13 +181,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Core\EventCommand.h" />
     <ClInclude Include="include\Core\FrameCounter.h" />
     <ClInclude Include="include\Main\Engine.h" />
     <ClInclude Include="include\Core\Allocators.h" />
     <ClInclude Include="include\Audio\AudioEngine.h" />
-    <ClInclude Include="include\Core\CommandSystem.h" />
     <ClInclude Include="include\Graphics\DescriptorAllocator.h" />
-    <ClInclude Include="include\Core\EventSystem.h" />
     <ClInclude Include="include\Core\FileController.h" />
     <ClInclude Include="include\Platform\FileSystem.h" />
     <ClInclude Include="include\Graphics\FrameGraph.h" />
