@@ -915,7 +915,7 @@ void UISpriteSystem::UpdateComponent(Entity e, UISpriteComponent& uiSprite)
 		0.0f, 100.0f
 	);
 
-    float4x4 worldViewProjectionMatrixSprite = viewMatrixSprite * projectionMatrixSprite * worldMatrixSprite;
+    float4x4 worldViewProjectionMatrixSprite = worldMatrixSprite * viewMatrixSprite * projectionMatrixSprite;
 
 	uiSprite.matWorld = worldViewProjectionMatrixSprite;
 
