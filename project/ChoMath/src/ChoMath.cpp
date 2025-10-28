@@ -812,3 +812,75 @@ float Theatria::Math::Lerp(float start, float end, float t)
 {
     return start + (end - start) * t;
 }
+
+// 移動成分のみ抽出
+float3 Theatria::Math::GetTranslation(const float4x4& m)
+{
+    return float3(m.m[3][0], m.m[3][1], m.m[3][2]);
+}
+
+// 球面線形補間 (Slerp) 関数
+float3 Theatria::Math::Slerp(const float3& v1, const float3& v2, float t)
+{
+    // 正規化
+    float3 start = v1;
+    float3 end = v2;
+    float dot = start.x * end.x + start.y * end.y + start.z * end.z;
+    if (dot < 0.0f)
+    {
+        end.x = -end.x;
+        end.y = -end.y;
+        end.z = -end.z;
+        dot = -dot;
+    }
+
+    const float threshold = 0.9995f;
+    if (dot > threshold)
+    {
+        // 線形補間
+        return float3{
+            v1.x + t * (v2.x - v1.x), v1.y + t * (v2.y - v1.y), v1.z + t * (v2.z - v1.z) };
+    }
+
+    // 角度を計算
+    float theta = std::acos(dot);
+    float invSinTheta = 1.0f / std::sin(theta);
+
+    // 球面線形補間
+    float scale1 = std::sin((1.0f - t) * theta) * invSinTheta;
+    float scale2 = std::sin(t * theta) * invSinTheta;
+
+    return float3{
+        scale1 * v1.x + scale2 * v2.x,
+        scale1 * v1.y + scale2 * v2.y,
+        scale1 * v1.z + scale2 * v2.z
+    };
+}
+
+// 線形（普通のLerpと同じ）
+// 線形（普通のLerpと同じ）
+float Theatria::Math::easing::Linear(float t)
+{
+    return t;
+}
+
+// 二乗で加速（最初ゆっくり → 後半速い）
+// 二乗で加速（最初ゆっくり → 後半速い）
+float Theatria::Math::easing::EaseInQuad(float t)
+{
+    return t * t;
+}
+
+// 二乗で減速（最初速い → 後半ゆっくり）
+// 二乗で減速（最初速い → 後半ゆっくり）
+float Theatria::Math::easing::EaseOutQuad(float t)
+{
+    return 1.0f - (1.0f - t) * (1.0f - t);
+}
+
+// 二乗で加減速（最初ゆっくり → 中盤速い → 最後ゆっくり）
+// 二乗で加減速（最初ゆっくり → 中盤速い → 最後ゆっくり）
+float Theatria::Math::easing::EaseInOutQuad(float t)
+{
+    return t < 0.5f ? 2.0f * t * t : 1.0f - powf(-2.0f * t + 2.0f, 2) / 2.0f;
+}

@@ -9,6 +9,8 @@
 #include <string>
 #include <variant>
 
+using namespace Theatria::Math;
+
 struct RandValue
 {
     float median;       // 中央値

@@ -127,4 +127,33 @@ namespace Theatria::Math
 	float2 WorldToScreen(const float3& worldPos, const float4x4& viewMatrix, const float4x4& projMatrix, uint32_t screenWidth, uint32_t screenHeight);
 
 	float Lerp(float start, float end, float t);
+
+    // 移動成分のみ抽出
+    float3 GetTranslation(const float4x4& m);
+
+    // 球面線形補間 (Slerp) 関数
+    float3 Slerp(const float3& v1, const float3& v2, float t);
+
+    // イージング
+    namespace easing
+    {
+        // t: 0.0f ～ 1.0f の入力 (経過割合)
+        // 戻り値: 0.0f ～ 1.0f の出力 (補間値)
+
+        // 線形（普通のLerpと同じ）
+        // 線形（普通のLerpと同じ）
+        float Linear(float t);
+
+        // 二乗で加速（最初ゆっくり → 後半速い）
+        // 二乗で加速（最初ゆっくり → 後半速い）
+        float EaseInQuad(float t);
+
+        // 二乗で減速（最初速い → 後半ゆっくり）
+        // 二乗で減速（最初速い → 後半ゆっくり）
+        float EaseOutQuad(float t);
+
+        // 二乗で加減速（最初ゆっくり → 中盤速い → 最後ゆっくり）
+        // 二乗で加減速（最初ゆっくり → 中盤速い → 最後ゆっくり）
+        float EaseInOutQuad(float t);
+    }
 };
