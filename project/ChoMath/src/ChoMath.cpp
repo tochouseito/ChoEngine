@@ -603,7 +603,7 @@ float4x4 Theatria::Math::MakeAffineMatrix(const float3& scale, const float3& rot
     float4x4 rotateXMatrix = XAxisMatrix(rotate.x);
     float4x4 rotateYMatrix = YAxisMatrix(rotate.y);
     float4x4 rotateZMatrix = ZAxisMatrix(rotate.z);
-    float4x4 rotateXYZMatrix = rotateZMatrix * rotateYMatrix * rotateXMatrix;
+    float4x4 rotateXYZMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
 
     float4x4 translateMatrix = TranslateMatrix(translate);
     // result = Multiply(rotateXYZMatrix, Multiply(scaleMatrix, translateMatrix));
