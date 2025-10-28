@@ -4,6 +4,7 @@
 #define USE_THEATRIAENGINE_SCRIPT
 #include "TheatriaEngineAPI.h"
 #include "TheaReflectDeclare.h"
+namespace math = Theatria::Math;
 class THEATRIA_API Marionnette
 {
     friend class ScriptInstanceGenerateSystem;
