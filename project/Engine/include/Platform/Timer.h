@@ -59,7 +59,10 @@ namespace Theatria::Platform
         double ElapsedSeconds() noexcept
         {
             auto total = m_Elapsed;
-            if (m_Running) total += (Clock::now() - m_Start);
+            if (m_Running)
+            {
+                total += (Clock::now() - m_Start);
+            }
             return total.count();
         }
 
@@ -74,6 +77,9 @@ namespace Theatria::Platform
 
         /// @brief 動作中かどうか取得
         bool IsRunning() const noexcept { return m_Running; }
+
+
+        Time_Point StartTime() const noexcept { return m_Start; }///< 開始時間点取得
 
     private:
         Time_Point m_Start{};///< 開始時間点
