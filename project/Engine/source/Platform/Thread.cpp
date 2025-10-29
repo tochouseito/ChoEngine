@@ -57,6 +57,13 @@ void Theatria::Platform::Threading::Thread::Detach() noexcept
     m_entry = {};
 }
 
+bool Theatria::Platform::Threading::Thread::SetName(std::wstring_view n) noexcept
+{
+    // 規格にスレッド名設定APIなし：名前は保持するだけ
+    m_desc.name = n;
+    return true;
+}
+
 void Theatria::Platform::Threading::Thread::move_from(Thread&& rhs) noexcept
 {
     m_jth = std::move(rhs.m_jth);

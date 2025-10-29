@@ -224,7 +224,7 @@ namespace Theatria::Platform::Threading
         bool SetPriority(ThreadPriority) noexcept { return false; }
         bool SetAffinity(uint64_t) noexcept { return false; }
         bool SetIdealProcessor(int) noexcept { return false; }
-        bool SetName(std::wstring_view) noexcept { return false; }
+        bool SetName(std::wstring_view n) noexcept;
 
         // 情報（規格は整数スレッドIDを提供しないため、ハッシュで代替）
         uint32_t GetId() const noexcept
