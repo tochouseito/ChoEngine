@@ -139,7 +139,8 @@ namespace Theatria::Core
 
         /*================ Getter / Clear ================*/
         // Console
-        const std::vector<LogMessage> GetConsoleMessages() const{
+        const std::vector<LogMessage> GetConsoleMessages() const
+        {
             std::lock_guard lock(m_ConsoleMutex);
             return m_ConsoleMessages;
         }
@@ -148,7 +149,8 @@ namespace Theatria::Core
             m_ConsoleMessages.clear();
         }
         // VSOutput
-        const std::vector<LogMessage> GetVSOutputMessages() const{
+        const std::vector<LogMessage> GetVSOutputMessages() const
+        {
             std::lock_guard lock(m_VSOutputMutex);
             return m_VSOutputMessages;
         }
@@ -157,16 +159,19 @@ namespace Theatria::Core
             m_VSOutputMessages.clear();
         }
         // File
-        const std::vector<LogMessage> GetFileMessages() const{
+        const std::vector<LogMessage> GetFileMessages() const
+        {
             std::lock_guard lock(m_FileMutex);
             return m_FileMessages;
         }
-        void ClearFileMessages(){
+        void ClearFileMessages()
+        {
             std::lock_guard lock(m_FileMutex);
             m_FileMessages.clear();
         }
         // Clear All
-        void ClearAllMessages(){
+        void ClearAllMessages()
+        {
             ClearConsoleMessages();
             ClearVSOutputMessages();
             ClearFileMessages();
