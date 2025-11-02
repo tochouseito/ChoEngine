@@ -207,7 +207,18 @@ namespace Theatria::Platform::Threading
         }
 
         // エントリ：StopToken を受け取る関数
-        bool Start(std::function<void(StopToken)> entry, const ThreadDesc& desc = {});
+        // エントリ：StopToken を受け取る関数
+        bool Start(std::function<void(StopToken)> entry, const ThreadDesc& desc = {})
+        {
+            if (m_joinable) return false;
+            m_entry = std::move(entry);
+            m_desc = desc;
+
+            // 規格では startSuspended を提供しないため、即開始のみ
+            m_jth.emplace([this](std::stop_token st) { if (m_entry) m_entry(st); });
+            m_joinable = true;
+            return true;
+        }
 
         void RequestStop() noexcept { if (m_jth) m_jth->request_stop(); }
         bool StopRequested() const noexcept { return m_jth ? m_jth->get_stop_token().stop_requested() : false; }

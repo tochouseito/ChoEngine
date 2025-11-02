@@ -21,19 +21,6 @@ bool Theatria::Platform::Threading::ConditionVariable::wait(Mutex& mtx, uint32_t
     }
 }
 
-// エントリ：StopToken を受け取る関数
-bool Theatria::Platform::Threading::Thread::Start(std::function<void(StopToken)> entry, const ThreadDesc& desc)
-{
-    if (m_joinable) return false;
-    m_entry = std::move(entry);
-    m_desc = desc;
-
-    // 規格では startSuspended を提供しないため、即開始のみ
-    m_jth.emplace([this](std::stop_token st) { if (m_entry) m_entry(st); });
-    m_joinable = true;
-    return true;
-}
-
 void Theatria::Platform::Threading::Thread::Join() noexcept
 {
     if (m_jth)
