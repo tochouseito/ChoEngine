@@ -8,6 +8,7 @@
 #include "include/Platform/Thread.h"
 #include "include/Platform/Timer.h"
 #include "include/Platform/WinApp.h"
+#include "include/Core/FrameCounter.h"
 #include "include/Core/Allocators.h"
 #include "include/Core/EventCommand.h"
 #include "include/Core/FileController.h"
@@ -15,6 +16,7 @@
 #include "include/Core/LogAssert.h"
 #include "include/Core/MemoryManager.h"
 #include "include/Core/UUID.h"
+#include "include/Graphics/ResourceLeakChecker.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Graphics/FrameGraph.h"
 #include "include/Graphics/GPUTimeline.h"
@@ -29,6 +31,11 @@
 #include "include/Assets/Loader.h"
 #include "include/Scripting/ScriptAPI.h"
 
+// === EventCommands ===
+#include "include/Core/Events.h"
+#include "include/Core/Commands.h"
+#include "include/Core/Routers.h"
+
 // === Editor ===
 #include "include/Editor/ImGuiManager.h"
 
@@ -37,38 +44,48 @@ using namespace Theatria;
 /// @brief 実装隠蔽クラス
 class Engine::Impl
 {
+    friend class Engine;
 public:
     Impl()
     {
-        m_pInput = std::make_unique<Platform::Input>();
-        m_pNetwork = std::make_unique<Platform::Network>();
-        m_pTimer = std::make_unique<Platform::Timer>();
-        m_pWinApp = std::make_unique<Platform::WinApp>();
-        m_pAllocators = std::make_unique<Core::Allocators>();
-        m_pFileController = std::make_unique<Core::FileController>();
-        m_pJobSystem = std::make_unique<Core::JobSystem>();
-        m_pLogAssert = std::make_unique<Core::LogAssert>();
-        m_pMemoryManager = std::make_unique<Core::MemoryManager>();
-        m_pUUID = std::make_unique<Core::UUID>();
-        m_pDescriptorAllocator = std::make_unique<Graphics::DescriptorAllocator>();
-        m_pFrameGraph = std::make_unique<Graphics::FrameGraph>();
-        m_pGPUTimeline = std::make_unique<Graphics::GPUTimeline>();
-        m_pRenderDevice = std::make_unique<Graphics::RenderDevice>();
-        m_pRenderer = std::make_unique<Graphics::Renderer>();
-        m_pResourceManager = std::make_unique<Graphics::ResourceManager>();
-        m_pShaderCompiler = std::make_unique<Graphics::ShaderCompiler>();
-        m_pPhysicsWorld = std::make_unique<Physics::PhysicsWorld>();
-        m_pAudioEngine = std::make_unique<Audio::AudioEngine>();
-        m_pSceneManager = std::make_unique<GameCore::SceneManager>();
-        m_pIDManager = std::make_unique<Assets::IDManager>();
-        m_pLoader = std::make_unique<Assets::Loader>();
-        m_pScriptAPI = std::make_unique<Scripting::ScriptAPI>();
+        /*======================== EventCommand ========================*/
+        m_pEventSystem = std::make_unique<Core::EventCommand::EventSystem>();
+        m_pRouterHub = std::make_unique<Core::EventCommand::RouterHub>();
+        m_pExecutorHub = std::make_unique<Core::EventCommand::ExecutorHub>();
+        /*======================== Platform ========================*/
+        m_pInput =                  std::make_unique<Platform::Input>();
+        m_pNetwork =                std::make_unique<Platform::Network>();
+        /*======================== Core ========================*/
+        m_pFrameCounter =           std::make_unique<Core::FrameCounter>();
+        m_pAllocators =             std::make_unique<Core::Allocators>();
+        m_pFileController =         std::make_unique<Core::FileController>();
+        m_pJobSystem =              std::make_unique<Core::JobSystem>();
+        m_pLogAssert =              std::make_unique<Core::LogAssert>();
+        m_pMemoryManager =          std::make_unique<Core::MemoryManager>();
+        m_pUUID =                   std::make_unique<Core::UUID>();
+        /*======================== Graphics ========================*/
+        m_pResourceLeakChecker =    std::make_unique<Graphics::ResourceLeakChecker>();
+        m_pShaderCompiler =         std::make_unique<Graphics::ShaderCompiler>();
+        m_pRenderDevice =           std::make_unique<Graphics::RenderDevice>();
+        m_pDescriptorAllocator =    std::make_unique<Graphics::DescriptorAllocator>();
+        m_pResourceManager =        std::make_unique<Graphics::ResourceManager>();
+        m_pGPUTimeline =            std::make_unique<Graphics::GPUTimeline>();
+        m_pFrameGraph =             std::make_unique<Graphics::FrameGraph>();
+        m_pRenderer =               std::make_unique<Graphics::Renderer>();
+        /*======================== Other Systems ========================*/
+        m_pPhysicsWorld =           std::make_unique<Physics::PhysicsWorld>();
+        m_pAudioEngine =            std::make_unique<Audio::AudioEngine>();
+        m_pSceneManager =           std::make_unique<GameCore::SceneManager>();
+        m_pIDManager =              std::make_unique<Assets::IDManager>();
+        m_pLoader =                 std::make_unique<Assets::Loader>();
+        m_pScriptAPI =              std::make_unique<Scripting::ScriptAPI>();
 
-        m_pImGuiManager = std::make_unique<Editor::ImGuiManager>();
+        m_pImGuiManager =           std::make_unique<Editor::ImGuiManager>();
 
     }
     ~Impl() noexcept
     {
+        /*======================== Other Systems ========================*/
         m_pImGuiManager.reset();
         m_pScriptAPI.reset();
         m_pLoader.reset();
@@ -76,42 +93,57 @@ public:
         m_pSceneManager.reset();
         m_pAudioEngine.reset();
         m_pPhysicsWorld.reset();
-        m_pShaderCompiler.reset();
-        m_pResourceManager.reset();
+        /*======================== Graphics ========================*/
         m_pRenderer.reset();
-        m_pRenderDevice.reset();
-        m_pGPUTimeline.reset();
         m_pFrameGraph.reset();
+        m_pGPUTimeline.reset();
+        m_pResourceManager.reset();
         m_pDescriptorAllocator.reset();
+        m_pRenderDevice.reset();
+        m_pShaderCompiler.reset();
+        m_pResourceLeakChecker.reset();
+        /*======================== Core ========================*/
         m_pUUID.reset();
         m_pMemoryManager.reset();
         m_pLogAssert.reset();
         m_pJobSystem.reset();
         m_pFileController.reset();
         m_pAllocators.reset();
-        m_pWinApp.reset();
-        m_pTimer.reset();
+        m_pFrameCounter.reset();
+        /*======================== Platform ========================*/
         m_pNetwork.reset();
         m_pInput.reset();
+        /*======================== EventCommand ========================*/
+        m_pExecutorHub.reset();
+        m_pRouterHub.reset();
+        m_pEventSystem.reset();
     }
 private:
+    /*======================== EventCommand ========================*/
+    std::unique_ptr<Core::EventCommand::EventSystem>  m_pEventSystem;          ///< イベントシステム
+    std::unique_ptr<Core::EventCommand::RouterHub>    m_pRouterHub;            ///< ルーターハブ
+    std::unique_ptr<Core::EventCommand::ExecutorHub>  m_pExecutorHub;          ///< エグゼキューターハブ
+    /*======================== Platform ========================*/
     std::unique_ptr<Platform::Input>                m_pInput;                ///< 入力システム
     std::unique_ptr<Platform::Network>              m_pNetwork;              ///< スレッドシステム
-    std::unique_ptr<Platform::Timer>                m_pTimer;                ///< タイマーシステム
-    std::unique_ptr<Platform::WinApp>               m_pWinApp;               ///< Windowsアプリケーション
+    /*======================== Core ========================*/
+    std::unique_ptr<Core::FrameCounter>             m_pFrameCounter;         ///< フレームカウンタ
     std::unique_ptr<Core::Allocators>               m_pAllocators;           ///< アロケータシステム
-    std::unique_ptr<Core::FileController>           m_pFileController;       //< ファイルコントローラ
+    std::unique_ptr<Core::FileController>           m_pFileController;       ///< ファイルコントローラ
     std::unique_ptr<Core::JobSystem>                m_pJobSystem;            ///< ジョブシステム
     std::unique_ptr<Core::LogAssert>                m_pLogAssert;            ///< ログアサートシステム
     std::unique_ptr<Core::MemoryManager>            m_pMemoryManager;        ///< メモリマネージャ
     std::unique_ptr<Core::UUID>                     m_pUUID;                 ///< UUID生成システム
-    std::unique_ptr<Graphics::DescriptorAllocator>  m_pDescriptorAllocator;  ///< ディスクリプタアロケータ
-    std::unique_ptr<Graphics::FrameGraph>           m_pFrameGraph;           ///< フレームグラフ
-    std::unique_ptr<Graphics::GPUTimeline>          m_pGPUTimeline;          ///< GPUタイムライン
-    std::unique_ptr<Graphics::RenderDevice>         m_pRenderDevice;         ///< レンダーデバイス
-    std::unique_ptr<Graphics::Renderer>             m_pRenderer;             ///< レンダラー
-    std::unique_ptr<Graphics::ResourceManager>      m_pResourceManager;      ///< リソースマネージャ
+    /*======================== Graphics ========================*/
+    std::unique_ptr<Graphics::ResourceLeakChecker>  m_pResourceLeakChecker;  ///< リソースリークチェッカー
     std::unique_ptr<Graphics::ShaderCompiler>       m_pShaderCompiler;       ///< シェーダーコンパイラ
+    std::unique_ptr<Graphics::RenderDevice>         m_pRenderDevice;         ///< レンダーデバイス
+    std::unique_ptr<Graphics::DescriptorAllocator>  m_pDescriptorAllocator;  ///< ディスクリプタアロケータ
+    std::unique_ptr<Graphics::ResourceManager>      m_pResourceManager;      ///< リソースマネージャ
+    std::unique_ptr<Graphics::GPUTimeline>          m_pGPUTimeline;          ///< GPUタイムライン
+    std::unique_ptr<Graphics::FrameGraph>           m_pFrameGraph;           ///< フレームグラフ
+    std::unique_ptr<Graphics::Renderer>             m_pRenderer;             ///< レンダラー
+    /*======================== Other Systems ========================*/
     std::unique_ptr<Physics::PhysicsWorld>          m_pPhysicsWorld;         ///< 物理ワールド
     std::unique_ptr<Audio::AudioEngine>             m_pAudioEngine;          ///< オーディオエンジン
     std::unique_ptr<GameCore::SceneManager>         m_pSceneManager;         ///< シーンマネージャ
@@ -120,6 +152,8 @@ private:
     std::unique_ptr<Scripting::ScriptAPI>           m_pScriptAPI;            ///< スクリプトAPI
 
     std::unique_ptr<Editor::ImGuiManager>           m_pImGuiManager;         ///< ImGuiマネージャ
+
+    Core::EventCommand::CommandBuffer m_WinAppQuere;    ///< WinAppコマンドキュー
 };
 
 /// @brief コンストラクタ
@@ -128,7 +162,11 @@ Theatria::Engine::Engine()
 {
     // COM初期化
     HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
-    hr;
+    if (!m_pImpl->m_pLogAssert->Verify(hr, "COM Initialize", "COM InitializeEx failed"))
+    {
+        m_Run = false;
+        return;
+    }
     m_Run = Initialize();
 }
 
@@ -145,7 +183,20 @@ void Theatria::Engine::Operation()
 {
     while (m_Run)
     {
+        // フレーム開始
+        m_pImpl->m_pFrameCounter->BeginFrame();
+        if (Platform::WinApp::ProcessMessage())
+        {
+            m_Run = false;
+            break;
+        }
 
+        // ルーターがイベントを受けて、コマンドをQuereに積む
+        m_pImpl->m_pRouterHub->FlushAll();
+        // コマンドを実行
+        m_pImpl->m_pExecutorHub->ExecuteAll();
+        // フレームスリープ
+        m_pImpl->m_pFrameCounter->SleepFrame();
     }
 }
 
@@ -154,6 +205,23 @@ void Theatria::Engine::Operation()
 [[nodiscard]]
 bool Theatria::Engine::Initialize()
 {
+    /*======================== 各種システム初期化処理 ========================*/
+
+    // EventCommand 作成
+    m_pImpl->m_pRouterHub->Add<Core::Routers::ShowWindowRouter>(*m_pImpl->m_pEventSystem.get(), m_pImpl->m_WinAppQuere);
+    m_pImpl->m_pExecutorHub->Register(m_pImpl->m_WinAppQuere, [&](Core::EventCommand::CommandBuffer& q) {
+        q.ExecuteAll(m_pImpl->m_pLogAssert.get());
+        });
+
+    // ウィンドウの作成
+    Platform::WinApp::CreateWindowApp();
+    // ウィンドウの表示
+    Platform::WinApp::ShowWindowApp();
+    // m_pImpl->m_pEventSystem->Publish(Core::Events::EveShowWindow{ "Theatria Engine Window" });
+
+    /*======================== Graphics ========================*/
+
+
     return true;
 }
 

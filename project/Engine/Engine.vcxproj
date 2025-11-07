@@ -125,6 +125,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Graphics\ResourceLeakChecker.cpp" />
     <ClCompile Include="source\Core\EventCommand.cpp" />
     <ClCompile Include="source\Core\FrameCounter.cpp" />
     <ClCompile Include="source\Main\Engine.cpp" />
@@ -181,8 +182,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Core\Commands.h" />
     <ClInclude Include="include\Core\EventCommand.h" />
+    <ClInclude Include="include\Core\Events.h" />
     <ClInclude Include="include\Core\FrameCounter.h" />
+    <ClInclude Include="include\Core\Routers.h" />
     <ClInclude Include="include\Main\Engine.h" />
     <ClInclude Include="include\Core\Allocators.h" />
     <ClInclude Include="include\Audio\AudioEngine.h" />
@@ -212,6 +216,7 @@
     <ClInclude Include="include\Platform\WinApp.h" />
     <ClInclude Include="include\Graphics\ShaderCompiler.h" />
     <ClInclude Include="include\Utility\TString.h" />
+    <ClInclude Include="include\Graphics\ResourceLeakChecker.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli" />

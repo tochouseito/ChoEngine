@@ -22,7 +22,7 @@ namespace Theatria::Platform
 
         /// @brief ウィンドウメッセージ処理
         /// @return 終了ならtrue、継続ならfalse
-        static bool ProcessMessage();
+        [[nodiscard]] static bool ProcessMessage();
     private:
         static HWND         m_HWND; ///< ウィンドウハンドル
         static WNDCLASS     m_WC;   ///< ウィンドウクラス

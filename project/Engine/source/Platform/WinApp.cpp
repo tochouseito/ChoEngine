@@ -13,6 +13,11 @@
 extern IMGUI_IMPL_API LRESULT
 ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+HWND Theatria::Platform::WinApp::m_HWND = nullptr;
+WNDCLASS Theatria::Platform::WinApp::m_WC = {};
+UINT64 Theatria::Platform::WinApp::m_WindowWidth = 1280;
+UINT Theatria::Platform::WinApp::m_WindowHeight = 720;
+
 /// @brief ウィンドウプロシージャ
 LRESULT Theatria::Platform::WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -30,6 +35,9 @@ LRESULT Theatria::Platform::WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wpara
         pMinMaxInfo->ptMinTrackSize.y = 600; // 最小高さを設定（例：600）
         break;
     }
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
     }
     // 標準のメッセージ処理を行う
     return DefWindowProc(hwnd, msg, wparam, lparam);
@@ -98,7 +106,7 @@ void Theatria::Platform::WinApp::TerminateWindow()
 
 /// @brief ウィンドウメッセージ処理
 /// @return 終了ならtrue、継続ならfalse
-bool Theatria::Platform::WinApp::ProcessMessage()
+[[nodiscard]] bool Theatria::Platform::WinApp::ProcessMessage()
 {
     MSG msg{};
     // メッセージループ

@@ -11,9 +11,11 @@
 #include <format>
 #include <source_location>
 #include <fstream>
+#include <iostream>
 #include <optional>
 #include <functional>
 #include <variant>
+#include <cassert>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -25,6 +27,7 @@ namespace Theatria::Core
     /// @brief ログアサート
     class LogAssert final
     {
+    public:
         /// @brief ログレベル
         enum class LogLevel : uint8_t
         {
@@ -83,18 +86,25 @@ namespace Theatria::Core
         /*================ Print ================*/
         /// @brief 指定シンクにログ出力
         template<class... Args>
-        void Log(SinkKind sink, LogLevel level, std::string_view category,
-            std::string_view fmt, Args&&... args,
-            const std::source_location& loc = std::source_location::current())
+        void Log(std::source_location loc, SinkKind sink, LogLevel level, std::string_view category,
+            std::string_view fmt, Args&&... args)
         {
             auto msg = BuildMessage(level, category, fmt, loc, std::forward<Args>(args)...);
             DispatchToSink(sink, msg);
         }
         /// @brief 指定シンク群にログ出力
         template<class... Args>
-        void LogTo(const std::initializer_list<SinkKind>& sinks, LogLevel level, std::string_view category,
-            std::string_view fmt, Args&&... args,
-            const std::source_location& loc = std::source_location::current())
+        void LogTo(std::source_location& loc, const std::initializer_list<SinkKind>& sinks, LogLevel level, std::string_view category,
+            std::string_view fmt, Args&&... args)
+        {
+            auto msg = BuildMessage(level, category, fmt, loc, std::forward<Args>(args)...);
+            for (auto s : sinks) DispatchToSink(s, msg);
+        }
+        // @brief 内部ブリッジ
+        template<class... Args>
+        void LogToWithLoc(const std::initializer_list<SinkKind>& sinks, LogLevel level,
+            std::string_view category, const std::source_location& loc,
+            std::string_view fmt, Args&&... args)
         {
             auto msg = BuildMessage(level, category, fmt, loc, std::forward<Args>(args)...);
             for (auto s : sinks) DispatchToSink(s, msg);
@@ -110,7 +120,8 @@ namespace Theatria::Core
             if (ToBool(expr)) return true;
             auto msg = expr_str.empty() ? std::vformat(fmt_on_fail, std::make_format_args(std::forward<Args>(args)...))
                 : std::format("{} ({})", fmt_on_fail, expr_str);
-            LogTo(sinks, LogLevel::Error, category, "{}", msg, loc);
+            LogToWithLoc(sinks, LogLevel::Error, category, loc, "{}", msg);
+            MBox(BuildFailMessage(LogLevel::Error, category, msg, loc));
             return false;
         }
 
@@ -134,6 +145,7 @@ namespace Theatria::Core
             auto m = BuildFailMessage(LogLevel::Fatal, category,
                 reason.empty() ? std::string("CHECK failed") : std::string(reason), loc);
             for (auto s : sinks) DispatchToSink(s, m);
+            MBox(m);
             DebugBreak();
         }
 
@@ -228,11 +240,14 @@ namespace Theatria::Core
         {
             std::lock_guard lock(m_ConsoleMutex);
             m_ConsoleMessages.push_back(m);
+            std::cout << m.text << std::endl;
         }
         void PushVSOut(const LogMessage& m)
         {
             std::lock_guard lock(m_VSOutputMutex);
             m_VSOutputMessages.push_back(m);
+            OutputDebugStringA((m.text + "\n").c_str());
+
         }
         void PushFile(const LogMessage& m)
         {
@@ -251,6 +266,12 @@ namespace Theatria::Core
             case SinkKind::VSOutput:  PushVSOut(m);     break;
             case SinkKind::File:      PushFile(m);      break;
             }
+        }
+
+        static void MBox(const LogMessage& m)
+        {
+            std::string fullMsg = "Assertion failed!\n\nMessage: " + m.text;
+            MessageBoxA(nullptr, fullMsg.c_str(), "Assertion Error", MB_OK | MB_ICONERROR);
         }
 
         static void DebugBreak()

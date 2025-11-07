@@ -17,18 +17,15 @@ namespace Theatria::Core
 {
     namespace EventCommand
     {
-        /// @brief 
+        ///-----------------------------------------
+        /// Event（型安全 Pub-Sub：同期簡易版）
+        ///-----------------------------------------
         class EventSystem final
         {
-        private:
-
         public:
             template<class E>
-            using Handler = std::function<void(const E&)>;///< イベントハンドラー型
+            using Handler = std::function<void(const E&)>;
 
-            /// @brief ハンドラーの登録
-            /// @tparam E 
-            /// @param h イベントハンドラー 
             template<class E>
             void Subscribe(Handler<E> h)
             {
@@ -42,28 +39,29 @@ namespace Theatria::Core
                 auto& vec = getVec<E>();
                 for (auto& h : vec) h(e);
             }
+
         private:
+            // any 値でハンドラベクタを保持（手書き new/delete なし）
+            std::unordered_map<std::type_index, std::any> m_Handlers;
 
             template<class E>
             std::vector<Handler<E>>& getVec()
             {
                 const std::type_index k{ typeid(E) };
-                // キーが無ければ「空の vector<Handler<E>>」を作って格納
                 auto [it, inserted] = m_Handlers.try_emplace(k, std::vector<Handler<E>>{});
-                // any の中身を参照として取得（失敗しない経路）
                 return *std::any_cast<std::vector<Handler<E>>>(&(it->second));
             }
-
-            std::unordered_map<std::type_index, void*> m_Handlers;///< ハンドラーマップ
         };
 
-        /// @brief コマンドシステム
+        ///-----------------------------------------
+        /// Command（POD + ExecFn）
+        ///-----------------------------------------
         using ExecFn = void(*)(void* ctx, const void* data);
 
         struct CmdEntry
         {
             ExecFn exec{};
-            std::vector<uint8_t> payload; // PODをそのまま詰める
+            std::vector<uint8_t> payload; // POD をそのまま詰める
         };
 
         class CommandBuffer final
@@ -72,19 +70,17 @@ namespace Theatria::Core
             template<class T>
             void Push(ExecFn fn, const T& pod)
             {
+                static_assert(std::is_trivially_copyable_v<T>, "payload must be trivially copyable");
                 CmdEntry e; e.exec = fn;
                 e.payload.resize(sizeof(T));
                 std::memcpy(e.payload.data(), &pod, sizeof(T));
                 cmds_.push_back(std::move(e));
             }
 
-            // 汎用実行：ctxはExecutor側のコンテキスト
+            // 汎用実行：ctx は Executor 側のコンテキスト
             void ExecuteAll(void* ctx)
             {
-                for (auto& c : cmds_)
-                {
-                    c.exec(ctx, c.payload.data());
-                }
+                for (auto& c : cmds_) c.exec(ctx, c.payload.data());
                 cmds_.clear();
             }
 
@@ -94,31 +90,64 @@ namespace Theatria::Core
             std::vector<CmdEntry> cmds_;
         };
 
-        // Core/IRouter.h
+        ///-----------------------------------------
+        /// ExecutorHub：各キューの実行方法を登録し一括実行
+        ///-----------------------------------------
+        class ExecutorHub final
+        {
+        public:
+            // buf をどう実行するか（ctx 生成も含めて）を渡す
+            void Register(CommandBuffer& buf, std::function<void(CommandBuffer&)> run)
+            {
+                m_Entries.push_back({ &buf, std::move(run) });
+            }
+
+            // 1フレーム分を一括実行（登録順）
+            void ExecuteAll()
+            {
+                for (auto& e : m_Entries)
+                {
+                    if (!e.buf) continue;
+                    e.run(*e.buf);
+                }
+            }
+
+        private:
+            struct Entry
+            {
+                CommandBuffer* buf{};
+                std::function<void(CommandBuffer&)> run;
+            };
+            std::vector<Entry> m_Entries;
+        };
+
+        ///-----------------------------------------
+        /// Router 基底
+        ///-----------------------------------------
         class IRouter
         {
         public:
-            IRouter(Core::EventCommand::EventSystem& e,
-                Core::EventCommand::CommandBuffer& c)
+            IRouter(EventSystem& e, CommandBuffer& c)
                 : m_EventSystem(e), m_CommandBuffer(c)
             {
             }
             virtual ~IRouter() = default;
             virtual void Flush() = 0;
+
         protected:
-            
             template<class E, class F>
             void Subscribe(F&& f)
             {
                 m_EventSystem.Subscribe<E>(std::forward<F>(f));
             }
 
-        protected:
-            Core::EventCommand::EventSystem& m_EventSystem;
-            Core::EventCommand::CommandBuffer& m_CommandBuffer;
+            EventSystem& m_EventSystem;
+            CommandBuffer& m_CommandBuffer;
         };
 
-        // Core/RouterHub.h
+        ///-----------------------------------------
+        /// RouterHub
+        ///-----------------------------------------
         class RouterHub final
         {
         public:
@@ -132,10 +161,58 @@ namespace Theatria::Core
         private:
             std::vector<std::unique_ptr<IRouter>> routers_;
         };
-    };// namespace EventCommand
 
+        ///-----------------------------------------
+        /// ★ Orchestrator 用コンテキスト（方式①）
+        ///  - 複数システムにまたがるコマンドは、この Ctx 1個で実行
+        ///  - 任意の“チャネル（ドメイン）”に対して ctx/queue を登録できる
+        ///-----------------------------------------
+        enum class Channel : uint8_t
+        {
+            Render = 0,
+            Asset = 1,
+            User0 = 2,
+            User1 = 3,
+            Max = 8
+        };
+
+        class OrchestratorContext final
+        {
+        public:
+            template<Channel C>
+            void SetContext(void* p) noexcept
+            {
+                ctx_[static_cast<size_t>(C)] = p;
+            }
+            template<Channel C>
+            void* GetContext() const noexcept
+            {
+                return ctx_[static_cast<size_t>(C)];
+            }
+
+            template<Channel C>
+            void SetQueue(CommandBuffer& q) noexcept
+            {
+                queues_[static_cast<size_t>(C)] = &q;
+            }
+            template<Channel C>
+            CommandBuffer& Queue() const
+            {
+                auto* q = queues_[static_cast<size_t>(C)];
+                assert(q && "Queue not registered for this channel");
+                return *q;
+            }
+
+        private:
+            void* ctx_[static_cast<size_t>(Channel::Max)]{};          // 各チャネルの実行用 ctx（任意型）
+            CommandBuffer* queues_[static_cast<size_t>(Channel::Max)]{};      // 他キューへの橋渡し
+        };
+
+    } // namespace EventCommand
+
+    // イベント/コマンド/ルータの「型宣言の置き場」は空でOK（実体はテスト側で定義）
     namespace Events {};
     namespace Commands {};
     namespace Routers {};
 
-};// namespace Theatria::Core
+} // namespace Theatria::Core
