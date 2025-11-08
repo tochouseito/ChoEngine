@@ -4,8 +4,8 @@
 #define ENGINECREATE_FUNCTION
 #define RUNTIMEMODE_EDITOR
 // Engine
-#include "Engine/include/Main/Engine.h"
-// #include "Cho/TheatriaEngineAPI.h"
+// #include "Engine/include/Main/Engine.h"
+#include "Cho/TheatriaEngineAPI.h"
 // Windows
 #include <Windows.h>
 // C++
@@ -78,18 +78,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 
 	// エンジンのインスタンス
-	//std::unique_ptr<Engine, decltype(&theatria::DestroyEngine)> engine(
-	//	theatria::CreateEngine(RuntimeMode::Editor), theatria::DestroyEngine);// エンジンの生成
-	//theatria::SetEngine(engine.get());// エンジンのポインタをセット
-    std::unique_ptr<Theatria::Engine> engine =
-        std::make_unique<Theatria::Engine>();// エンジンの生成
+	std::unique_ptr<Engine, decltype(&theatria::DestroyEngine)> engine(
+		theatria::CreateEngine(RuntimeMode::Editor), theatria::DestroyEngine);// エンジンの生成
+	theatria::SetEngine(engine.get());// エンジンのポインタをセット
+    //std::unique_ptr<Theatria::Engine> engine =
+    //    std::make_unique<Theatria::Engine>();// エンジンの生成
 
 	// BuildWatcherコントローラー
 	BuildWatcherController buildWatcher;
 
 	// エンジンの稼働
-	// engine->CrashHandlerEntry();// クラッシュ時の処理のハンドラー
-	// buildWatcher.LaunchBuildWatcher();// BuildWatcher起動
+	engine->CrashHandlerEntry();// クラッシュ時の処理のハンドラー
+	buildWatcher.LaunchBuildWatcher();// BuildWatcher起動
 	engine->Operation();// エンジンの稼働
 
     // 解放

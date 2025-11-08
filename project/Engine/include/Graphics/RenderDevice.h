@@ -15,6 +15,8 @@ namespace Theatria::Graphics
         RenderDevice() = default;
         ~RenderDevice() = default;
 
+        [[nodiscard]] bool Initialize(bool enableDebugLayer = false);
+
     private:
         /// @brief DXGIファクトリーの生成
         /// @param enableDebugLayer 

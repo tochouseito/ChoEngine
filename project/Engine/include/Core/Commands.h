@@ -15,11 +15,10 @@ namespace Theatria::Core::Commands
     {
         char msg[256]{};
     };
-    inline void ExecShowWindow(void* ctx, const void* data)
+    inline void ExecShowWindow(void*, const void* data)
     {
         const auto* cmd = static_cast<const CmdShowWindow*>(data);
-        auto* logger = static_cast<Theatria::Core::LogAssert*>(ctx);
-        logger->Log(std::source_location::current(), Theatria::Core::LogAssert::SinkKind::Console,
+         Theatria::Core::LogAssert::Log(std::source_location::current(), Theatria::Core::LogAssert::SinkKind::Console,
             Theatria::Core::LogAssert::LogLevel::Info,
             "WinApp",
             "Executing CmdShowWindow: {}", cmd->msg);

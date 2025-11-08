@@ -73,7 +73,7 @@ namespace Theatria::Core
             }
         }
 
-        bool ToBool(const std::variant<bool, HRESULT>& v) noexcept
+        static bool ToBool(const std::variant<bool, HRESULT>& v) noexcept
         {
             return std::visit([](auto x) -> bool {
                 if constexpr (std::is_same_v<std::decay_t<decltype(x)>, bool>)
@@ -86,7 +86,7 @@ namespace Theatria::Core
         /*================ Print ================*/
         /// @brief 指定シンクにログ出力
         template<class... Args>
-        void Log(std::source_location loc, SinkKind sink, LogLevel level, std::string_view category,
+        static void Log(std::source_location loc, SinkKind sink, LogLevel level, std::string_view category,
             std::string_view fmt, Args&&... args)
         {
             auto msg = BuildMessage(level, category, fmt, loc, std::forward<Args>(args)...);
@@ -94,7 +94,7 @@ namespace Theatria::Core
         }
         /// @brief 指定シンク群にログ出力
         template<class... Args>
-        void LogTo(std::source_location& loc, const std::initializer_list<SinkKind>& sinks, LogLevel level, std::string_view category,
+        static void LogTo(std::source_location& loc, const std::initializer_list<SinkKind>& sinks, LogLevel level, std::string_view category,
             std::string_view fmt, Args&&... args)
         {
             auto msg = BuildMessage(level, category, fmt, loc, std::forward<Args>(args)...);
@@ -102,7 +102,7 @@ namespace Theatria::Core
         }
         // @brief 内部ブリッジ
         template<class... Args>
-        void LogToWithLoc(const std::initializer_list<SinkKind>& sinks, LogLevel level,
+        static void LogToWithLoc(const std::initializer_list<SinkKind>& sinks, LogLevel level,
             std::string_view category, const std::source_location& loc,
             std::string_view fmt, Args&&... args)
         {
@@ -113,7 +113,7 @@ namespace Theatria::Core
         /*================ Assert ================*/
         /// @brief VERIFY: 常に評価、失敗はログ（継続）
         template<class... Args>
-        bool Verify(std::variant<bool, HRESULT> expr, std::string_view category, std::string_view fmt_on_fail = "VERIFY failed: {}",
+        static bool Verify(std::variant<bool, HRESULT> expr, std::string_view category, std::string_view fmt_on_fail = "VERIFY failed: {}",
             std::string_view expr_str = {}, const std::initializer_list<SinkKind>& sinks = { SinkKind::Console, SinkKind::VSOutput },
             const std::source_location& loc = std::source_location::current(), Args&&... args)
         {
@@ -126,7 +126,7 @@ namespace Theatria::Core
         }
 
         /// @brief ENSURE: 失敗ログ＋通知（継続）
-        void Ensure(std::variant<bool, HRESULT> expr, std::string_view category, std::string_view reason = {},
+        static void Ensure(std::variant<bool, HRESULT> expr, std::string_view category, std::string_view reason = {},
             const std::initializer_list<SinkKind>& sinks = { SinkKind::Console, SinkKind::VSOutput },
             const std::source_location& loc = std::source_location::current())
         {
@@ -137,7 +137,7 @@ namespace Theatria::Core
         }
 
         /// @brief CHECK: 失敗ログ＋通知＋ブレーク（中断）
-        void Check(std::variant<bool, HRESULT> expr, std::string_view category, std::string_view reason = {},
+        static void Check(std::variant<bool, HRESULT> expr, std::string_view category, std::string_view reason = {},
             const std::initializer_list<SinkKind>& sinks = { SinkKind::Console, SinkKind::VSOutput },
             const std::source_location& loc = std::source_location::current())
         {
@@ -149,45 +149,45 @@ namespace Theatria::Core
             DebugBreak();
         }
 
-        /*================ Getter / Clear ================*/
-        // Console
-        const std::vector<LogMessage> GetConsoleMessages() const
-        {
-            std::lock_guard lock(m_ConsoleMutex);
-            return m_ConsoleMessages;
-        }
-        void ClearConsoleMessages(){
-            std::lock_guard lock(m_ConsoleMutex);
-            m_ConsoleMessages.clear();
-        }
-        // VSOutput
-        const std::vector<LogMessage> GetVSOutputMessages() const
-        {
-            std::lock_guard lock(m_VSOutputMutex);
-            return m_VSOutputMessages;
-        }
-        void ClearVSOutputMessages(){
-            std::lock_guard lock(m_VSOutputMutex);
-            m_VSOutputMessages.clear();
-        }
-        // File
-        const std::vector<LogMessage> GetFileMessages() const
-        {
-            std::lock_guard lock(m_FileMutex);
-            return m_FileMessages;
-        }
-        void ClearFileMessages()
-        {
-            std::lock_guard lock(m_FileMutex);
-            m_FileMessages.clear();
-        }
-        // Clear All
-        void ClearAllMessages()
-        {
-            ClearConsoleMessages();
-            ClearVSOutputMessages();
-            ClearFileMessages();
-        }
+        ///*================ Getter / Clear ================*/
+        //// Console
+        //const std::vector<LogMessage> GetConsoleMessages() const
+        //{
+        //    std::lock_guard lock(m_ConsoleMutex);
+        //    return m_ConsoleMessages;
+        //}
+        //void ClearConsoleMessages(){
+        //    std::lock_guard lock(m_ConsoleMutex);
+        //    m_ConsoleMessages.clear();
+        //}
+        //// VSOutput
+        //const std::vector<LogMessage> GetVSOutputMessages() const
+        //{
+        //    std::lock_guard lock(m_VSOutputMutex);
+        //    return m_VSOutputMessages;
+        //}
+        //void ClearVSOutputMessages(){
+        //    std::lock_guard lock(m_VSOutputMutex);
+        //    m_VSOutputMessages.clear();
+        //}
+        //// File
+        //const std::vector<LogMessage> GetFileMessages() const
+        //{
+        //    std::lock_guard lock(m_FileMutex);
+        //    return m_FileMessages;
+        //}
+        //void ClearFileMessages()
+        //{
+        //    std::lock_guard lock(m_FileMutex);
+        //    m_FileMessages.clear();
+        //}
+        //// Clear All
+        //void ClearAllMessages()
+        //{
+        //    ClearConsoleMessages();
+        //    ClearVSOutputMessages();
+        //    ClearFileMessages();
+        //}
     private:
         /// @brief ログメッセージ構築
         /// @tparam ...Args 
@@ -198,7 +198,7 @@ namespace Theatria::Core
         /// @param ...args 
         /// @return 
         template<class... Args>
-        LogMessage BuildMessage(LogLevel level, std::string_view category,
+        static LogMessage BuildMessage(LogLevel level, std::string_view category,
             std::string_view fmt, const std::source_location& loc, Args&&... args)
         {
             LogMessage m;
@@ -220,7 +220,7 @@ namespace Theatria::Core
         /// @param loc 
         /// @param capture_stack 
         /// @return 
-        LogMessage BuildFailMessage(LogLevel level, std::string_view category, std::string reason,
+        static LogMessage BuildFailMessage(LogLevel level, std::string_view category, std::string reason,
             const std::source_location& loc)
         {
             LogMessage m;
@@ -236,29 +236,29 @@ namespace Theatria::Core
         }
 
         /*================ 各シンク処理 ================*/
-        void PushConsole(const LogMessage& m)
+        static void PushConsole(const LogMessage& m)
         {
             std::lock_guard lock(m_ConsoleMutex);
-            m_ConsoleMessages.push_back(m);
+            //m_ConsoleMessages.push_back(m);
             std::cout << m.text << std::endl;
         }
-        void PushVSOut(const LogMessage& m)
+        static void PushVSOut(const LogMessage& m)
         {
             std::lock_guard lock(m_VSOutputMutex);
-            m_VSOutputMessages.push_back(m);
+            //m_VSOutputMessages.push_back(m);
             OutputDebugStringA((m.text + "\n").c_str());
 
         }
-        void PushFile(const LogMessage& m)
+        static void PushFile(const LogMessage&)
         {
             std::lock_guard lock(m_FileMutex);
-            m_FileMessages.push_back(m);
+            //m_FileMessages.push_back(m);
         }
 
         /// @brief 
         /// @param s 
         /// @param m 
-        void DispatchToSink(SinkKind s, const LogMessage& m)
+        static void DispatchToSink(SinkKind s, const LogMessage& m)
         {
             switch (s)
             {
@@ -280,15 +280,15 @@ namespace Theatria::Core
         }
 
         // Console
-        mutable std::mutex m_ConsoleMutex;
-        std::vector<LogMessage> m_ConsoleMessages;
+        inline static std::mutex m_ConsoleMutex;
+        // std::vector<LogMessage> m_ConsoleMessages;
 
         // VSOutput
-        mutable std::mutex m_VSOutputMutex;
-        std::vector<LogMessage> m_VSOutputMessages;
+        inline static std::mutex m_VSOutputMutex;
+        // std::vector<LogMessage> m_VSOutputMessages;
 
         // File
-        mutable std::mutex m_FileMutex;
-        std::vector<LogMessage> m_FileMessages;
+        inline static std::mutex m_FileMutex;
+        // std::vector<LogMessage> m_FileMessages;
     };
 };

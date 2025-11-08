@@ -60,7 +60,6 @@ public:
         m_pAllocators =             std::make_unique<Core::Allocators>();
         m_pFileController =         std::make_unique<Core::FileController>();
         m_pJobSystem =              std::make_unique<Core::JobSystem>();
-        m_pLogAssert =              std::make_unique<Core::LogAssert>();
         m_pMemoryManager =          std::make_unique<Core::MemoryManager>();
         m_pUUID =                   std::make_unique<Core::UUID>();
         /*======================== Graphics ========================*/
@@ -105,7 +104,6 @@ public:
         /*======================== Core ========================*/
         m_pUUID.reset();
         m_pMemoryManager.reset();
-        m_pLogAssert.reset();
         m_pJobSystem.reset();
         m_pFileController.reset();
         m_pAllocators.reset();
@@ -131,7 +129,6 @@ private:
     std::unique_ptr<Core::Allocators>               m_pAllocators;           ///< アロケータシステム
     std::unique_ptr<Core::FileController>           m_pFileController;       ///< ファイルコントローラ
     std::unique_ptr<Core::JobSystem>                m_pJobSystem;            ///< ジョブシステム
-    std::unique_ptr<Core::LogAssert>                m_pLogAssert;            ///< ログアサートシステム
     std::unique_ptr<Core::MemoryManager>            m_pMemoryManager;        ///< メモリマネージャ
     std::unique_ptr<Core::UUID>                     m_pUUID;                 ///< UUID生成システム
     /*======================== Graphics ========================*/
@@ -162,7 +159,7 @@ Theatria::Engine::Engine()
 {
     // COM初期化
     HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
-    if (!m_pImpl->m_pLogAssert->Verify(hr, "COM Initialize", "COM InitializeEx failed"))
+    if (!Core::LogAssert::Verify(hr, "COM Initialize", "COM InitializeEx failed"))
     {
         m_Run = false;
         return;
@@ -208,10 +205,10 @@ bool Theatria::Engine::Initialize()
     /*======================== 各種システム初期化処理 ========================*/
 
     // EventCommand 作成
-    m_pImpl->m_pRouterHub->Add<Core::Routers::ShowWindowRouter>(*m_pImpl->m_pEventSystem.get(), m_pImpl->m_WinAppQuere);
+    /*m_pImpl->m_pRouterHub->Add<Core::Routers::ShowWindowRouter>(*m_pImpl->m_pEventSystem.get(), m_pImpl->m_WinAppQuere);
     m_pImpl->m_pExecutorHub->Register(m_pImpl->m_WinAppQuere, [&](Core::EventCommand::CommandBuffer& q) {
-        q.ExecuteAll(m_pImpl->m_pLogAssert.get());
-        });
+        q.ExecuteAll(nullptr);
+        });*/
 
     // ウィンドウの作成
     Platform::WinApp::CreateWindowApp();
