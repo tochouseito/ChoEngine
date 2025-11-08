@@ -176,7 +176,7 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
 }
 
 /// @brief 各サポートチェック
-void Theatria::Graphics::RenderDevice::CheckD3D12Options()
+void Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
 {
     // D3D12Options
     if (SUCCEEDED(m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &m_Options, sizeof(m_Options))))

@@ -28,7 +28,7 @@ namespace Theatria::Graphics
         [[nodiscard]] bool CreateDevice();
 
         /// @brief 各サポートチェック
-        void CheckD3D12Options();
+        void CheckD3D12Options() noexcept ;
 
         void CreateDescriptorHeaps()
         {
