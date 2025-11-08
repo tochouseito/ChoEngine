@@ -9,24 +9,31 @@ namespace Theatria::Graphics
     /// @brief レンダリングデバイス所有者。Buffer,Texture,Heap,PSO,RootSignature等のファクトリー
     class RenderDevice final
     {
+        friend class DescriptorAllocator;
+
         template<typename T>
         using ComPtr = Microsoft::WRL::ComPtr<T>;
     public:
         RenderDevice() = default;
         ~RenderDevice() = default;
 
+        /// @brief 初期化
         [[nodiscard]] bool Initialize(bool enableDebugLayer = false);
-
     private:
         /// @brief DXGIファクトリーの生成
         /// @param enableDebugLayer 
-        void CreateDXGIFactory(bool enableDebugLayer);
+        [[nodiscard]] bool CreateDXGIFactory(bool enableDebugLayer);
 
         /// @brief デバイスの生成
-        void CreateDevice();
+        [[nodiscard]] bool CreateDevice();
 
         /// @brief 各サポートチェック
         void CheckD3D12Options();
+
+        void CreateDescriptorHeaps()
+        {
+
+        }
     private:
         ComPtr<ID3D12Device> m_Device = nullptr;///> D3D12デバイス
         ComPtr<IDXGIFactory7> m_DXGIFactory = nullptr;///> DXGIファクトリ

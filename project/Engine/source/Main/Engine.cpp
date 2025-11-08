@@ -123,7 +123,7 @@ private:
     std::unique_ptr<Core::EventCommand::ExecutorHub>  m_pExecutorHub;          ///< エグゼキューターハブ
     /*======================== Platform ========================*/
     std::unique_ptr<Platform::Input>                m_pInput;                ///< 入力システム
-    std::unique_ptr<Platform::Network>              m_pNetwork;              ///< スレッドシステム
+    std::unique_ptr<Platform::Network>              m_pNetwork;              ///< ネットワーク
     /*======================== Core ========================*/
     std::unique_ptr<Core::FrameCounter>             m_pFrameCounter;         ///< フレームカウンタ
     std::unique_ptr<Core::Allocators>               m_pAllocators;           ///< アロケータシステム
@@ -157,14 +157,7 @@ private:
 Theatria::Engine::Engine()
     : m_pImpl(std::make_unique<Impl>())
 {
-    // COM初期化
-    HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
-    if (!Core::LogAssert::Verify(hr, "COM Initialize", "COM InitializeEx failed"))
-    {
-        m_Run = false;
-        return;
-    }
-    m_Run = Initialize();
+    
 }
 
 /// @brief デストラクタ
@@ -178,6 +171,16 @@ Theatria::Engine::~Engine() noexcept
 /// @brief 稼働処理
 void Theatria::Engine::Operation()
 {
+    // COM初期化
+    HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+    if (!Core::LogAssert::Verify(hr, "COM Initialize", "COM InitializeEx failed"))
+    {
+        m_Run = false;
+        return;
+    }
+    // エンジン初期化
+    m_Run = Initialize();
+
     while (m_Run)
     {
         // フレーム開始
@@ -195,6 +198,9 @@ void Theatria::Engine::Operation()
         // フレームスリープ
         m_pImpl->m_pFrameCounter->SleepFrame();
     }
+
+    // エンジン終了処理
+    Shutdown();
 }
 
 /// @brief エンジン初期化 戻り値無視禁止
@@ -216,8 +222,19 @@ bool Theatria::Engine::Initialize()
     Platform::WinApp::ShowWindowApp();
     // m_pImpl->m_pEventSystem->Publish(Core::Events::EveShowWindow{ "Theatria Engine Window" });
 
-    /*======================== Graphics ========================*/
+    /*======================== Input ========================*/
+    /*
+    入力処理の初期化
+    */
 
+    /*======================== Core ========================*/
+    m_pImpl->m_pJobSystem->Initialize();
+
+    /*======================== Graphics ========================*/
+    if (!m_pImpl->m_pRenderDevice->Initialize(true))
+    {
+        return false;
+    }
 
     return true;
 }
@@ -225,5 +242,6 @@ bool Theatria::Engine::Initialize()
 /// @brief エンジン終了処理
 void Theatria::Engine::Shutdown()
 {
-
+    // ジョブシステムのスレッド停止
+    m_pImpl->m_pJobSystem->StopAllThreads();
 }

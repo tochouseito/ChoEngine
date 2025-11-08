@@ -1,8 +1,9 @@
 #pragma once
 namespace Theatria::Platform
 {
-    class Input
+    class Input final
     {
+    public:
 
     };
 };
