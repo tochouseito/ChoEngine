@@ -125,6 +125,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Graphics\GpuBuffer.cpp" />
     <ClCompile Include="source\Graphics\ResourceLeakChecker.cpp" />
     <ClCompile Include="source\Core\EventCommand.cpp" />
     <ClCompile Include="source\Core\FrameCounter.cpp" />
@@ -182,6 +183,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Graphics\GpuBuffer.h" />
     <ClInclude Include="include\Core\Commands.h" />
     <ClInclude Include="include\Core\EventCommand.h" />
     <ClInclude Include="include\Core\Events.h" />

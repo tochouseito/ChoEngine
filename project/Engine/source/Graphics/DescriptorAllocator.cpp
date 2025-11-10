@@ -3,7 +3,7 @@
 #include "include/Core/LogAssert.h"
 
 [[nodiscard]]
-bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDevice)
+bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice*)
 {
     for (size_t i = 0; i < static_cast<size_t>(HeapType::kCount); i++)
     {
@@ -27,4 +27,5 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDe
             return false;// 不明なタイプ
         }
     }
+    return true;
 }
