@@ -549,12 +549,12 @@ namespace Theatria::Graphics
         const DXGI_FORMAT& GetFormat() const { return m_Format; }
         D3D12_RESOURCE_DIMENSION GetDimension() const { return m_Dimension; }
     private:
-        UINT64 m_Width;///< 幅
-        UINT m_Height;///< 高さ
-        UINT16 m_MipLevels;///< ミップレベル数
-        UINT16 m_ArraySize;///< 配列サイズ
-        DXGI_FORMAT m_Format;///< フォーマット
-        D3D12_RESOURCE_DIMENSION m_Dimension;///< リソースの次元
+        UINT64 m_Width{};///< 幅
+        UINT m_Height{};///< 高さ
+        UINT16 m_MipLevels{};///< ミップレベル数
+        UINT16 m_ArraySize{};///< 配列サイズ
+        DXGI_FORMAT m_Format{};///< フォーマット
+        D3D12_RESOURCE_DIMENSION m_Dimension{};///< リソースの次元
     };
 
     /* TextureBufferを使いまわせるので不要

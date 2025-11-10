@@ -30,9 +30,11 @@ namespace Theatria::Graphics
         /// @brief 初期化
         [[nodiscard]] bool Initialize(RenderDevice* pRenderDevice);
     private:
+        RenderDevice* m_pRenderDevice = nullptr; ///< レンダーデバイス
         // 各種ディスクリプタヒープ初期サイズ
-        
-
+        static const uint32_t kMaxSUVDescriptorHeapSize = 1024;
+        static const uint32_t kMaxRTVDescriptorHeapSize = 20;
+        static const uint32_t kMaxDSVDescriptorHeapSize = 2;
         std::array<ComPtr<ID3D12DescriptorHeap>, static_cast<size_t>(HeapType::kCount)> m_DescriptorHeaps = { nullptr }; ///< 各種ディスクリプタヒープ
     };
 };

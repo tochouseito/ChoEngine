@@ -23,7 +23,7 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice*)
             heapType = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
             break;
         default:
-            Core::LogAssert::Verify(false, "DescriptorAllocator", "Unknown HeapType");
+            Core::LogAssert::Check(false, "DescriptorAllocator", "Unknown HeapType");
             return false;// 不明なタイプ
         }
     }

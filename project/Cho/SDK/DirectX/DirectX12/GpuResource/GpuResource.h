@@ -92,9 +92,9 @@ protected:
     // リソース
     ComPtr<ID3D12Resource> m_pResource = nullptr;
     // リソースの使用状態
-    D3D12_RESOURCE_STATES m_UseState;
+    D3D12_RESOURCE_STATES m_UseState{};
     // 使用ヒープタイプ
-    D3D12_HEAP_TYPE m_HeapType;
+    D3D12_HEAP_TYPE m_HeapType{};
     // このリソースのバージョンID。リソースが再利用されるとインクリメントされます。
 	uint32_t m_VersionID = 0;
     // View

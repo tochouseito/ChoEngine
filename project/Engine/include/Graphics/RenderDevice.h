@@ -23,17 +23,15 @@ namespace Theatria::Graphics
         /// @brief DXGIファクトリーの生成
         /// @param enableDebugLayer 
         [[nodiscard]] bool CreateDXGIFactory(bool enableDebugLayer);
-
         /// @brief デバイスの生成
         [[nodiscard]] bool CreateDevice();
-
         /// @brief 各サポートチェック
         void CheckD3D12Options() noexcept ;
 
-        void CreateDescriptorHeaps()
-        {
-
-        }
+        ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(
+            D3D12_DESCRIPTOR_HEAP_TYPE type,
+            uint32_t numDescriptors,
+            D3D12_DESCRIPTOR_HEAP_FLAGS flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE) const;
     private:
         ComPtr<ID3D12Device> m_Device = nullptr;///> D3D12デバイス
         ComPtr<IDXGIFactory7> m_DXGIFactory = nullptr;///> DXGIファクトリ
