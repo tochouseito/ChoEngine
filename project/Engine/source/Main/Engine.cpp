@@ -231,8 +231,16 @@ bool Theatria::Engine::Initialize()
     m_pImpl->m_pJobSystem->Initialize();
 
     /*======================== Graphics ========================*/
+    // レンダーデバイス初期化
     if (!m_pImpl->m_pRenderDevice->Initialize(true))
     {
+        Core::LogAssert::Verify(false, "RenderDevice Initialize", "RenderDevice initialization failed");
+        return false;
+    }
+    // ディスクリプタアロケータ初期化
+    if (!m_pImpl->m_pDescriptorAllocator->Initialize(m_pImpl->m_pRenderDevice.get(), 2048, 2048))
+    {
+        Core::LogAssert::Verify(false, "DescriptorAllocator Initialize", "DescriptorAllocator initialization failed");
         return false;
     }
 

@@ -42,7 +42,7 @@ namespace Theatria::Graphics
         ~DescriptorAllocator() = default;
 
         /// @brief 初期化
-        [[nodiscard]] bool Initialize(RenderDevice* pRenderDevice, uint32_t texCap, uint32_t bufCap, uint32_t rtCap = 0, uint32_t dsCap = 0);
+        [[nodiscard]] bool Initialize(RenderDevice* pRenderDevice, uint32_t texCap, uint32_t bufCap, uint32_t rtCap = 32, uint32_t dsCap = 2);
 
         /// @brief テーブル別の割り当て/解放
         TableID Allocate(TableKind k);
