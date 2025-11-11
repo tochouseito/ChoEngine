@@ -19,6 +19,10 @@ namespace Theatria::Graphics
 
         /// @brief 初期化
         [[nodiscard]] bool Initialize(bool enableDebugLayer = false);
+
+        /// @brief 直接Deviceを取得する
+        ID3D12Device* operator->() { return m_Device.Get(); }
+        const ID3D12Device* operator->() const { return m_Device.Get(); }
     private:
         /// @brief DXGIファクトリーの生成
         /// @param enableDebugLayer 
