@@ -38,6 +38,21 @@ namespace Theatria::Graphics
         ID3D12Resource* GetResource() { return m_pResource.Get(); }
         ID3D12Resource** GetAddressOf() { return m_pResource.GetAddressOf(); }
         uint32_t GetVersionID() const { return m_VersionID; }
+
+        void SetFence(ID3D12Fence* pFence, uint64_t fenceValue)
+        {
+            m_pFence = pFence;
+            m_FenceValue = fenceValue;
+        }
+        /// @brief リソースの使用状態を取得
+        bool IsUsed() const
+        {
+            if (m_pFence)
+            {
+                return m_pFence->GetCompletedValue() < m_FenceValue;
+            }
+            return false;
+        }
     protected:
         void CreateResource(
             ID3D12Device* device,
@@ -64,6 +79,8 @@ namespace Theatria::Graphics
         D3D12_RESOURCE_STATES m_UseState = D3D12_RESOURCE_STATE_COMMON;///< リソースの使用状態
         D3D12_HEAP_TYPE m_HeapType = D3D12_HEAP_TYPE_DEFAULT;///< ヒープタイプ
         uint32_t m_VersionID = 0;///< バージョンID （リソースが再作成されるたびにインクリメントされる）
+        ID3D12Fence* m_pFence = nullptr;///< リソースの同期用フェンス
+        uint64_t m_FenceValue = 0;///< フェンス値
     };
 
     class GpuBuffer : public GpuResource
