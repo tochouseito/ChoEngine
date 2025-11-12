@@ -3,9 +3,11 @@
 #include <dxgi1_6.h>
 #include <dxcapi.h>
 #include <wrl.h>
+#include <queue>
 #include <cstdint>
 #include <mutex>
 #include <condition_variable>
+#include "include/Core/LogAssert.h"
 
 namespace Theatria::Graphics
 {
@@ -18,6 +20,192 @@ namespace Theatria::Graphics
         using ComPtr = Microsoft::WRL::ComPtr<T>;
 
     public:
+        class CommandContext
+        {
+        public:
+            /// @brief コンストラクタ
+            CommandContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
+            {
+                // コマンドアロケータを生成する
+                if (!Core::LogAssert::Verify(
+                    device->CreateCommandAllocator(
+                        type,
+                        IID_PPV_ARGS(&m_Allocator)
+                    ),
+                    "RenderDevice",
+                    "Failed to create CommandAllocator."))
+                {
+                    Core::LogAssert::Check(false, "RenderDevice", "CommandAllocator creation failed.");
+                }
+
+                // コマンドリストを生成する
+                if( !Core::LogAssert::Verify(
+                    device->CreateCommandList(
+                        0,
+                        type,
+                        m_Allocator.Get(),
+                        nullptr,
+                        IID_PPV_ARGS(&m_List)
+                    ),
+                    "RenderDevice",
+                    "Failed to create CommandList."))
+                {
+                    Core::LogAssert::Check(false, "RenderDevice", "CommandList creation failed.");
+                }
+
+                m_List->Close();  // 初期状態で閉じておく
+            }
+            /// @brief デストラクタ
+            ~CommandContext() = default;
+
+            void Reset()
+            {
+                // コマンドアロケータをリセットする
+                HRESULT hr = m_Allocator->Reset();
+                Core::LogAssert::Check(
+                    hr,
+                    "RenderDevice",
+                    "Failed to reset CommandAllocator.");
+                // コマンドリストをリセットする
+                hr = m_List->Reset(m_Allocator.Get(), nullptr);
+                Core::LogAssert::Check(
+                    hr,
+                    "RenderDevice",
+                    "Failed to reset CommandList.");
+            }
+
+            void Close()
+            {
+                // コマンドリストを閉じる
+                HRESULT hr = m_List->Close();
+                Core::LogAssert::Check(
+                    hr,
+                    "RenderDevice",
+                    "Failed to close CommandList.");
+            }
+
+
+            ID3D12CommandList* GetCommandList() noexcept { return m_List.Get(); }
+            ID3D12CommandAllocator* GetCommandAllocator() noexcept { return m_Allocator.Get(); }
+        private:
+            ComPtr<ID3D12GraphicsCommandList> m_List = nullptr;
+            ComPtr<ID3D12CommandAllocator> m_Allocator = nullptr;
+        };
+
+        class GraphicsCommandContext final : public CommandContext
+        {
+        public:
+            /// @brief コンストラクタ
+            GraphicsCommandContext(ID3D12Device* device)
+                : CommandContext(device, D3D12_COMMAND_LIST_TYPE_DIRECT)
+            {
+            }
+            /// @brief デストラクタ
+            ~GraphicsCommandContext() = default;
+        };
+
+        class ComputeCommandContext final : public CommandContext
+        {
+        public:
+            /// @brief コンストラクタ
+            ComputeCommandContext(ID3D12Device* device)
+                : CommandContext(device, D3D12_COMMAND_LIST_TYPE_COMPUTE)
+            {
+            }
+            /// @brief デストラクタ
+            ~ComputeCommandContext() = default;
+        };
+
+        class CopyCommandContext final : public CommandContext
+        {
+        public:
+            /// @brief コンストラクタ
+            CopyCommandContext(ID3D12Device* device)
+                : CommandContext(device, D3D12_COMMAND_LIST_TYPE_COPY)
+            {
+            }
+            /// @brief デストラクタ
+            ~CopyCommandContext() = default;
+        };
+
+        class CommandPool final
+        {
+        public:
+            /// @brief コンストラクタ
+            CommandPool(ID3D12Device* device)
+                : m_Device(device)
+            {
+            }
+            /// @brief デストラクタ
+            ~CommandPool() = default;
+
+            GraphicsCommandContext* GetGraphicsContext()
+            {
+                std::lock_guard<std::mutex> lock(m_GraphicsMutex);
+                if (m_GraphicsCtxPool.empty())
+                {
+                    auto context = std::make_unique<GraphicsCommandContext>(m_Device);
+                    return context.release();
+                }
+                auto context = std::move(m_GraphicsCtxPool.front());
+                m_GraphicsCtxPool.pop();
+                return context.release();
+            }
+
+            ComputeCommandContext* GetComputeContext()
+            {
+                std::lock_guard<std::mutex> lock(m_ComputeMutex);
+                if (m_ComputeCtxPool.empty())
+                {
+                    auto context = std::make_unique<ComputeCommandContext>(m_Device);
+                    return context.release();
+                }
+                auto context = std::move(m_ComputeCtxPool.front());
+                m_ComputeCtxPool.pop();
+                return context.release();
+            }
+
+            CopyCommandContext* GetCopyContext()
+            {
+                std::lock_guard<std::mutex> lock(m_CopyMutex);
+                if (m_CopyCtxPool.empty())
+                {
+                    auto context = std::make_unique<CopyCommandContext>(m_Device);
+                    return context.release();
+                }
+                auto context = std::move(m_CopyCtxPool.front());
+                m_CopyCtxPool.pop();
+                return context.release();
+            }
+
+            void ReturnContext(GraphicsCommandContext* context)
+            {
+                std::lock_guard<std::mutex> lock(m_GraphicsMutex);
+                m_GraphicsCtxPool.push(std::unique_ptr<GraphicsCommandContext>(context));
+            }
+
+            void ReturnContext(ComputeCommandContext* context)
+            {
+                std::lock_guard<std::mutex> lock(m_ComputeMutex);
+                m_ComputeCtxPool.push(std::unique_ptr<ComputeCommandContext>(context));
+            }
+
+            void ReturnContext(CopyCommandContext* context)
+            {
+                std::lock_guard<std::mutex> lock(m_CopyMutex);
+                m_CopyCtxPool.push(std::unique_ptr<CopyCommandContext>(context));
+            }
+        private:
+            ID3D12Device* m_Device = nullptr;
+
+            std::mutex m_GraphicsMutex;
+            std::queue<std::unique_ptr<GraphicsCommandContext>> m_GraphicsCtxPool;
+            std::mutex m_ComputeMutex;
+            std::queue<std::unique_ptr<ComputeCommandContext>> m_ComputeCtxPool;
+            std::mutex m_CopyMutex;
+            std::queue<std::unique_ptr<CopyCommandContext>> m_CopyCtxPool;
+        };
+
         enum class QueueType : uint8_t
         {
             Graphics,
@@ -26,13 +214,41 @@ namespace Theatria::Graphics
             Count
         };
 
-        class QueueContext final
+        class QueueContext 
         {
         public:
             /// @brief コンストラクタ
-            QueueContext()
+            QueueContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
             {
-                
+                // フェンスの作成
+                m_Fence.Reset();
+                m_FenceValue = 0;// 初期値0でFenceを作る
+                if (!Core::LogAssert::Verify(
+                    device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)),
+                    "RenderDevice",
+                    "Failed to create fence."))
+                {
+                    Core::LogAssert::Check(false, "RenderDevice", "Fence creation failed.");
+                }
+                // FenceのSignalを持つためのイベントを作成する
+                m_FenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+                if (!Core::LogAssert::Verify(
+                    m_FenceEvent != nullptr,
+                    "RenderDevice",
+                    "Failed to create fence event."))
+                {
+                    Core::LogAssert::Check(false, "RenderDevice", "Fence event creation failed.");
+                }
+                // コマンドキューの作成
+                D3D12_COMMAND_QUEUE_DESC desc = {};
+                desc.Type = type;
+                if (!Core::LogAssert::Verify(
+                    SUCCEEDED(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_CommandQueue))),
+                    "RenderDevice",
+                    "Failed to create command queue."))
+                {
+                    Core::LogAssert::Check(false, "RenderDevice", "Command queue creation failed.");
+                }
             }
             /// @brief デストラクタ
             ~QueueContext()
@@ -44,45 +260,12 @@ namespace Theatria::Graphics
                 }
             }
 
-            bool Initialize(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
-            {
-                // フェンスの作成
-                m_Fence.Reset();
-                m_FenceValue = 0;// 初期値0でFenceを作る
-                if (!Core::LogAssert::Verify(
-                    device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)),
-                    "RenderDevice",
-                    "Failed to create fence."))
-                {
-                    return false;
-                }
-                // FenceのSignalを持つためのイベントを作成する
-                m_FenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-                if(!Core::LogAssert::Verify(
-                    m_FenceEvent != nullptr,
-                    "RenderDevice",
-                    "Failed to create fence event."))
-                {
-                    return false;
-                }
-                // コマンドキューの作成
-                D3D12_COMMAND_QUEUE_DESC desc = {};
-                desc.Type = type;
-                if(!Core::LogAssert::Verify(
-                    SUCCEEDED(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_CommandQueue))),
-                    "RenderDevice",
-                    "Failed to create command queue."))
-                {
-                    return false;
-                }
-                return true;
-            }
-            void Execute(ID3D12GraphicsCommandList* commandList)
+            void Execute(CommandContext* ctx)
             {
                 std::lock_guard<std::mutex> lock(m_FenceMutex);
-                if (commandList)
+                if (ctx)
                 {
-                    ID3D12CommandList* lists[] = { commandList };
+                    ID3D12CommandList* lists[] = { ctx->GetCommandList()};
                     m_CommandQueue->ExecuteCommandLists(1, lists);
                 }
                 m_FenceValue++;
@@ -114,6 +297,42 @@ namespace Theatria::Graphics
             std::condition_variable m_FenceCV;
         };
 
+        class GraphicsQueueContext final : public QueueContext
+        {
+            public:
+            /// @brief コンストラクタ
+            GraphicsQueueContext(ID3D12Device* device)
+                : QueueContext(device, D3D12_COMMAND_LIST_TYPE_DIRECT)
+            {
+            }
+            /// @brief デストラクタ
+            ~GraphicsQueueContext() = default;
+        };
+
+        class ComputeQueueContext final : public QueueContext
+        {
+            public:
+            /// @brief コンストラクタ
+            ComputeQueueContext(ID3D12Device* device)
+                : QueueContext(device, D3D12_COMMAND_LIST_TYPE_COMPUTE)
+            {
+            }
+            /// @brief デストラクタ
+            ~ComputeQueueContext() = default;
+        };
+
+        class CopyQueueContext final : public QueueContext
+        {
+            public:
+            /// @brief コンストラクタ
+            CopyQueueContext(ID3D12Device* device)
+                : QueueContext(device, D3D12_COMMAND_LIST_TYPE_COPY)
+            {
+            }
+            /// @brief デストラクタ
+            ~CopyQueueContext() = default;
+        };
+
     public:
         RenderDevice() = default;
         ~RenderDevice() = default;
@@ -127,7 +346,7 @@ namespace Theatria::Graphics
     private:
         /// @brief DXGIファクトリーの生成
         /// @param enableDebugLayer 
-        [[nodiscard]] bool CreateDXGIFactory(bool enableDebugLayer);
+        [[nodiscard]] bool CreateDXGIFactory([[maybe_unused]] bool enableDebugLayer);
         /// @brief デバイスの生成
         [[nodiscard]] bool CreateDevice();
         /// @brief 各サポートチェック

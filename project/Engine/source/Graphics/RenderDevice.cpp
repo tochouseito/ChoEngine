@@ -15,7 +15,7 @@ bool Theatria::Graphics::RenderDevice::Initialize(bool enableDebugLayer)
 /// @brief DXGIファクトリーの生成
 /// @param enableDebugLayer
 [[nodiscard]]
-bool Theatria::Graphics::RenderDevice::CreateDXGIFactory(bool enableDebugLayer)
+bool Theatria::Graphics::RenderDevice::CreateDXGIFactory([[maybe_unused]] bool enableDebugLayer)
 {
 #ifdef _DEBUG
     /*
