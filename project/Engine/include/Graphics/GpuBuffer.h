@@ -2,13 +2,23 @@
 #include <d3d12.h>
 #include <wrl.h>
 #include <memory>
-#include <optional>
 #include <span>
+#include <concepts>
+#include <typeindex>
+#include <cstddef>
 #include "include/Core/LogAssert.h"
 
 namespace Theatria::Graphics
 {
     using namespace Microsoft::WRL;
+
+    /// @brief 型許可
+    template <typename T>
+    concept GpuBufferType = std::derived_from<T, class GpuBuffer>;
+
+    template <typename T>
+    concept TextureBufferType = std::derived_from<T, class TextureBuffer>;
+
     /// @brief D3D12Resourceラッパークラス。Default前提
     class GpuResource : public std::enable_shared_from_this<GpuResource>
     {
@@ -31,6 +41,7 @@ namespace Theatria::Graphics
             m_UseState = D3D12_RESOURCE_STATE_COMMON;
             ++m_VersionID;
         }
+
         /// @brief 直接リソースを取得する演算子
         ID3D12Resource* operator->() { return m_pResource.Get(); }
         const ID3D12Resource* operator->() const { return m_pResource.Get(); }
@@ -38,7 +49,10 @@ namespace Theatria::Graphics
         ID3D12Resource* GetResource() { return m_pResource.Get(); }
         ID3D12Resource** GetAddressOf() { return m_pResource.GetAddressOf(); }
         uint32_t GetVersionID() const { return m_VersionID; }
-
+        /// @brief リソースの使用状態を取得/設定
+        D3D12_RESOURCE_STATES GetUseState() const { return m_UseState; }
+        void SetUseState(D3D12_RESOURCE_STATES state) { m_UseState = state; }
+        /// @brief フェンスとフェンス値を設定
         void SetFence(ID3D12Fence* pFence, uint64_t fenceValue)
         {
             m_pFence = pFence;
@@ -86,6 +100,8 @@ namespace Theatria::Graphics
     class GpuBuffer : public GpuResource
     {
     public:
+        // using byte_span = std::span<const std::byte>;
+
         /// @brief コンストラクタ
         GpuBuffer() = default;
         GpuBuffer(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState) :
@@ -104,6 +120,11 @@ namespace Theatria::Graphics
             m_NumElements = {};
             m_StructureByteStride = {};
         }
+        //virtual byte_span GetRawSpan() const noexcept = 0;
+        virtual std::type_index GetElementType() const noexcept = 0;
+        virtual std::type_index GetBufferType() const noexcept = 0;
+        //virtual size_t GetElementCount() const noexcept = 0;
+        //virtual size_t GetElementSize() const noexcept = 0;
     protected:
         virtual void CreateBuffer(
             ID3D12Device* device,
@@ -169,7 +190,10 @@ namespace Theatria::Graphics
         /// @brief 破棄
         void Destroy() override
         {
-            GetResource()->Unmap(0, nullptr);
+            if (GetResource())
+            {
+                GetResource()->Unmap(0, nullptr);
+            }
             GpuBuffer::Destroy();
             m_MappedData = std::span<T>{};
         }
@@ -195,10 +219,11 @@ namespace Theatria::Graphics
             GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappedData));
             m_MappedData = std::span<T>(mappedData, bufferSize);
         }
-
         /// @brief マッピングデータ取得
         std::span<T>       GetMappedData() { return m_MappedData; }
         std::span<const T> GetMappedData() const { return m_MappedData; }
+        /// @brief 要素の型を取得
+        std::type_index GetElementType() const noexcept override { return typeid(T); }
     private:
         std::span<T> m_MappedData;
     };
@@ -250,6 +275,9 @@ namespace Theatria::Graphics
 
         /// @brief マッピングデータ取得
         std::span<const T> GetMappedData() const { return m_MappedData; }
+        /// @brief 要素の型を取得
+        std::type_index GetElementType() const noexcept override { return typeid(T); }
+        std::type_index GetBufferType() const noexcept override { return typeid(ReadBackBuffer<T>); }
     private:
         std::span<T> m_MappedData;
     };
@@ -295,6 +323,9 @@ namespace Theatria::Graphics
 
         std::span<T> GetUploadMappedData() { return m_UploadBuffer.GetMappedData(); }
         UploadBuffer<T>& GetUploadBuffer() { return m_UploadBuffer; }
+        /// @brief 要素の型を取得
+        std::type_index GetElementType() const noexcept override { return typeid(T); }
+        std::type_index GetBufferType() const noexcept override { return typeid(ConstantBuffer<T>); }
     private:
         UploadBuffer<T> m_UploadBuffer;
     };
@@ -339,6 +370,9 @@ namespace Theatria::Graphics
         }
         std::span<T> GetUploadMappedData() { return m_UploadBuffer.GetMappedData(); }
         UploadBuffer<T>& GetUploadBuffer() { return m_UploadBuffer; }
+        /// @brief 要素の型を取得
+        std::type_index GetElementType() const noexcept override { return typeid(T); }
+        std::type_index GetBufferType() const noexcept override { return typeid(StructuredBuffer<T>); }
     private:
         UploadBuffer<T> m_UploadBuffer;
     };
@@ -383,6 +417,9 @@ namespace Theatria::Graphics
         }
         std::span<const T> GetReadBackMappedData() const { return m_ReadBackBuffer.GetMappedData(); }
         ReadBackBuffer<T>& GetReadBackBuffer() { return m_ReadBackBuffer; }
+        /// @brief 要素の型を取得
+        std::type_index GetElementType() const noexcept override { return typeid(T); }
+        std::type_index GetBufferType() const noexcept override { return typeid(RWStructuredBuffer<T>); }
     private:
         ReadBackBuffer<T> m_ReadBackBuffer;
     };
@@ -442,6 +479,9 @@ namespace Theatria::Graphics
         std::span<const T> GetReadBackMappedData() const { return m_ReadBackBuffer.GetMappedData(); }
         UploadBuffer<T>& GetUploadBuffer() { return m_UploadBuffer; }
         ReadBackBuffer<T>& GetReadBackBuffer() { return m_ReadBackBuffer; }
+        /// @brief 要素の型を取得
+        std::type_index GetElementType() const noexcept override { return typeid(T); }
+        std::type_index GetBufferType() const noexcept override { return typeid(VertexBuffer<T>); }
     private:
         D3D12_VERTEX_BUFFER_VIEW m_View{};///< 頂点バッファビュー
         UploadBuffer<T> m_UploadBuffer;
@@ -513,6 +553,9 @@ namespace Theatria::Graphics
         std::span<const T> GetReadBackMappedData() const { return m_ReadBackBuffer.GetMappedData(); }
         UploadBuffer<T>& GetUploadBuffer() { return m_UploadBuffer; }
         ReadBackBuffer<T>& GetReadBackBuffer() { return m_ReadBackBuffer; }
+        /// @brief 要素の型を取得
+        std::type_index GetElementType() const noexcept override { return typeid(T); }
+        std::type_index GetBufferType() const noexcept override { return typeid(IndexBuffer<T>); }
     private:
         D3D12_INDEX_BUFFER_VIEW m_View{};///< インデックスバッファビュー
         UploadBuffer<T> m_UploadBuffer;

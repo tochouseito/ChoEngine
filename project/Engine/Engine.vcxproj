@@ -217,6 +217,8 @@
     <ClInclude Include="include\Core\UUID.h" />
     <ClInclude Include="include\Platform\WinApp.h" />
     <ClInclude Include="include\Graphics\ShaderCompiler.h" />
+    <ClInclude Include="include\Utility\atomic_shared_ptr.h" />
+    <ClInclude Include="include\Utility\FVector.h" />
     <ClInclude Include="include\Utility\TString.h" />
     <ClInclude Include="include\Graphics\ResourceLeakChecker.h" />
   </ItemGroup>

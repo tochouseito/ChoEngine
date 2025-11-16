@@ -369,6 +369,11 @@ namespace Theatria::Graphics
         std::unique_ptr<CommandPool> m_CommandPool = nullptr;///> コマンドコンテキストプール
         std::unique_ptr<QueuePool> m_QueuePool = nullptr;///> キュープール
 
+        ComPtr<IDXGISwapChain4> m_SwapChain = nullptr;///> スワップチェイン
+        DXGI_SWAP_CHAIN_DESC1 m_SwapChainDesc = {};///> スワップチェイン記述子
+        int32_t m_RefreshRate = {};///> リフレッシュレート
+
+
         /*==================== D3D12Options ====================*/
         D3D12_FEATURE_DATA_D3D12_OPTIONS m_Options = {};
         D3D12_FEATURE_DATA_D3D12_OPTIONS1 m_Options1 = {};
