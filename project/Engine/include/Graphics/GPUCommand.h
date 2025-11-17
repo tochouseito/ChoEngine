@@ -278,6 +278,8 @@ namespace Theatria::Graphics
             {
                 m_CopyQueuePool.push(std::make_unique<CopyQueueContext>(m_Device));
             }
+            // Present用キューを初期化
+            m_PresentQueue = std::make_unique<GraphicsQueueContext>(m_Device);
         }
         /// @brief デストラクタ
         ~QueuePool() = default;
@@ -304,6 +306,13 @@ namespace Theatria::Graphics
             auto queue = std::move(m_CopyQueuePool.front());
             m_CopyQueuePool.pop();
             return queue.release();
+        }
+
+        GraphicsQueueContext* GetPresentQueue()
+        {
+            std::unique_lock<std::mutex> lock(m_PresentMutex);
+            m_PresentCV.wait(lock, [this]() { return m_PresentQueue != nullptr; });
+            return m_PresentQueue.get();
         }
 
         void ReturnQueue(GraphicsQueueContext* queue)
@@ -365,7 +374,7 @@ namespace Theatria::Graphics
     private:
         ID3D12Device* m_Device = nullptr;
         // 各キューの数
-        static const uint32_t kGraphicsQueueCount = 2;///> 通常用途とPresent用
+        static const uint32_t kGraphicsQueueCount = 1;///> 
         static const uint32_t kComputeQueueCount = 4; ///>
         static const uint32_t kCopyQueueCount = 2;    ///>
         std::mutex m_GraphicsMutex;
@@ -377,6 +386,11 @@ namespace Theatria::Graphics
         std::mutex m_CopyMutex;
         std::condition_variable m_CopyCV;
         std::queue<std::unique_ptr<CopyQueueContext>> m_CopyQueuePool;
+
+        // Present用
+        std::mutex m_PresentMutex;
+        std::condition_variable m_PresentCV;
+        std::unique_ptr<GraphicsQueueContext> m_PresentQueue;
     };
 } // namespace Theatria::Graphics
 
