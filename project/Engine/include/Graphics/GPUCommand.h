@@ -164,6 +164,7 @@ namespace Theatria::Graphics
         /// @brief デストラクタ
         ~QueueContext()
         {
+            Flush();
             if (m_FenceEvent)
             {
                 CloseHandle(m_FenceEvent);
@@ -182,6 +183,17 @@ namespace Theatria::Graphics
             m_FenceValue++;
             // GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
             m_CommandQueue->Signal(m_Fence.Get(), m_FenceValue);
+        }
+        void Flush()
+        {
+            const UINT64 fence = ++m_FenceValue;
+            m_CommandQueue->Signal(m_Fence.Get(), fence);
+
+            if (m_Fence->GetCompletedValue() < fence)
+            {
+                m_Fence->SetEventOnCompletion(fence, m_FenceEvent);
+                WaitForSingleObject(m_FenceEvent, INFINITE);
+            }
         }
         void WaitForFence()
         {
@@ -319,6 +331,35 @@ namespace Theatria::Graphics
                 m_CopyQueuePool.push(std::unique_ptr<CopyQueueContext>(queue));
             }
             m_CopyCV.notify_one();
+        }
+
+        // 全キューのFlush
+        void FlushAll()
+        {
+            // queue を破棄せずに一周しながら Flush するヘルパ
+            auto flushQueuePool = [](std::mutex& mutex, auto& pool)
+                {
+                    std::lock_guard<std::mutex> lock(mutex);
+
+                    const size_t count = pool.size();
+                    for (size_t i = 0; i < count; ++i)
+                    {
+                        // 先頭を取り出して Flush してから末尾に戻す
+                        auto queue = std::move(pool.front());
+                        pool.pop();
+
+                        if (queue)
+                        {
+                            queue->Flush();
+                        }
+
+                        pool.push(std::move(queue));
+                    }
+                };
+
+            flushQueuePool(m_GraphicsMutex, m_GraphicsQueuePool);
+            flushQueuePool(m_ComputeMutex, m_ComputeQueuePool);
+            flushQueuePool(m_CopyMutex, m_CopyQueuePool);
         }
 
     private:

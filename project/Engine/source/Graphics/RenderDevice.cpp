@@ -149,10 +149,10 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
         infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 
         // エラー時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, false);
 
         // 警告時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
 
         // 抑制するメッセージのID
         D3D12_MESSAGE_ID denyIds[] = {
