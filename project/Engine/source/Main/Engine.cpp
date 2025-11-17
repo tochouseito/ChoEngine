@@ -154,8 +154,8 @@ private:
 };
 
 /// @brief コンストラクタ
-Theatria::Engine::Engine()
-    : m_pImpl(std::make_unique<Impl>())
+Theatria::Engine::Engine(RuntimeMode mode)
+    : m_pImpl(std::make_unique<Impl>()), m_RuntimeMode(mode)
 {
     
 }
@@ -241,6 +241,18 @@ bool Theatria::Engine::Initialize()
     if (!m_pImpl->m_pDescriptorAllocator->Initialize(m_pImpl->m_pRenderDevice.get(), 2048, 2048))
     {
         Core::LogAssert::Verify(false, "DescriptorAllocator Initialize", "DescriptorAllocator initialization failed");
+        return false;
+    }
+    // レンダラー初期化
+    if (!m_pImpl->m_pRenderer->Initialize(m_pImpl->m_pRenderDevice.get()))
+    {
+        Core::LogAssert::Verify(false, "Renderer Initialize", "Renderer initialization failed");
+        return false;
+    }
+    // スワップチェーン作成
+    if (!m_pImpl->m_pRenderDevice->CreateSwapChain(m_pImpl->m_pDescriptorAllocator.get()))
+    {
+        Core::LogAssert::Verify(false, "SwapChain Create", "SwapChain creation failed");
         return false;
     }
 

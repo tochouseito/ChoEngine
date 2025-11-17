@@ -1,14 +1,15 @@
 #include "pch.h"
 #include "include/Graphics/RenderDevice.h"
+#include "include/Graphics/DescriptorAllocator.h"
 #include "include/Core/LogAssert.h"
 #include "include/Utility/TString.h"
+#include "include/Platform/WinApp.h"
 
 [[nodiscard]]
 bool Theatria::Graphics::RenderDevice::Initialize(bool enableDebugLayer)
 {
     if (!CreateDXGIFactory(enableDebugLayer)) { return false; }
     if (!CreateDevice()) { return false; }
-    m_CommandPool = std::make_unique<CommandPool>(m_Device.Get());
     m_QueuePool = std::make_unique<QueuePool>(m_Device.Get());
     CheckD3D12Options();
     return true;
@@ -414,95 +415,79 @@ void Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
     }
 }
 
-/// @brief コンストラクタ
-Theatria::Graphics::RenderDevice::CommandContext::CommandContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
+bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* descAllocator, uint32_t width, uint32_t height, uint32_t refreshRate)
 {
-    // コマンドアロケータを生成する
-    if (!Core::LogAssert::Verify(
-        device->CreateCommandAllocator(
-            type,
-            IID_PPV_ARGS(&m_Allocator)
-        ),
-        "RenderDevice",
-        "Failed to create CommandAllocator."))
+    uint32_t w = width <= 0 ? 1280 : width;
+    uint32_t h = height <= 0 ? 720 : height;
+    uint32_t rate = refreshRate <= 0 ? 60 : refreshRate;
+    descAllocator;
+    m_SwapChainContext.m_RefreshRate = rate;
+    m_SwapChainContext.m_Desc.Width = static_cast<UINT>(w);// 画面の幅。ウィンドウのクライアント領域を同じものにしておく
+    m_SwapChainContext.m_Desc.Height = static_cast<UINT>(h);// 画面の高さ。ウィンドウのクライアント領域を同じものにしておく
+    m_SwapChainContext.m_Desc.Format = PixelFormat;// 色の形式
+    m_SwapChainContext.m_Desc.SampleDesc.Count = 1;// マルチサンプルしない
+    m_SwapChainContext.m_Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;// 描画のターゲットとして利用する
+    m_SwapChainContext.m_Desc.BufferCount = k_SwapChainBufferCount;// バッファ数
+    m_SwapChainContext.m_Desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;// モニタにうつしたら、中身を破棄
+    m_SwapChainContext.m_Desc.Flags =
+        DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING |
+        DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;// ティアリングサポート
+
+    GraphicsQueueContext* graphicsQueue = m_QueuePool->GetGraphicsQueue();
+
+    if (!Core::LogAssert::Verify(m_DXGIFactory->CreateSwapChainForHwnd(
+        graphicsQueue->GetCommandQueue(),
+        Platform::WinApp::m_HWND,
+        &m_SwapChainContext.m_Desc,
+        nullptr, nullptr,
+        m_SwapChainContext.m_SwapChain.GetAddressOf()),
+        "RenderDevice", "Create SwapChain Faild!"))
     {
-        Core::LogAssert::Check(false, "RenderDevice", "CommandAllocator creation failed.");
+        return false;
     }
 
-    // コマンドリストを生成する
-    if (!Core::LogAssert::Verify(
-        device->CreateCommandList(
-            0,
-            type,
-            m_Allocator.Get(),
-            nullptr,
-            IID_PPV_ARGS(&m_List)
-        ),
-        "RenderDevice",
-        "Failed to create CommandList."))
+    m_QueuePool->ReturnQueue(graphicsQueue);
+
+    // リフレッシュレートを取得。floatで取るのは大変なので大体あってれば良いので整数で。
+    HDC hdc = GetDC(Platform::WinApp::m_HWND);
+    m_SwapChainContext.m_RefreshRate = GetDeviceCaps(hdc, VREFRESH);
+    ReleaseDC(Platform::WinApp::m_HWND, hdc);
+
+    // VSync共存型FPS固定のためにレイテンシ1
+    ComPtr<IDXGISwapChain4> swapChain4;
+    if (SUCCEEDED(m_SwapChainContext.m_SwapChain->QueryInterface(IID_PPV_ARGS(&swapChain4))))
     {
-        Core::LogAssert::Check(false, "RenderDevice", "CommandList creation failed.");
+        swapChain4->SetMaximumFrameLatency(1);
     }
 
-    m_List->Close();  // 初期状態で閉じておく
-}
+    // OSが行うAlt+Enterのフルスクリーンは制御不能なので禁止
+    m_DXGIFactory->MakeWindowAssociation(
+        Platform::WinApp::m_HWND,
+        DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
 
-void Theatria::Graphics::RenderDevice::CommandContext::Reset()
-{
-    // コマンドアロケータをリセットする
-    HRESULT hr = m_Allocator->Reset();
-    Core::LogAssert::Check(
-        hr,
-        "RenderDevice",
-        "Failed to reset CommandAllocator.");
-    // コマンドリストをリセットする
-    hr = m_List->Reset(m_Allocator.Get(), nullptr);
-    Core::LogAssert::Check(
-        hr,
-        "RenderDevice",
-        "Failed to reset CommandList.");
-}
+    // バックバッファの取得とRTVの作成
+    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+    rtvDesc.Format = m_SwapChainContext.m_Desc.Format;
+    rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;// 2dテクスチャとして書き込む
+    for (uint32_t i = 0; i < k_SwapChainBufferCount; ++i)
+    {
+        m_SwapChainContext.m_BackBuffers[i].backBufferIndex = i;
+        m_SwapChainContext.m_BackBuffers[i].pResource = std::make_unique<GpuResource>();
+        m_SwapChainContext.m_BackBuffers[i].pResource->AttachResource(nullptr);
+        ID3D12Resource* pResource = nullptr;
+        HRESULT hr = m_SwapChainContext.m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&pResource));
+        if (!Core::LogAssert::Verify(SUCCEEDED(hr), "RenderDevice", "Failed to get SwapChain back buffer resource."))
+        {
+            return false;
+        }
+        m_SwapChainContext.m_BackBuffers[i].pResource->AttachResource(pResource);
+        m_SwapChainContext.m_BackBuffers[i].rtvTableID = descAllocator->Allocate(DescriptorAllocator::TableKind::RenderTargets);
+        descAllocator->CreateRTV(
+            m_SwapChainContext.m_BackBuffers[i].rtvTableID,
+            m_SwapChainContext.m_BackBuffers[i].pResource->GetResource(),
+            rtvDesc);
+        descAllocator;
+    }
 
-void Theatria::Graphics::RenderDevice::CommandContext::Close()
-{
-    // コマンドリストを閉じる
-    HRESULT hr = m_List->Close();
-    Core::LogAssert::Check(
-        hr,
-        "RenderDevice",
-        "Failed to close CommandList.");
-}
-
-/// @brief コンストラクタ
-Theatria::Graphics::RenderDevice::QueueContext::QueueContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
-{
-    // フェンスの作成
-    m_Fence.Reset();
-    m_FenceValue = 0;// 初期値0でFenceを作る
-    if (!Core::LogAssert::Verify(
-        device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)),
-        "RenderDevice",
-        "Failed to create fence."))
-    {
-        Core::LogAssert::Check(false, "RenderDevice", "Fence creation failed.");
-    }
-    // FenceのSignalを持つためのイベントを作成する
-    m_FenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (!Core::LogAssert::Verify(
-        m_FenceEvent != nullptr,
-        "RenderDevice",
-        "Failed to create fence event."))
-    {
-        Core::LogAssert::Check(false, "RenderDevice", "Fence event creation failed.");
-    }
-    // コマンドキューの作成
-    D3D12_COMMAND_QUEUE_DESC desc = {};
-    desc.Type = type;
-    if (!Core::LogAssert::Verify(
-        SUCCEEDED(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_CommandQueue))),
-        "RenderDevice",
-        "Failed to create command queue."))
-    {
-        Core::LogAssert::Check(false, "RenderDevice", "Command queue creation failed.");
-    }
+    return true;
 }

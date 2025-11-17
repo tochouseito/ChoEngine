@@ -4,26 +4,33 @@
 
 #include <cstdint>
 #include <array>
+#include <optional>
 
 namespace Theatria::Graphics
 {
     /*前方宣言*/
     class RenderDevice;
 
+    /// @brief ヒープタイプ
+    enum class HeapType : uint8_t
+    {
+        CBV_SRV_UAV,
+        SAMPLER,
+        RTV,
+        DSV,
+        kCount
+    };
+
+    struct DescriptorHandleIndex final
+    {
+        std::array<std::optional<uint32_t>, static_cast<size_t>(HeapType::kCount)> indices = { 0 };
+    };
+
     class DescriptorAllocator final
     {
         template<typename T>
         using ComPtr = Microsoft::WRL::ComPtr<T>;
     public:
-        /// @brief ヒープタイプ
-        enum class HeapType : uint8_t
-        {
-            CBV_SRV_UAV,
-            SAMPLER,
-            RTV,
-            DSV,
-            kCount
-        };
         /// @brief テーブルの種類
         enum class TableKind : uint8_t { Textures, Buffers, RenderTargets, DepthStencils };
         /// @brief テーブルID
@@ -51,6 +58,8 @@ namespace Theatria::Graphics
         void CreateSRVTexture2D(TableID& id, ID3D12Resource* res, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
         void CreateSRVBuffer(TableID& id, ID3D12Resource* res, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
         void CreateUAVBuffer(TableID& id, ID3D12Resource* res, const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc);
+
+        void CreateRTV(TableID& id, ID3D12Resource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc);
 
         /// @brief テーブルベースアドレス取得
         D3D12_GPU_DESCRIPTOR_HANDLE GetTableBaseGPU(TableKind k);

@@ -8,6 +8,15 @@
 #include <cstddef>
 #include "include/Core/LogAssert.h"
 
+// なぜか定義されていないので追加
+#ifndef D3D12_GPU_VIRTUAL_ADDRESS_NULL
+#define D3D12_GPU_VIRTUAL_ADDRESS_NULL ((D3D12_GPU_VIRTUAL_ADDRESS)0)
+#endif
+
+#ifndef PixelFormat
+#define PixelFormat (DXGI_FORMAT_R8G8B8A8_UNORM)
+#endif
+
 namespace Theatria::Graphics
 {
     using namespace Microsoft::WRL;
@@ -37,7 +46,11 @@ namespace Theatria::Graphics
         /// @brief 破棄
         virtual void Destroy()
         {
-            m_pResource.Reset();
+            if (m_pResource)
+            {
+                m_pResource.Reset();
+                m_pResource = nullptr;
+            }
             m_UseState = D3D12_RESOURCE_STATE_COMMON;
             ++m_VersionID;
         }
@@ -49,6 +62,10 @@ namespace Theatria::Graphics
         ID3D12Resource* GetResource() { return m_pResource.Get(); }
         ID3D12Resource** GetAddressOf() { return m_pResource.GetAddressOf(); }
         uint32_t GetVersionID() const { return m_VersionID; }
+        void AttachResource(ID3D12Resource* pResource)
+        {
+            m_pResource.Attach(pResource);
+        }
         /// @brief リソースの使用状態を取得/設定
         D3D12_RESOURCE_STATES GetUseState() const { return m_UseState; }
         void SetUseState(D3D12_RESOURCE_STATES state) { m_UseState = state; }
@@ -132,8 +149,8 @@ namespace Theatria::Graphics
             D3D12_HEAP_FLAGS heapFlags,
             D3D12_RESOURCE_STATES InitialState,
             D3D12_RESOURCE_FLAGS resourceFlags,
-            const UINT& numElements,
-            const UINT& structureByteStride)
+            UINT numElements,
+            UINT structureByteStride)
         {
             // バッファのサイズを取得
             m_BufferSize = static_cast<UINT64>(numElements * structureByteStride);
@@ -199,7 +216,7 @@ namespace Theatria::Graphics
         }
 
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, const UINT& numElements)
+        void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
@@ -252,7 +269,7 @@ namespace Theatria::Graphics
         }
 
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, const UINT& numElements)
+        void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
@@ -318,6 +335,9 @@ namespace Theatria::Graphics
                 device, heapProperties, heapFlags,
                 initialState, resourceFlags,
                 1, structureByteStride);
+        }
+        void CreateUploadBuffer(ID3D12Device* device)
+        {
             m_UploadBuffer.CreateBuffer(device, 1);
         }
 
@@ -352,7 +372,7 @@ namespace Theatria::Graphics
             GpuBuffer::Destroy();
         }
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, const UINT& numElements)
+        void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
@@ -366,8 +386,12 @@ namespace Theatria::Graphics
                 device, heapProperties, heapFlags,
                 initialState, resourceFlags,
                 numElements, structureByteStride);
+        }
+        void CreateUploadBuffer(ID3D12Device* device, UINT numElements)
+        {
             m_UploadBuffer.CreateBuffer(device, numElements);
         }
+
         std::span<T> GetUploadMappedData() { return m_UploadBuffer.GetMappedData(); }
         UploadBuffer<T>& GetUploadBuffer() { return m_UploadBuffer; }
         /// @brief 要素の型を取得
@@ -399,7 +423,7 @@ namespace Theatria::Graphics
             GpuBuffer::Destroy();
         }
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, const UINT& numElements)
+        void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
@@ -413,8 +437,12 @@ namespace Theatria::Graphics
                 device, heapProperties, heapFlags,
                 initialState, resourceFlags,
                 numElements, structureByteStride);
+        }
+        void CreateReadBackBuffer(ID3D12Device* device, UINT numElements)
+        {
             m_ReadBackBuffer.CreateBuffer(device, numElements);
         }
+
         std::span<const T> GetReadBackMappedData() const { return m_ReadBackBuffer.GetMappedData(); }
         ReadBackBuffer<T>& GetReadBackBuffer() { return m_ReadBackBuffer; }
         /// @brief 要素の型を取得
@@ -449,7 +477,7 @@ namespace Theatria::Graphics
         /// @param device 
         /// @param numElements 
         /// @param isSkinningVertex 
-        void CreateBuffer(ID3D12Device* device, const UINT& numElements)
+        void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT;
             D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
@@ -467,9 +495,13 @@ namespace Theatria::Graphics
             m_View.BufferLocation = GetResource()->GetGPUVirtualAddress();
             m_View.SizeInBytes = static_cast<UINT>(GetResource()->GetDesc().Width);
             m_View.StrideInBytes = structureByteStride;
-            // アップロードバッファの作成
+        }
+        void CreateUploadBuffer(ID3D12Device* device, UINT numElements)
+        {
             m_UploadBuffer.CreateBuffer(device, numElements);
-            // リードバックバッファの作成
+        }
+        void CreateReadBackBuffer(ID3D12Device* device, UINT numElements)
+        {
             m_ReadBackBuffer.CreateBuffer(device, numElements);
         }
         /// @brief 頂点バッファビュー取得
@@ -511,7 +543,7 @@ namespace Theatria::Graphics
             GpuBuffer::Destroy();
         }
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, const UINT& numElements)
+        void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
@@ -541,9 +573,13 @@ namespace Theatria::Graphics
             {
                 Core::LogAssert::Check(false, "IndexBuffer", "Unsupported index buffer type");
             }
-            // アップロードバッファの作成
+        }
+        void CreateUploadBuffer(ID3D12Device* device, UINT numElements)
+        {
             m_UploadBuffer.CreateBuffer(device, numElements);
-            // リードバックバッファの作成
+        }
+        void CreateReadBackBuffer(ID3D12Device* device, UINT numElements)
+        {
             m_ReadBackBuffer.CreateBuffer(device, numElements);
         }
         /// @brief インデックスバッファビュー取得

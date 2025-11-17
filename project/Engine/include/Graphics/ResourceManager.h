@@ -22,7 +22,7 @@ namespace Theatria::Graphics
         template<typename GpuBufferType, typename T>
         uint32_t CreateBuffer()
         {
-            if constexpr (std::is_same_v < GpuBufferType, ConstantBuffer)
+            if constexpr (std::is_same_v < GpuBufferType, ConstantBuffer>)
             {
                 uint32_t index = static_cast<uint32_t>(m_Buffers.emplace_back(std::make_shared<ConstantBuffer<T>>()));
                 std::weak_ptr<GpuBuffer> buffer = m_Buffers[index].load();
@@ -38,7 +38,7 @@ namespace Theatria::Graphics
                 std::weak_ptr<GpuBuffer> buffer = m_Buffers[index].load();
                 if (auto ptr = buffer.lock())
                 {
-                    ptr->CreateStructuredBufferResource();
+                    ptr->CreateBuffer();
                 }
                 return index;
             }
@@ -48,7 +48,7 @@ namespace Theatria::Graphics
                 std::weak_ptr<GpuBuffer> buffer = m_Buffers[index].load();
                 if (auto ptr = buffer.lock())
                 {
-                    ptr->CreateRWStructuredBufferResource();
+                    ptr->CreateBuffer();
                 }
                 return index;
             }
@@ -58,7 +58,7 @@ namespace Theatria::Graphics
                 std::weak_ptr<GpuBuffer> buffer = m_Buffers[index].load();
                 if (auto ptr = buffer.lock())
                 {
-                    ptr->CreateVertexBufferResource();
+                    ptr->CreateBuffer();
                 }
                 return index;
             }
@@ -68,7 +68,7 @@ namespace Theatria::Graphics
                 std::weak_ptr<GpuBuffer> buffer = m_Buffers[index].load();
                 if (auto ptr = buffer.lock())
                 {
-                    ptr->CreateIndexBufferResource();
+                    ptr->CreateBuffer();
                 }
                 return index;
             }
@@ -87,7 +87,7 @@ namespace Theatria::Graphics
                 std::weak_ptr<TextureBuffer> buffer = m_TextureBuffers[index].load();
                 if (auto ptr = buffer.lock())
                 {
-                    ptr->CreateTextureBufferResource();
+                    ptr->CreateBuffer();
                 }
                 return index;
             }
@@ -97,7 +97,7 @@ namespace Theatria::Graphics
                 std::weak_ptr<TextureBuffer> buffer = m_TextureBuffers[index].load();
                 if (auto ptr = buffer.lock())
                 {
-                    ptr->CreateDepthBufferResource();
+                    ptr->CreateBuffer();
                 }
                 return index;
             }

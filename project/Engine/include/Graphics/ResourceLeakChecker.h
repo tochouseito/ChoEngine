@@ -6,8 +6,6 @@ namespace Theatria::Graphics
     class ResourceLeakChecker
     {
     public:
-        /// @brief コンストラクタ
-        ResourceLeakChecker() = default;
         /// @brief デストラクタ
         ~ResourceLeakChecker();
     };

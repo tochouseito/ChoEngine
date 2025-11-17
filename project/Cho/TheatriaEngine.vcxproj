@@ -483,7 +483,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)External\assimp\lib\$(Configuration);$(SolutionDir)External\DirectXTex\lib\$(Configuration);$(SolutionDir)External\imgui\lib\$(Configuration);$(SolutionDir)External\imgui_Extensions\lib\$(Configuration)</AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;ChoMath.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;DirectXTex.lib;PhysicsEngine.lib;assimp-vc143-mdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;ChoMath.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;DirectXTex.lib;PhysicsEngine.lib;assimp-vc145-mdd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -551,7 +551,7 @@ xcopy "$(SolutionDir)Cho\TheaReflectDeclare.h" "$(TargetDir)Cho\" /E /I /Y</Comm
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)External\assimp\lib\$(Configuration);$(SolutionDir)External\DirectXTex\lib\$(Configuration);$(SolutionDir)External\imgui\lib\$(Configuration);$(SolutionDir)External\imgui_Extensions\lib\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;ChoMath.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;DirectXTex.lib;PhysicsEngine.lib;assimp-vc143-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;ChoMath.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;DirectXTex.lib;PhysicsEngine.lib;assimp-vc145-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>

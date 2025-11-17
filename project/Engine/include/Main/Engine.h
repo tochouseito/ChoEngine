@@ -1,15 +1,23 @@
 #pragma once
 // === C++ Standard Library ===
 #include <memory> // unique_ptr
+// === Theatria Engine Include ===
+#include "include/Utility/APIExportsMacro.h"
 
 namespace Theatria
 {
+    enum class RuntimeMode : uint8_t
+    {
+        RuntimeMode_Editor,		// エディタモード
+        RuntimeMode_Release,		// リリースモード
+    };
+
     /// @brief メインエンジンクラス(すべての所有者)
     class Engine final
     {
     public:
         /// @brief コンストラクタ
-        Engine();
+        Engine(RuntimeMode mode);
         /// @brief デストラクタ
         ~Engine() noexcept;
         /// @brief 稼働処理
@@ -27,5 +35,6 @@ namespace Theatria
         std::unique_ptr<Impl> m_pImpl; ///< 実装隠蔽ポインタ
 
         bool m_Run = false; ///< エンジン稼働フラグ
+        RuntimeMode m_RuntimeMode = RuntimeMode::RuntimeMode_Release; ///< ランタイムモード
     };
 };

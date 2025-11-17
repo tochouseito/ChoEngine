@@ -28,11 +28,13 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDe
             m_Buffers.heapType = HeapType::CBV_SRV_UAV;
             m_Textures.heapType = HeapType::CBV_SRV_UAV;
             // 空きスロットを全登録
+            m_Textures.capacity = texCap;
             m_Textures.freeList.reserve(m_Textures.capacity);
             for (uint32_t j = 0; j < texCap; ++j)
             {
                 m_Textures.freeList.push_back(m_Textures.capacity - 1 - j);
             }
+            m_Buffers.capacity = bufCap;
             m_Buffers.freeList.reserve(m_Buffers.capacity);
             for (uint32_t j = 0; j < bufCap; ++j)
             {
@@ -54,6 +56,7 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDe
                     &desc, IID_PPV_ARGS(&m_DescriptorHeaps[i])), "DescriptorAllocator", "Failed CreateDescriptorHeap");
             m_RenderTargets.heapType = HeapType::RTV;
             // 空きスロットを全登録
+            m_RenderTargets.capacity = rtCap;
             m_RenderTargets.freeList.reserve(m_RenderTargets.capacity);
             for (uint32_t j = 0; j < rtCap; ++j)
             {
@@ -71,6 +74,7 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDe
                     &desc, IID_PPV_ARGS(&m_DescriptorHeaps[i])), "DescriptorAllocator", "Failed CreateDescriptorHeap");
             m_DepthStencils.heapType = HeapType::DSV;
             // 空きスロットを全登録
+            m_DepthStencils.capacity = dsCap;
             m_DepthStencils.freeList.reserve(m_DepthStencils.capacity);
             for (uint32_t j = 0; j < dsCap; ++j)
             {
@@ -120,6 +124,11 @@ void Theatria::Graphics::DescriptorAllocator::CreateUAVBuffer(TableID& id, ID3D1
 {
     auto cpuH = GetCPUHandle(id);
     m_pRenderDevice->m_Device->CreateUnorderedAccessView(res, nullptr, &desc, cpuH);
+}
+
+void Theatria::Graphics::DescriptorAllocator::CreateRTV(TableID& id, ID3D12Resource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc)
+{
+    m_pRenderDevice->m_Device->CreateRenderTargetView(res, &desc, GetCPUHandle(id));
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetTableBaseGPU(TableKind k) 
