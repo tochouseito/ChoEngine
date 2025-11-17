@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "include/Graphics/GPUCommand.h"
 #include "include/Core/LogAssert.h"
+#include "include/Graphics/ResourceLeakChecker.h"
 
 /// @brief コンストラクタ
 Theatria::Graphics::CommandContext::CommandContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
@@ -16,6 +17,7 @@ Theatria::Graphics::CommandContext::CommandContext(ID3D12Device* device, D3D12_C
     {
         Core::LogAssert::Check(false, "RenderDevice", "CommandAllocator creation failed.");
     }
+    SetD3D12Name(m_Allocator.Get());
 
     // コマンドリストを生成する
     if (!Core::LogAssert::Verify(
@@ -31,6 +33,7 @@ Theatria::Graphics::CommandContext::CommandContext(ID3D12Device* device, D3D12_C
     {
         Core::LogAssert::Check(false, "RenderDevice", "CommandList creation failed.");
     }
+    SetD3D12Name(m_List.Get());
 
     m_List->Close();  // 初期状態で閉じておく
 }
@@ -74,6 +77,7 @@ Theatria::Graphics::QueueContext::QueueContext(ID3D12Device* device, D3D12_COMMA
     {
         Core::LogAssert::Check(false, "RenderDevice", "Fence creation failed.");
     }
+    SetD3D12Name(m_Fence.Get());
     // FenceのSignalを持つためのイベントを作成する
     m_FenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     if (!Core::LogAssert::Verify(
@@ -93,4 +97,5 @@ Theatria::Graphics::QueueContext::QueueContext(ID3D12Device* device, D3D12_COMMA
     {
         Core::LogAssert::Check(false, "RenderDevice", "Command queue creation failed.");
     }
+    SetD3D12Name(m_CommandQueue.Get(), L"this Target");
 }

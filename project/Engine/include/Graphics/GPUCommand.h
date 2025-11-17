@@ -162,7 +162,7 @@ namespace Theatria::Graphics
         /// @brief コンストラクタ
         QueueContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type);
         /// @brief デストラクタ
-        ~QueueContext()
+        virtual ~QueueContext()
         {
             Flush();
             if (m_FenceEvent)
@@ -170,6 +170,8 @@ namespace Theatria::Graphics
                 CloseHandle(m_FenceEvent);
                 m_FenceEvent = nullptr;
             }
+            m_Fence.Reset();
+            m_CommandQueue.Reset();
         }
 
         void Execute(CommandContext* ctx)
@@ -282,7 +284,14 @@ namespace Theatria::Graphics
             m_PresentQueue = std::make_unique<GraphicsQueueContext>(m_Device);
         }
         /// @brief デストラクタ
-        ~QueuePool() = default;
+        ~QueuePool()
+        {
+            if (m_PresentQueue)
+            {
+                m_PresentQueue->Flush();
+            }
+            m_PresentQueue.reset();
+        }
         GraphicsQueueContext* GetGraphicsQueue()
         {
             std::unique_lock<std::mutex> lock(m_GraphicsMutex);

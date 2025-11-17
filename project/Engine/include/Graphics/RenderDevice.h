@@ -49,16 +49,7 @@ namespace Theatria::Graphics
 
             m_SwapChainContext.m_SwapChain.Reset();
             m_QueuePool.reset();
-
-            {
-                ComPtr<ID3D12DebugDevice> debugDevice;
-                if (SUCCEEDED(m_Device.As(&debugDevice)))
-                {
-                    // 生き残ってる D3D12 オブジェクトを全部ダンプ
-                    debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
-                }
-            }
-
+            
             m_Device.Reset();
             m_DXGIFactory.Reset();
         }

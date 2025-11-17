@@ -25,6 +25,7 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDe
             Core::LogAssert::Verify(
                 m_pRenderDevice->m_Device->CreateDescriptorHeap(
                     &desc, IID_PPV_ARGS(&m_DescriptorHeaps[i])), "DescriptorAllocator", "Failed CreateDescriptorHeap");
+            SetD3D12Name(m_DescriptorHeaps[i].Get());
             m_Buffers.heapType = HeapType::CBV_SRV_UAV;
             m_Textures.heapType = HeapType::CBV_SRV_UAV;
             // 空きスロットを全登録
@@ -54,6 +55,7 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDe
             Core::LogAssert::Verify(
                 m_pRenderDevice->m_Device->CreateDescriptorHeap(
                     &desc, IID_PPV_ARGS(&m_DescriptorHeaps[i])), "DescriptorAllocator", "Failed CreateDescriptorHeap");
+            SetD3D12Name(m_DescriptorHeaps[i].Get());
             m_RenderTargets.heapType = HeapType::RTV;
             // 空きスロットを全登録
             m_RenderTargets.capacity = rtCap;
@@ -72,6 +74,7 @@ bool Theatria::Graphics::DescriptorAllocator::Initialize(RenderDevice* pRenderDe
             Core::LogAssert::Verify(
                 m_pRenderDevice->m_Device->CreateDescriptorHeap(
                     &desc, IID_PPV_ARGS(&m_DescriptorHeaps[i])), "DescriptorAllocator", "Failed CreateDescriptorHeap");
+            SetD3D12Name(m_DescriptorHeaps[i].Get());
             m_DepthStencils.heapType = HeapType::DSV;
             // 空きスロットを全登録
             m_DepthStencils.capacity = dsCap;

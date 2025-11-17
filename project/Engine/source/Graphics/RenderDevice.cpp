@@ -4,6 +4,7 @@
 #include "include/Core/LogAssert.h"
 #include "include/Utility/TString.h"
 #include "include/Platform/WinApp.h"
+#include "include/Graphics/ResourceLeakChecker.h"
 
 [[nodiscard]]
 bool Theatria::Graphics::RenderDevice::Initialize(bool enableDebugLayer)
@@ -47,6 +48,11 @@ bool Theatria::Graphics::RenderDevice::CreateDXGIFactory([[maybe_unused]] bool e
     // DXGIファクトリーの生成
     HRESULT hr;
     hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DXGIFactory));
+    if (!Core::LogAssert::Verify(SUCCEEDED(hr), "RenderDevice", "Failed to create DXGI Factory."))
+    {
+        return false;
+    }
+    SetDXGIName(m_DXGIFactory.Get());
     return true;
 }
 
@@ -133,6 +139,9 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
         return false;
     }
 
+    // 名前つけ
+    SetD3D12Name(m_Device.Get());
+
     // 初期化完了ログ
     Core::LogAssert::Log(
         std::source_location::current(), Core::LogAssert::SinkKind::Console,
@@ -149,10 +158,10 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
         infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 
         // エラー時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, false);
+        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 
         // 警告時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, false);
+        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 
         // 抑制するメッセージのID
         D3D12_MESSAGE_ID denyIds[] = {
@@ -433,10 +442,8 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
         DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING |
         DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;// ティアリングサポート
 
-    GraphicsQueueContext* graphicsQueue = m_QueuePool->GetGraphicsQueue();
-
     if (!Core::LogAssert::Verify(m_DXGIFactory->CreateSwapChainForHwnd(
-        graphicsQueue->GetCommandQueue(),
+        m_QueuePool->GetPresentQueue()->GetCommandQueue(),
         Platform::WinApp::m_HWND,
         &m_SwapChainContext.m_Desc,
         nullptr, nullptr,
@@ -446,7 +453,8 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
         return false;
     }
 
-    m_QueuePool->ReturnQueue(graphicsQueue);
+    // 名前つけ
+    SetDXGIName(m_SwapChainContext.m_SwapChain.Get());
 
     // リフレッシュレートを取得。floatで取るのは大変なので大体あってれば良いので整数で。
     HDC hdc = GetDC(Platform::WinApp::m_HWND);
@@ -486,7 +494,6 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
             m_SwapChainContext.m_BackBuffers[i].rtvTableID,
             m_SwapChainContext.m_BackBuffers[i].pResource->GetResource(),
             rtvDesc);
-        descAllocator;
     }
 
     return true;

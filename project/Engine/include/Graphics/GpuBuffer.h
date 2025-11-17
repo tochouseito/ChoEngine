@@ -7,6 +7,7 @@
 #include <typeindex>
 #include <cstddef>
 #include "include/Core/LogAssert.h"
+#include "include/Graphics/ResourceLeakChecker.h"
 
 // なぜか定義されていないので追加
 #ifndef D3D12_GPU_VIRTUAL_ADDRESS_NULL
@@ -104,6 +105,7 @@ namespace Theatria::Graphics
             m_UseState = InitialState;
             m_HeapType = heapProperties.Type;
             Core::LogAssert::Verify(hr, "GpuResource", "CreateCommittedResource failed");
+            SetD3D12Name(m_pResource.Get());
         }
     private:
         ComPtr<ID3D12Resource> m_pResource;///< D3D12リソースポインタ
