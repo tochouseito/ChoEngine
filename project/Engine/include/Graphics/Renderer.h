@@ -4,6 +4,7 @@
 namespace Theatria::Graphics
 {
     class RenderDevice;
+    class ResourceManager;
 
     class Renderer final
     {
@@ -12,12 +13,19 @@ namespace Theatria::Graphics
         Renderer() = default;
         /// @brief デストラクタ
         ~Renderer() = default;
-    /// @brief 初期化
-    [[nodiscard]]
-    bool Initialize(RenderDevice* renderDevice);
+        /// @brief 初期化
+        [[nodiscard]]
+        bool Initialize(RenderDevice* renderDevice, ResourceManager* resourceManager);
     private:
-        RenderDevice* m_Device = nullptr;
-        std::unique_ptr<CommandPool> m_CommandPool = nullptr;
+        void CreateDepthBuffer();
+
+        // Debug用リソース作成
+        void CreateDepthBufferDebug();
+
+        RenderDevice* m_Device = nullptr;///> レンダーデバイス
+        ResourceManager* m_ResourceManager = nullptr;///> リソースマネージャ
+        std::unique_ptr<CommandPool> m_CommandPool = nullptr;///> コマンドプール
+        
     };
 };
 

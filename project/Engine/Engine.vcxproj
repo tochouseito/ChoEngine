@@ -127,6 +127,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Graphics\GraphicsSetting.cpp" />
     <ClCompile Include="source\Utility\EngineCreateAPI.cpp" />
     <ClCompile Include="source\Graphics\GPUCommand.cpp" />
     <ClCompile Include="source\Graphics\GpuBuffer.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="include\Core\Events.h" />
     <ClInclude Include="include\Core\FrameCounter.h" />
     <ClInclude Include="include\Core\Routers.h" />
+    <ClInclude Include="include\Graphics\GraphicsSetting.h" />
     <ClInclude Include="include\Main\Engine.h" />
     <ClInclude Include="include\Core\Allocators.h" />
     <ClInclude Include="include\Audio\AudioEngine.h" />

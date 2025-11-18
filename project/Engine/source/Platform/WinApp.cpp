@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "include/Platform/WinApp.h"
+#include "include/Graphics/GraphicsSetting.h"
 #include <cstdint>
 #include <timeapi.h>
 #include <shellapi.h>

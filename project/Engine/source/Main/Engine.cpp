@@ -243,8 +243,14 @@ bool Theatria::Engine::Initialize()
         Core::LogAssert::Verify(false, "DescriptorAllocator Initialize", "DescriptorAllocator initialization failed");
         return false;
     }
+    // リソースマネージャ初期化
+    if (!m_pImpl->m_pResourceManager->Initialize(m_pImpl->m_pRenderDevice.get(), m_pImpl->m_pDescriptorAllocator.get()))
+    {
+        Core::LogAssert::Verify(false, "ResourceManager Initialize", "ResourceManager initialization failed");
+        return false;
+    }
     // レンダラー初期化
-    if (!m_pImpl->m_pRenderer->Initialize(m_pImpl->m_pRenderDevice.get()))
+    if (!m_pImpl->m_pRenderer->Initialize(m_pImpl->m_pRenderDevice.get(),m_pImpl->m_pResourceManager.get()))
     {
         Core::LogAssert::Verify(false, "Renderer Initialize", "Renderer initialization failed");
         return false;

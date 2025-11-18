@@ -21,11 +21,6 @@ namespace Theatria::Graphics
         kCount
     };
 
-    struct DescriptorHandleIndex final
-    {
-        std::array<std::optional<uint32_t>, static_cast<size_t>(HeapType::kCount)> indices = { 0 };
-    };
-
     class DescriptorAllocator final
     {
         template<typename T>

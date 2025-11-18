@@ -5,6 +5,7 @@
 #include <span>
 #include <concepts>
 #include <typeindex>
+#include <type_traits>
 #include <cstddef>
 #include "include/Core/LogAssert.h"
 #include "include/Graphics/ResourceLeakChecker.h"
@@ -220,6 +221,8 @@ namespace Theatria::Graphics
         /// @brief バッファ作成
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
+            // Tが構造体、クラスの時、サイズチェック
+            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
@@ -273,6 +276,8 @@ namespace Theatria::Graphics
         /// @brief バッファ作成
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
+            // Tが構造体、クラスの時、サイズチェック
+            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
@@ -325,6 +330,8 @@ namespace Theatria::Graphics
         /// @brief バッファ作成
         void CreateBuffer(ID3D12Device* device)
         {
+            // Tが構造体、クラスの時、サイズチェック
+            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
@@ -376,6 +383,8 @@ namespace Theatria::Graphics
         /// @brief バッファ作成
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
+            // Tが構造体、クラスの時、サイズチェック
+            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
@@ -427,6 +436,8 @@ namespace Theatria::Graphics
         /// @brief バッファ作成
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
+            // Tが構造体、クラスの時、サイズチェック
+            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
@@ -481,6 +492,8 @@ namespace Theatria::Graphics
         /// @param isSkinningVertex 
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
+            // Tが構造体、クラスの時、サイズチェック
+            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT;
             D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
             D3D12_RESOURCE_FLAGS resourceFlag = D3D12_RESOURCE_FLAG_NONE;
@@ -547,6 +560,8 @@ namespace Theatria::Graphics
         /// @brief バッファ作成
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
+            // Tが構造体、クラスの時、サイズチェック
+            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
