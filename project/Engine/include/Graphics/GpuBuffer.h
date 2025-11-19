@@ -15,10 +15,6 @@
 #define D3D12_GPU_VIRTUAL_ADDRESS_NULL ((D3D12_GPU_VIRTUAL_ADDRESS)0)
 #endif
 
-#ifndef PixelFormat
-#define PixelFormat (DXGI_FORMAT_R8G8B8A8_UNORM)
-#endif
-
 namespace Theatria::Graphics
 {
     using namespace Microsoft::WRL;
@@ -609,7 +605,7 @@ namespace Theatria::Graphics
             m_Dimension = D3D12_RESOURCE_DIMENSION_UNKNOWN;
         }
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES& state)
+        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES state)
         {
             // 利用するHeapの設定
             D3D12_HEAP_PROPERTIES heapProperties{};

@@ -85,6 +85,31 @@ namespace Theatria::Graphics
             return idx;
         }
         [[nodiscard]]
+        uint32_t CreateRenderTargetBuffer()
+        {
+            // RenderTargetBufferの生成
+            D3D12_RESOURCE_DESC resourceDesc = {};
+            resourceDesc.Width = Setting::ResolutionWidth;
+            resourceDesc.Height = Setting::ResolutionHeight;
+            resourceDesc.MipLevels = 1;
+            resourceDesc.DepthOrArraySize = 1;
+            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.Format = Setting::DefaultDXGIFormat;
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+            resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+            // クリア値の設定
+            D3D12_CLEAR_VALUE clearValue = {};
+            clearValue.Format = Setting::DefaultDXGIFormat;
+            clearValue.Color[0] = Setting::kClearColor[0];
+            clearValue.Color[1] = Setting::kClearColor[1];
+            clearValue.Color[2] = Setting::kClearColor[2];
+            clearValue.Color[3] = Setting::kClearColor[3];
+            auto buffer = std::make_shared<TextureBuffer>();
+            buffer->CreateBuffer(m_pDevice->GetDevice(), resourceDesc, &clearValue, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
+            return idx;
+        }
+        [[nodiscard]]
         uint32_t CreateDepthBuffer()
         {
             // DepthBufferの生成
