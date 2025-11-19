@@ -78,6 +78,7 @@ Theatria::Graphics::QueueContext::QueueContext(ID3D12Device* device, D3D12_COMMA
         Core::LogAssert::Check(false, "RenderDevice", "Fence creation failed.");
     }
     SetD3D12Name(m_Fence.Get());
+    m_FenceValue++; // 次に使う値をインクリメントしておく
     // FenceのSignalを持つためのイベントを作成する
     m_FenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     if (!Core::LogAssert::Verify(

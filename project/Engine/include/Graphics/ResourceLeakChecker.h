@@ -1,4 +1,5 @@
 #pragma once
+#include <d3d12.h>
 #include <dxgi1_6.h>
 #ifdef _DEBUG
 #include <d3d12sdklayers.h>
@@ -14,7 +15,7 @@ namespace Theatria::Graphics
         ~ResourceLeakChecker();
     };
 
-    inline void SetDXGIName(IDXGIObject* obj, const wchar_t* name = L"Theatria")
+    inline void SetDXGIName([[maybe_unused]] IDXGIObject* obj, [[maybe_unused]] const wchar_t* name = L"Theatria")
     {
 #ifdef _DEBUG
         if (obj)
@@ -27,7 +28,7 @@ namespace Theatria::Graphics
 #endif
     }
 
-    inline void SetD3D12Name(ID3D12Object* obj, const wchar_t* name = L"Theatria")
+    inline void SetD3D12Name([[maybe_unused]] ID3D12Object* obj, [[maybe_unused]] const wchar_t* name = L"Theatria")
     {
 #ifdef _DEBUG
         if (obj)

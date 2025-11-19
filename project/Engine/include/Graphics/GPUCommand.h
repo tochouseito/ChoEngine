@@ -190,7 +190,7 @@ namespace Theatria::Graphics
         {
             const UINT64 fence = ++m_FenceValue;
             m_CommandQueue->Signal(m_Fence.Get(), fence);
-
+            
             if (m_Fence->GetCompletedValue() < fence)
             {
                 m_Fence->SetEventOnCompletion(fence, m_FenceEvent);
@@ -201,6 +201,7 @@ namespace Theatria::Graphics
         {
             // Fenceの値が指定したSignal値にたどり着いているか確認する
             // GetCompletedValueの初期値はFence作成時に渡した初期値
+            if (!m_FenceValue) { return; }
             if (m_Fence->GetCompletedValue() < m_FenceValue)
             {
                 // 指定したSignalにたどり着いていないので、たどり着くまで待つようにイベントを設定する
@@ -319,8 +320,6 @@ namespace Theatria::Graphics
 
         GraphicsQueueContext* GetPresentQueue()
         {
-            std::unique_lock<std::mutex> lock(m_PresentMutex);
-            m_PresentCV.wait(lock, [this]() { return m_PresentQueue != nullptr; });
             return m_PresentQueue.get();
         }
 
@@ -397,8 +396,6 @@ namespace Theatria::Graphics
         std::queue<std::unique_ptr<CopyQueueContext>> m_CopyQueuePool;
 
         // Present用
-        std::mutex m_PresentMutex;
-        std::condition_variable m_PresentCV;
         std::unique_ptr<GraphicsQueueContext> m_PresentQueue;
     };
 } // namespace Theatria::Graphics

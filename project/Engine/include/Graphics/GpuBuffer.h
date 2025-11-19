@@ -41,10 +41,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        virtual ~GpuResource()
-        {
-            Destroy();
-        }
+        virtual ~GpuResource() = default;
         /// @brief 破棄
         virtual void Destroy()
         {
@@ -129,10 +126,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        virtual ~GpuBuffer()
-        {
-            Destroy();
-        }
+        virtual ~GpuBuffer() = default;
         virtual void Destroy() override
         {
             GpuResource::Destroy();
@@ -202,11 +196,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        ~UploadBuffer()
-        {
-            Destroy();
-        }
-
+        ~UploadBuffer() = default;
         /// @brief 破棄
         void Destroy() override
         {
@@ -261,11 +251,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        ~ReadBackBuffer()
-        {
-            Destroy();
-        }
-
+        ~ReadBackBuffer() = default;
         void Destroy() override
         {
             GetResource()->Unmap(0, nullptr);
@@ -317,10 +303,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        virtual ~ConstantBuffer()
-        {
-            Destroy();
-        }
+        virtual ~ConstantBuffer() = default;
         /// @brief 破棄
         void Destroy() override
         {
@@ -370,10 +353,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        virtual ~StructuredBuffer()
-        {
-            Destroy();
-        }
+        virtual ~StructuredBuffer() = default;
         /// @brief 破棄
         void Destroy() override
         {
@@ -423,10 +403,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        virtual ~RWStructuredBuffer()
-        {
-            Destroy();
-        }
+        virtual ~RWStructuredBuffer() = default;
         /// @brief 破棄
         void Destroy() override
         {
@@ -476,10 +453,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        virtual ~VertexBuffer()
-        {
-            Destroy();
-        }
+        virtual ~VertexBuffer() = default;
         void Destroy() override
         {
             m_UploadBuffer.Destroy();
@@ -546,10 +520,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        ~IndexBuffer()
-        {
-            Destroy();
-        }
+        ~IndexBuffer() = default;
         /// @brief 破棄
         void Destroy() override
         {
@@ -625,10 +596,7 @@ namespace Theatria::Graphics
         {
         }
         /// @brief デストラクタ
-        virtual ~TextureBuffer()
-        {
-            Destroy();
-        }
+        virtual ~TextureBuffer() = default;
         /// @brief 破棄
         void Destroy() override
         {
