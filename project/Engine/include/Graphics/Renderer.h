@@ -17,15 +17,14 @@ namespace Theatria::Graphics
         [[nodiscard]]
         bool Initialize(RenderDevice* renderDevice, ResourceManager* resourceManager);
     private:
-        void CreateDepthBuffer();
-
-        // Debug用リソース作成
-        void CreateDepthBufferDebug();
 
         RenderDevice* m_Device = nullptr;///> レンダーデバイス
         ResourceManager* m_ResourceManager = nullptr;///> リソースマネージャ
         std::unique_ptr<CommandPool> m_CommandPool = nullptr;///> コマンドプール
-        
+
+        uint32_t m_DepthBufferIndex = UINT32_MAX; ///> 深度バッファのインデックス
+        uint32_t m_DebugDepthBufferIndex = UINT32_MAX; ///> デバッグ用深度バッファのインデックス
+
     };
 };
 

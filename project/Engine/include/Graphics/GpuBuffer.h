@@ -665,7 +665,7 @@ namespace Theatria::Graphics
             TextureBuffer::Destroy();
         }
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES& state)
+        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES state)
         {
             // 利用するHeapの設定
             D3D12_HEAP_PROPERTIES heapProperties{};

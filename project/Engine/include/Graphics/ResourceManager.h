@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "include/Graphics/GpuBuffer.h"
+#include "include/Graphics/GraphicsSetting.h"
 #include "include/Utility/atomic_shared_ptr.h"
 #include "include/Utility/FVector.h"
 #include <typeindex>
@@ -84,10 +85,21 @@ namespace Theatria::Graphics
             return idx;
         }
         [[nodiscard]]
-        uint32_t CreateDepthBuffer(D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES& state)
+        uint32_t CreateDepthBuffer()
         {
+            // DepthBufferの生成
+            D3D12_RESOURCE_DESC resourceDesc = {};
+            resourceDesc.Width = Setting::ResolutionWidth;
+            resourceDesc.Height = Setting::ResolutionHeight;
+            resourceDesc.MipLevels = 1;
+            resourceDesc.DepthOrArraySize = 1;
+            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+            resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
             auto buffer = std::make_shared<DepthBuffer>();
-            buffer->CreateBuffer(m_pDevice->GetDevice(), desc, state);
+            buffer->CreateBuffer(m_pDevice->GetDevice(), resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE);
             uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
             return idx;
         }

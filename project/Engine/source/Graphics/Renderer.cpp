@@ -12,15 +12,7 @@ bool Theatria::Graphics::Renderer::Initialize(RenderDevice* renderDevice, Resour
     m_ResourceManager = resourceManager;
     m_CommandPool = std::make_unique<CommandPool>(m_Device->m_Device.Get());
     // 深度バッファの作成
-    CreateDepthBuffer();
+    m_DepthBufferIndex = m_ResourceManager->CreateDepthBuffer();
+    m_DebugDepthBufferIndex = m_ResourceManager->CreateDepthBuffer();
     return true;
-}
-
-void Theatria::Graphics::Renderer::CreateDepthBuffer()
-{
-    
-}
-
-void Theatria::Graphics::Renderer::CreateDepthBufferDebug()
-{
 }
