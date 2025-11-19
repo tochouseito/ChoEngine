@@ -29,7 +29,7 @@ namespace Theatria::Graphics
         bool Initialize(RenderDevice* device, DescriptorAllocator* descAllocator);
 
         /*=============== CreateResources ===============*/
-        /*template<typename T>
+        template<typename T>
         [[nodiscard]]
         uint32_t CreateConstantBuffer()
         {
@@ -37,93 +37,60 @@ namespace Theatria::Graphics
             buffer->CreateBuffer(m_pDevice->GetDevice());
             uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
             return idx;
-        }*/
-       /* template<typename T>
+        }
+        template<typename T>
         [[nodiscard]]
         uint32_t CreateStructuredBuffer(uint32_t numElements)
         {
-            auto buffer = std::
-        }*/
-
-        //template<typename GpuBufferType, typename T>
-        //[[nodiscard]]
-        //uint32_t CreateBuffer()
-        //{
-        //    else if constexpr (std::is_same_v <GpuBufferType, StructuredBuffer>)
-        //    {
-        //        uint32_t index = static_cast<uint32_t>(m_Buffers.emplace_back(std::make_shared<StructuredBuffer<T>>()));
-        //        std::weak_ptr<StructuredBuffer<T>> buffer = m_Buffers[index].load();
-        //        if (auto ptr = buffer.lock())
-        //        {
-        //            ptr->CreateBuffer(m_pDevice->GetDevice(), );
-        //        }
-        //        return index;
-        //    }
-        //    else if constexpr (std::is_same_v<GpuBufferType, RWStructuredBuffer>)
-        //    {
-        //        uint32_t index = static_cast<uint32_t>(m_Buffers.emplace_back(std::make_shared<RWStructuredBuffer<T>>()));
-        //        std::weak_ptr<RWStructuredBuffer<T>> buffer = m_Buffers[index].load();
-        //        if (auto ptr = buffer.lock())
-        //        {
-        //            ptr->CreateBuffer();
-        //        }
-        //        return index;
-        //    }
-        //    else if constexpr (std::is_same_v<GpuBufferType, VertexBuffer>)
-        //    {
-        //        uint32_t index = static_cast<uint32_t>(m_Buffers.emplace_back(std::make_shared<VertexBuffer<T>>()));
-        //        std::weak_ptr<VertexBuffer<T>> buffer = m_Buffers[index].load();
-        //        if (auto ptr = buffer.lock())
-        //        {
-        //            ptr->CreateBuffer();
-        //        }
-        //        return index;
-        //    }
-        //    else if constexpr (std::is_same_v<GpuBufferType, IndexBuffer>)
-        //    {
-        //        uint32_t index = static_cast<uint32_t>(m_Buffers.emplace_back(std::make_shared<IndexBuffer<T>>()));
-        //        std::weak_ptr<IndexBuffer<T>> buffer = m_Buffers[index].load();
-        //        if (auto ptr = buffer.lock())
-        //        {
-        //            ptr->CreateBuffer();
-        //        }
-        //        return index;
-        //    }
-        //    else
-        //    {
-        //        static_assert(false, "Unsupported GpuBufferType");
-        //    }
-        //}
-        ///*=============== TextureBuffer ===============*/
-        //template<typename TextureBufferType>
-        //[[nodiscard]]
-        //uint32_t CreateTextureBuffer()
-        //{
-        //    if constexpr (std::is_same_v < TextureBufferType, TextureBuffer>)
-        //    {
-        //        uint32_t index = static_cast<uint32_t>(m_TextureBuffers.emplace_back(std::make_shared<TextureBuffer>()));
-        //        std::weak_ptr<TextureBuffer> buffer = m_TextureBuffers[index].load();
-        //        if (auto ptr = buffer.lock())
-        //        {
-        //            ptr->CreateBuffer();
-        //        }
-        //        return index;
-        //    }
-        //    else if constexpr (std::is_same_v<TextureBufferType, DepthBuffer>)
-        //    {
-        //        uint32_t index = static_cast<uint32_t>(m_TextureBuffers.emplace_back(std::make_shared<DepthBuffer>()));
-        //        std::weak_ptr<DepthBuffer> buffer = m_TextureBuffers[index].load();
-        //        if (auto ptr = buffer.lock())
-        //        {
-        //            ptr->CreateBuffer();
-        //        }
-        //        return index;
-        //    }
-        //    else
-        //    {
-        //        static_assert(false, "Unsupported TextureBufferType");
-        //    }
-        //}
+            auto buffer = std::make_shared<StructuredBuffer<T>>();
+            buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
+            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            return idx;
+        }
+        template<typename T>
+        [[nodiscard]]
+        uint32_t CreateRWStructuredBuffer(uint32_t numElements)
+        {
+            auto buffer = std::make_shared<RWStructuredBuffer<T>>();
+            buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
+            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            return idx;
+        }
+        template<typename T>
+        [[nodiscard]]
+        uint32_t CreateVertexBuffer(uint32_t numElements)
+        {
+            auto buffer = std::make_shared<VertexBuffer<T>>();
+            buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
+            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            return idx;
+        }
+        template<typename T>
+        [[nodiscard]]
+        uint32_t CreateIndexBuffer(uint32_t numElements)
+        {
+            auto buffer = std::make_shared<IndexBuffer<T>>();
+            buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
+            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            return idx;
+        }
+        /*=============== TextureBuffer ===============*/
+        [[nodiscard]]
+        uint32_t CreateTextureBuffer(D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES& state)
+        {
+            auto buffer = std::make_shared<TextureBuffer>();
+            buffer->CreateBuffer(m_pDevice->GetDevice(), desc, clearValue, state);
+            uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
+            return idx;
+        }
+        [[nodiscard]]
+        uint32_t CreateDepthBuffer(D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES& state)
+        {
+            auto buffer = std::make_shared<DepthBuffer>();
+            buffer->CreateBuffer(m_pDevice->GetDevice(), desc, state);
+            uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
+            return idx;
+        }
 
         /*=============== GetBuffer ===============*/
         GpuBuffer* GetBuffer(uint32_t idx) noexcept
