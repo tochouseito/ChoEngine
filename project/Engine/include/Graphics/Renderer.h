@@ -1,6 +1,5 @@
 #pragma once
 #include "include/Graphics/GPUCommand.h"
-#include <array>
 
 namespace Theatria::Graphics
 {
