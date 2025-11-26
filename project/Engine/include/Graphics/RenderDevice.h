@@ -22,7 +22,7 @@ namespace Theatria::Graphics
 
     struct SwapChainContext final
     {
-        ComPtr<IDXGISwapChain1> m_SwapChain = nullptr;///> スワップチェイン
+        ComPtr<IDXGISwapChain4> m_SwapChain = nullptr;///> スワップチェイン
         DXGI_SWAP_CHAIN_DESC1 m_Desc = {};///> スワップチェイン記述子
         int32_t m_RefreshRate = {};///> リフレッシュレート
         std::array<SwapChainBuffer, k_SwapChainBufferCount> m_BackBuffers = {};///> バックバッファ

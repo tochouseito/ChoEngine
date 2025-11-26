@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "include/Graphics/GPUCommand.h"
+#include "include/Graphics/GraphicsSetting.h"
 #include "include/Core/LogAssert.h"
 #include "include/Graphics/ResourceLeakChecker.h"
 
@@ -62,6 +63,86 @@ void Theatria::Graphics::CommandContext::Close()
         hr,
         "RenderDevice",
         "Failed to close CommandList.");
+}
+
+void Theatria::Graphics::CommandContext::SetDescriptorHeap(ID3D12DescriptorHeap* pHeap)
+{
+    // ディスクリプタヒープを設定する
+    ID3D12DescriptorHeap* heaps[] = { pHeap };
+    // コマンドリストにディスクリプタヒープを設定する
+    m_List->SetDescriptorHeaps(_countof(heaps), heaps);
+}
+
+void Theatria::Graphics::CommandContext::ResourceBarrier(UINT NumBarriers, const D3D12_RESOURCE_BARRIER* pBarriers)
+{
+    // リソースバリアの設定
+    m_List->ResourceBarrier(NumBarriers, pBarriers);
+}
+
+void Theatria::Graphics::CommandContext::BarrierTransition(GpuResource* pResource, D3D12_RESOURCE_STATES Before, D3D12_RESOURCE_STATES After)
+{
+    // TransitionBarrierの設定
+    D3D12_RESOURCE_BARRIER barrier{};
+    // 今回のバリアはTransition
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    // Noneにしておく
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    // バリアを張る対象のリソース。現在のバックバッファに対して行う
+    barrier.Transition.pResource = pResource->GetResource();
+    // 遷移前（現在）のResourceState
+    barrier.Transition.StateBefore = Before;
+    // 遷移後のResourceState
+    barrier.Transition.StateAfter = After;
+    // 全てのミップマップに対してバリアを張る
+    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    // TransitionBarrierを張る
+    ResourceBarrier(1, &barrier);
+    // リソースステートの更新
+    pResource->SetUseState(After);
+}
+
+void Theatria::Graphics::CommandContext::BarrierUAV(GpuResource* pResource, D3D12_RESOURCE_BARRIER_TYPE Type, D3D12_RESOURCE_BARRIER_FLAGS Flags)
+{
+    // 並列処理の阻止
+    D3D12_RESOURCE_BARRIER barrier{};
+    barrier.Type = Type;
+    barrier.Flags = Flags;
+    barrier.UAV.pResource = pResource->GetResource();
+    // UAVバリアを張る
+    ResourceBarrier(1, &barrier);
+}
+
+void Theatria::Graphics::CommandContext::SetViewport(D3D12_VIEWPORT viewport)
+{
+    m_List->RSSetViewports(1, &viewport);
+}
+
+void Theatria::Graphics::CommandContext::SetScissorRect(D3D12_RECT rect)
+{
+    m_List->RSSetScissorRects(1, &rect);
+}
+
+void Theatria::Graphics::CommandContext::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology)
+{
+    m_List->IASetPrimitiveTopology(topology);
+}
+
+void Theatria::Graphics::CommandContext::SetRenderTargets(UINT NumRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors, BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor)
+{
+    m_List->OMSetRenderTargets(
+        NumRenderTargetDescriptors,
+        pRenderTargetDescriptors,
+        RTsSingleHandleToDescriptorRange,
+        pDepthStencilDescriptor);
+}
+
+void Theatria::Graphics::CommandContext::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetView, const FLOAT ColorRGBA[4], UINT NumRects, const D3D12_RECT* pRects)
+{
+    m_List->ClearRenderTargetView(
+        RenderTargetView,
+        ColorRGBA,
+        NumRects,
+        pRects);
 }
 
 /// @brief コンストラクタ

@@ -62,6 +62,12 @@ namespace Theatria::Graphics
         D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(TableID& id);
         /// @brief CPUハンドル取得
         D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(TableID& id);
+
+        /// @brief ヒープ取得
+        ID3D12DescriptorHeap* GetDescriptorHeap(HeapType type) const noexcept
+        {
+            return m_DescriptorHeaps[static_cast<size_t>(type)].Get();
+        }
     private:
         RenderDevice* m_pRenderDevice = nullptr; ///< レンダーデバイス
 

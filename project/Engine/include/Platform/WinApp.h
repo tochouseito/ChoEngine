@@ -31,11 +31,12 @@ namespace Theatria
             /// @brief ウィンドウメッセージ処理
             /// @return 終了ならtrue、継続ならfalse
             [[nodiscard]] static bool ProcessMessage();
+        public:
+            static UINT64       m_WindowWidth;  ///< ウィンドウ幅
+            static UINT         m_WindowHeight; ///< ウィンドウ高さ
         private:
             static HWND         m_HWND; ///< ウィンドウハンドル
             static WNDCLASS     m_WC;   ///< ウィンドウクラス
-            static UINT64       m_WindowWidth;  ///< ウィンドウ幅
-            static UINT         m_WindowHeight; ///< ウィンドウ高さ
         };
     }// namespace Platform
 }// namespace Theatria

@@ -69,6 +69,7 @@ namespace Theatria::Graphics
     };
 
     FGState DecideState(const ResourceDesc& desc, FGAccess access);
+    D3D12_RESOURCE_STATES FGStateToD3D12State(FGState state);
 
     struct ResourceUse final
     {

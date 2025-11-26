@@ -195,11 +195,11 @@ void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager
     {
         auto& pass = m_Passes[pid];
 
-        // バリアを挿入（FGState→D3D12_RESOURCE_STATES 変換して ResourceBarrier）
-        renderer.ApplyBarriers(*this, pass.barriers);
-
         PassContext pctx(*this, rm, pid);
         GraphicsCommandContext* cmd = renderer.BeginRenderPass();
+
+        // バリアを挿入（FGState→D3D12_RESOURCE_STATES 変換して ResourceBarrier）
+        renderer.ApplyBarriers(*this, cmd, pass.barriers);
 
         // パス実行
         pass.executeFn(pctx, *cmd);
@@ -263,6 +263,42 @@ FGState Theatria::Graphics::DecideState(const ResourceDesc& desc, FGAccess acces
             return FGState::ShaderRead;
     }
     return FGState::Unknown;
+}
+
+D3D12_RESOURCE_STATES Theatria::Graphics::FGStateToD3D12State(FGState state)
+{
+    switch (state)
+    {
+    case Theatria::Graphics::FGState::RenderTarget:
+        return D3D12_RESOURCE_STATE_RENDER_TARGET;
+        break;
+    case Theatria::Graphics::FGState::DepthWrite:
+        return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+        break;
+    case Theatria::Graphics::FGState::DepthRead:
+        return D3D12_RESOURCE_STATE_DEPTH_READ;
+        break;
+    case Theatria::Graphics::FGState::ShaderRead:
+        return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+        break;
+    case Theatria::Graphics::FGState::UnorderedAccess:
+        return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+        break;
+    case Theatria::Graphics::FGState::CopySrc:
+        return D3D12_RESOURCE_STATE_COPY_SOURCE;
+        break;
+    case Theatria::Graphics::FGState::CopyDst:
+        return D3D12_RESOURCE_STATE_COPY_DEST;
+        break;
+    case Theatria::Graphics::FGState::Present:
+        return D3D12_RESOURCE_STATE_PRESENT;
+        break;
+    case Theatria::Graphics::FGState::Unknown:
+    default:
+        Core::LogAssert::Check(false, "FrameGraph", "FGStateToD3D12State: Unknown FGState");
+        return D3D12_RESOURCE_STATE_COMMON;
+        break;
+    }
 }
 
 ResourceHandle Theatria::Graphics::PassBuilder::registerNewResource(std::string_view name, const ResourceDesc& desc)

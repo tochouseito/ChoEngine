@@ -430,8 +430,8 @@ void Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
 
 bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* descAllocator, uint32_t width, uint32_t height, uint32_t refreshRate)
 {
-    uint32_t w = width <= 0 ? 1280 : width;
-    uint32_t h = height <= 0 ? 720 : height;
+    uint32_t w = width <= 0 ? Platform::WinApp::m_WindowWidth : width;
+    uint32_t h = height <= 0 ? Platform::WinApp::m_WindowHeight : height;
     uint32_t rate = refreshRate <= 0 ? 60 : refreshRate;
     descAllocator;
     m_SwapChainContext.m_RefreshRate = rate;
@@ -451,7 +451,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
         Platform::WinApp::m_HWND,
         &m_SwapChainContext.m_Desc,
         nullptr, nullptr,
-        m_SwapChainContext.m_SwapChain.GetAddressOf()),
+        reinterpret_cast<IDXGISwapChain1**>(m_SwapChainContext.m_SwapChain.GetAddressOf())),
         "RenderDevice", "Create SwapChain Faild!"))
     {
         return false;
@@ -466,11 +466,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
     ReleaseDC(Platform::WinApp::m_HWND, hdc);
 
     // VSync共存型FPS固定のためにレイテンシ1
-    ComPtr<IDXGISwapChain4> swapChain4;
-    if (SUCCEEDED(m_SwapChainContext.m_SwapChain->QueryInterface(IID_PPV_ARGS(&swapChain4))))
-    {
-        swapChain4->SetMaximumFrameLatency(1);
-    }
+    m_SwapChainContext.m_SwapChain->SetMaximumFrameLatency(1);
 
     // OSが行うAlt+Enterのフルスクリーンは制御不能なので禁止
     m_DXGIFactory->MakeWindowAssociation(

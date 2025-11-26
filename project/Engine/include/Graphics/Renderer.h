@@ -6,6 +6,7 @@ namespace Theatria::Graphics
 {
     class RenderDevice;
     class ResourceManager;
+    class DescriptorAllocator;
 
     class Renderer final
     {
@@ -16,7 +17,7 @@ namespace Theatria::Graphics
         ~Renderer() = default;
         /// @brief 初期化
         [[nodiscard]]
-        bool Initialize(RenderDevice* renderDevice, ResourceManager* resourceManager);
+        bool Initialize(RenderDevice* device, ResourceManager* rm, DescriptorAllocator* da);
 
         /// @brief 描画開始
         /// @return 
@@ -24,13 +25,14 @@ namespace Theatria::Graphics
         /// @brief 描画終了
         void EndRenderPass(GraphicsCommandContext* cmd) noexcept;
         /// @brief バリア挿入
-        void ApplyBarriers(FrameGraph& fg, const std::vector<BarrierInfo>& barriers);
+        void ApplyBarriers(FrameGraph& fg, GraphicsCommandContext* cmd, const std::vector<BarrierInfo>& barriers);
         /// @brief Present
         void Present();
     private:
 
         RenderDevice* m_Device = nullptr;///> レンダーデバイス
         ResourceManager* m_ResourceManager = nullptr;///> リソースマネージャ
+        DescriptorAllocator* m_DescriptorAllocator = nullptr;///> ディスクリプタアロケータ
         std::unique_ptr<CommandPool> m_CommandPool = nullptr;///> コマンドプール
 
         uint32_t m_DepthBufferIndex = UINT32_MAX; ///> 深度バッファのインデックス
