@@ -32,7 +32,7 @@ PassID Theatria::Graphics::FrameGraph::AddPass(const std::string& name, PassSetu
     return id;
 }
 
-void Theatria::Graphics::FrameGraph::Compile(ResourceManager&)
+void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
 {
     // 0) 前回の結果をリセット
     m_SortedPasses.clear();
@@ -182,29 +182,58 @@ void Theatria::Graphics::FrameGraph::Compile(ResourceManager&)
         // 寿命情報: vr.firstPass ～ vr.lastPass
         // 今は使わないが、将来エイリアシングに使う。
 
-        vr;
-        // vr.physicalId = rm.CreateResource(vr.desc);
+        vr.physicalId = rm.CreateRenderTargetBuffer(
+            vr.desc.width,
+            vr.desc.height,
+            vr.desc.format);
     }
 }
 
-void Theatria::Graphics::FrameGraph::Execute(Renderer&, ResourceManager&)
+void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager& rm)
 {
     for (uint32_t pid : m_SortedPasses)
     {
-        pid;
-        //auto& pass = m_Passes[pid];
+        auto& pass = m_Passes[pid];
 
         // バリアを挿入（FGState→D3D12_RESOURCE_STATES 変換して ResourceBarrier）
-        //renderer.ApplyBarriers(pass.barriers);
+        renderer.ApplyBarriers(*this, pass.barriers);
 
-        //PassContext pctx(*this, rm, pid);
-       // CommandContext& cmd = renderer.BeginPass(pass.name.c_str());
+        PassContext pctx(*this, rm, pid);
+        GraphicsCommandContext* cmd = renderer.BeginRenderPass();
 
         // パス実行
-        //pass.execute(pctx, cmd);
+        pass.executeFn(pctx, *cmd);
 
-        //renderer.EndPass(cmd);
+        renderer.EndRenderPass(cmd);
     }
+    // フリップ
+    renderer.Present();
+}
+
+ResourceHandle Theatria::Graphics::FrameGraph::CreateVirtualResource(std::string_view name, const ResourceDesc& desc)
+{
+    // すでに同名があったらエラー。新規作成のみ。
+    if (!name.empty() && m_NameToResource.find(name.data()) != m_NameToResource.end())
+    {
+        Core::LogAssert::Check(false, "FrameGraph", std::string("FrameGraph: resource already exists '") + name.data() + "'");
+    }
+
+    ResourceHandle h = static_cast<ResourceHandle>(m_VResources.size());
+    VirtualResource vr;
+    vr.name = name.data();
+    vr.desc = desc;
+    m_VResources.push_back(std::move(vr));
+
+    m_NameToResource.emplace(name.data(), h);
+    return h;
+}
+
+void Theatria::Graphics::FrameGraph::AddDependency(PassID before, PassID after)
+{
+    auto b = before.idx;
+    auto a = after.idx;
+    m_Passes[b].outEdges.push_back(a);
+    m_Passes[a].inEdges.push_back(b);
 }
 
 FGState Theatria::Graphics::DecideState(const ResourceDesc& desc, FGAccess access)
@@ -236,19 +265,18 @@ FGState Theatria::Graphics::DecideState(const ResourceDesc& desc, FGAccess acces
     return FGState::Unknown;
 }
 
-ResourceHandle Theatria::Graphics::PassBuilder::registerNewResource(const char* name, const ResourceDesc& desc)
+ResourceHandle Theatria::Graphics::PassBuilder::registerNewResource(std::string_view name, const ResourceDesc& desc)
 {
     return m_FrameGraph.CreateVirtualResource(name, desc);
 }
 
-ResourceHandle Theatria::Graphics::PassBuilder::registerUse(const char* name, FGAccess access)
+ResourceHandle Theatria::Graphics::PassBuilder::registerUse(std::string_view name, FGAccess access)
 {
     ResourceHandle h = m_FrameGraph.FindResourceHandle(name);
     if (h == InvalidResource)
     {
-        // 既存リソースでなければ「外部から来た/import」扱いにしてもよい
-        // とりあえずエラーにしておく方が安全
-        throw std::runtime_error(std::string("FrameGraph: unknown resource '") + name + "'");
+        // なければエラー
+        Core::LogAssert::Check(false, "FrameGraph", std::string("FrameGraph: unknown resource '") + name.data() + "'");
     }
     registerUse(h, access);
     return h;

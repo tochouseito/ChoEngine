@@ -21,15 +21,61 @@ namespace Theatria::Graphics
         CommandContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type);
         /// @brief デストラクタ
         ~CommandContext() = default;
-
         void Reset();
-
         void Close();
-
-
         ID3D12CommandList* GetCommandList() noexcept { return m_List.Get(); }
         ID3D12CommandAllocator* GetCommandAllocator() noexcept { return m_Allocator.Get(); }
-    private:
+
+        virtual void CheckResourceStateTransition(GpuResource* pResource, D3D12_RESOURCE_STATES checkState)
+        {
+            // UploadHeapはState遷移しない
+            if (pResource->GetHeapType() == D3D12_HEAP_TYPE_UPLOAD) { return; }
+            // リソースステートのチェック
+            if (pResource->GetResourceState() == checkState)
+            {
+                // 問題なし
+                return;
+            }
+            // リソースステートの遷移
+            BarrierTransition(pResource->GetResource(), pResource->GetResourceState(), checkState);
+            // リソースステートの更新
+            pResource->SetResourceState(checkState);
+        }
+    protected:
+        virtual void ResourceBarrier(UINT NumBarriers, const D3D12_RESOURCE_BARRIER* pBarriers)
+        {
+            // リソースバリアの設定
+            m_CommandList->ResourceBarrier(NumBarriers, pBarriers);
+        }
+        virtual void BarrierTransition(ID3D12Resource* pResource, D3D12_RESOURCE_STATES Before, D3D12_RESOURCE_STATES After)
+        {
+            // TransitionBarrierの設定
+            D3D12_RESOURCE_BARRIER barrier{};
+            // 今回のバリアはTransition
+            barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            // Noneにしておく
+            barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            // バリアを張る対象のリソース。現在のバックバッファに対して行う
+            barrier.Transition.pResource = pResource;
+            // 遷移前（現在）のResourceState
+            barrier.Transition.StateBefore = Before;
+            // 遷移後のResourceState
+            barrier.Transition.StateAfter = After;
+            // 全てのミップマップに対してバリアを張る
+            barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+            // TransitionBarrierを張る
+            m_CommandList->ResourceBarrier(1, &barrier);
+        }
+        virtual void BarrierUAV(D3D12_RESOURCE_BARRIER_TYPE Type, D3D12_RESOURCE_BARRIER_FLAGS Flags, ID3D12Resource* pResource)
+        {
+            // 並列処理の阻止
+            D3D12_RESOURCE_BARRIER barrier{};
+            barrier.Type = Type;
+            barrier.Flags = Flags;
+            barrier.UAV.pResource = pResource;
+            // UAVバリアを張る
+            m_CommandList->ResourceBarrier(1, &barrier);
+        }
         ComPtr<ID3D12GraphicsCommandList> m_List = nullptr;
         ComPtr<ID3D12CommandAllocator> m_Allocator = nullptr;
     };

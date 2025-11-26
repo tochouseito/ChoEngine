@@ -1,5 +1,6 @@
 #pragma once
 #include "include/Graphics/GPUCommand.h"
+#include "include/Graphics/FrameGraph.h"
 
 namespace Theatria::Graphics
 {
@@ -16,6 +17,16 @@ namespace Theatria::Graphics
         /// @brief 初期化
         [[nodiscard]]
         bool Initialize(RenderDevice* renderDevice, ResourceManager* resourceManager);
+
+        /// @brief 描画開始
+        /// @return 
+        GraphicsCommandContext* BeginRenderPass() noexcept;
+        /// @brief 描画終了
+        void EndRenderPass(GraphicsCommandContext* cmd) noexcept;
+        /// @brief バリア挿入
+        void ApplyBarriers(FrameGraph& fg, const std::vector<BarrierInfo>& barriers);
+        /// @brief Present
+        void Present();
     private:
 
         RenderDevice* m_Device = nullptr;///> レンダーデバイス

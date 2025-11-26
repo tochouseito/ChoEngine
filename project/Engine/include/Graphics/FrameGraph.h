@@ -16,7 +16,6 @@ namespace Theatria::Graphics
     class ResourceManager;
     class Renderer;
     class FrameGraph;
-
     class PassBuilder;
     class PassContext;
 
@@ -37,14 +36,15 @@ namespace Theatria::Graphics
         RenderTarget,
         DepthStencil,
         UnorderedAccess,
-        kindCount ///< 使用禁止
+        Unknown ///< 使用禁止
     };
 
     enum class FGAccess : uint8_t
     {
         Read,
         Write,
-        ReadWrite
+        ReadWrite,
+        Unknown ///< 使用禁止
     };
 
     enum class FGState : uint8_t
@@ -64,6 +64,7 @@ namespace Theatria::Graphics
     {
         uint32_t width = 0;
         uint32_t height = 0;
+        DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
         FGUsage usage = FGUsage::Texture;
     };
 
@@ -123,15 +124,15 @@ namespace Theatria::Graphics
         }
 
         // ---- 仮想リソース生成 ----
-        ResourceHandle Create(const char* name, const ResourceDesc& desc)
+        ResourceHandle Create(std::string_view name, const ResourceDesc& desc)
         {
             return registerNewResource(name, desc);
         }
 
         // ---- Read/Write 宣言（名前版）----
-        ResourceHandle Read(const char* name) { return registerUse(name, FGAccess::Read); }
-        ResourceHandle Write(const char* name) { return registerUse(name, FGAccess::Write); }
-        ResourceHandle ReadWrite(const char* name) { return registerUse(name, FGAccess::ReadWrite); }
+        ResourceHandle Read(std::string_view name) { return registerUse(name, FGAccess::Read); }
+        ResourceHandle Write(std::string_view name) { return registerUse(name, FGAccess::Write); }
+        ResourceHandle ReadWrite(std::string_view name) { return registerUse(name, FGAccess::ReadWrite); }
 
         // ---- Read/Write 宣言（Handle版）----
         void Read(ResourceHandle h) { registerUse(h, FGAccess::Read); }
@@ -143,8 +144,8 @@ namespace Theatria::Graphics
         FrameGraph& m_FrameGraph;
         uint32_t    m_PassIndex;
 
-        ResourceHandle registerNewResource(const char* name, const ResourceDesc& desc);
-        ResourceHandle registerUse(const char* name, FGAccess access);
+        ResourceHandle registerNewResource(std::string_view name, const ResourceDesc& desc);
+        ResourceHandle registerUse(std::string_view name, FGAccess access);
         void           registerUse(ResourceHandle h, FGAccess access);
     };
 
@@ -172,8 +173,8 @@ namespace Theatria::Graphics
         //D3D12_GPU_DESCRIPTOR_HANDLE GetUAV(ResourceHandle h) const;
 
         //// 名前から取る版（便利だけど遅いのでデバッグ用）
-        //ResourceHandle Find(const char* name) const;
-        //D3D12_CPU_DESCRIPTOR_HANDLE GetRTV(const char* name) const
+        //ResourceHandle Find(std::string_view name) const;
+        //D3D12_CPU_DESCRIPTOR_HANDLE GetRTV(std::string_view name) const
         //{
         //    return GetRTV(Find(name));
         //}
@@ -209,27 +210,7 @@ namespace Theatria::Graphics
             m_SortedPasses.clear();
             m_NameToResource.clear();
         }
-        ResourceHandle CreateVirtualResource(const char* name, const ResourceDesc& desc)
-        {
-            // すでに同名があったらどうするかはポリシー次第。
-            // ここでは「新規作成」しか許さない。
-            if (name && m_NameToResource.find(name) != m_NameToResource.end())
-            {
-                throw std::runtime_error(std::string("FrameGraph: resource already exists '") + name + "'");
-            }
-
-            ResourceHandle h = static_cast<ResourceHandle>(m_VResources.size());
-            VirtualResource vr;
-            vr.name = name ? name : "";
-            vr.desc = desc;
-            m_VResources.push_back(std::move(vr));
-
-            if (name && *name)
-            {
-                m_NameToResource.emplace(vr.name, h);
-            }
-            return h;
-        }
+        ResourceHandle CreateVirtualResource(std::string_view name, const ResourceDesc& desc);
         const VirtualResource& GetVirtualResource(ResourceHandle h) const
         {
             return m_VResources[h];
@@ -238,13 +219,23 @@ namespace Theatria::Graphics
         {
             return m_Passes[passIndex];
         }
-        ResourceHandle FindResourceHandle(const char* name) const
+        ResourceHandle FindResourceHandle(std::string_view name) const
         {
-            if (!name) return InvalidResource;
-            auto it = m_NameToResource.find(name);
-            if (it == m_NameToResource.end()) return InvalidResource;
-            return it->second;
+            if (name.empty()) { return InvalidResource; }
+            if (m_NameToResource.contains(name.data()))
+            {
+                return m_NameToResource.at(name.data());
+            }
+            else
+            {
+                return InvalidResource;
+            }
         }
+        /// @brief 依存関係追加
+        /// @param before 
+        /// @param after 
+        void AddDependency(PassID before, PassID after);
+
     private:
         std::vector<PassNode>       m_Passes;      // AddPass で増える
         std::vector<VirtualResource> m_VResources;  // Builder::CreateResource などで増える

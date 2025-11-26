@@ -11,4 +11,6 @@ namespace Theatria::Graphics::Setting
     extern const float kClearColor[4]; ///< クリアカラー
 
     extern DXGI_FORMAT DefaultDXGIFormat;
+
+    extern bool EnableVSync;          ///< VSync有効化フラグ
 }
