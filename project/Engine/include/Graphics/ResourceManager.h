@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "include/Graphics/GpuBuffer.h"
+#include "include/Graphics/RenderDevice.h"
 #include "include/Graphics/GraphicsSetting.h"
 #include "include/Utility/atomic_shared_ptr.h"
 #include "include/Utility/FVector.h"

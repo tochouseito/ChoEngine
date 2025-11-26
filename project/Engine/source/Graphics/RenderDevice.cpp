@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "include/Graphics/RenderDevice.h"
+#include "include/Graphics/GraphicsSetting.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Core/LogAssert.h"
 #include "include/Utility/TString.h"
@@ -436,7 +437,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
     m_SwapChainContext.m_RefreshRate = rate;
     m_SwapChainContext.m_Desc.Width = static_cast<UINT>(w);// 画面の幅。ウィンドウのクライアント領域を同じものにしておく
     m_SwapChainContext.m_Desc.Height = static_cast<UINT>(h);// 画面の高さ。ウィンドウのクライアント領域を同じものにしておく
-    m_SwapChainContext.m_Desc.Format = PixelFormat;// 色の形式
+    m_SwapChainContext.m_Desc.Format = Setting::DefaultDXGIFormat;// 色の形式
     m_SwapChainContext.m_Desc.SampleDesc.Count = 1;// マルチサンプルしない
     m_SwapChainContext.m_Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;// 描画のターゲットとして利用する
     m_SwapChainContext.m_Desc.BufferCount = k_SwapChainBufferCount;// バッファ数

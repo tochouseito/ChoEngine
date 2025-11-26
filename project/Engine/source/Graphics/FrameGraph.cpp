@@ -32,7 +32,7 @@ PassID Theatria::Graphics::FrameGraph::AddPass(const std::string& name, PassSetu
     return id;
 }
 
-void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
+void Theatria::Graphics::FrameGraph::Compile(ResourceManager&)
 {
     // 0) 前回の結果をリセット
     m_SortedPasses.clear();
@@ -187,7 +187,7 @@ void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
     }
 }
 
-void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager& rm)
+void Theatria::Graphics::FrameGraph::Execute(Renderer&, ResourceManager&)
 {
     for (uint32_t pid : m_SortedPasses)
     {

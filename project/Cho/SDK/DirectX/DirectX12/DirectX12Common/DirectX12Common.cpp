@@ -158,7 +158,8 @@ void DirectX12Common::CreateDevice()
 			// Windows11でのDXGIデバッグレイヤーとDX12デバッグレイヤーの相互作用バグによるエラーメッセージ
 			// https://stackoverflow.com/questions/69805245/directx-12-application-is-crashing-in-windows-11
 			D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE,
-			D3D12_MESSAGE_ID_GPU_BASED_VALIDATION_RESOURCE_STATE_IMPRECISE // = 1044 相当
+			D3D12_MESSAGE_ID_GPU_BASED_VALIDATION_RESOURCE_STATE_IMPRECISE, // = 1044 相当
+            D3D12_MESSAGE_ID_FENCE_ZERO_WAIT
 		};
 
 		// 抑制するレベル

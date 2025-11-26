@@ -308,6 +308,57 @@ namespace theatriaSystem
     {
         using Component = AnimationComponent;
     };
+
+    // Particle
+    class THEATRIA_API Particle : public IComponentInterface
+    {
+        friend class Marionnette;
+    public:
+        Particle(Entity e, ECSManager* ecs) : IComponentInterface(e, ecs) {}
+        ~Particle() = default;
+        ParticleComponent* operator->()
+        {
+            UpdatePtr();
+            return data;
+        }
+        operator bool() noexcept
+        {
+            UpdatePtr();
+            return data != nullptr;
+        }
+    private:
+        void UpdatePtr()
+        {
+            data = m_ECS->GetComponent<ParticleComponent>(m_Entity);
+        }
+        ParticleComponent* data = nullptr;
+    };
+
+    // Emitter
+    class THEATRIA_API Emitter : public IComponentInterface
+    {
+        friend class Marionnette;
+    public:
+        Emitter(Entity e, ECSManager* ecs) : IComponentInterface(e, ecs) {}
+        ~Emitter() = default;
+        EmitterComponent* operator->()
+        {
+            UpdatePtr();
+            return data;
+        }
+        operator bool() noexcept
+        {
+            UpdatePtr();
+            return data != nullptr;
+        }
+        void Emit();
+    private:
+        void UpdatePtr()
+        {
+            data = m_ECS->GetComponent<EmitterComponent>(m_Entity);
+        }
+        EmitterComponent* data = nullptr;
+    };
 }
 
 //struct CHO_API TransformAPI

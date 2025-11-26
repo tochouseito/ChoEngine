@@ -871,3 +871,8 @@ void theatriaSystem::Rigidbody3D::SetTransform(const Quaternion& rot)
 {
 	data->runtimeBody->SetTransform(rot);
 }
+
+void theatriaSystem::Emitter::Emit()
+{
+    data->emit = true;
+}

@@ -185,6 +185,11 @@ THEATRIA_API Marionnette* theatriaSystem::GetMarionnettePtr(const std::wstring& 
 	}
 }
 
+THEATRIA_API theatriaSystem::Emitter theatriaSystem::GetEmitterComponent(GameObject& obj)
+{
+    return Emitter(obj.GetHandle().entity, g_Engine->GetEngineCommand()->GetGameCore()->GetECSManager());
+}
+
 std::vector<std::vector<std::string>> theatriaSystem::LoadCSV(const std::string& filePath)
 {
 	return theatria::FileSystem::LoadCSV(filePath);

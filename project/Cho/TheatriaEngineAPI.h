@@ -61,6 +61,8 @@ namespace theatriaSystem
 		return static_cast<T*>(GetMarionnettePtr(name));
 	}
 
+    THEATRIA_API Emitter GetEmitterComponent(GameObject& obj);
+
 	// csv読み込み
 	THEATRIA_API std::vector<std::vector<std::string>> LoadCSV(const std::string& filePath);
 	THEATRIA_API std::vector<std::vector<int>> LoadCSV_Int(const std::string& filePath);
