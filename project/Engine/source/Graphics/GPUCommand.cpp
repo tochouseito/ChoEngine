@@ -101,12 +101,12 @@ void Theatria::Graphics::CommandContext::BarrierTransition(GpuResource* pResourc
     pResource->SetUseState(After);
 }
 
-void Theatria::Graphics::CommandContext::BarrierUAV(GpuResource* pResource, D3D12_RESOURCE_BARRIER_TYPE Type, D3D12_RESOURCE_BARRIER_FLAGS Flags)
+void Theatria::Graphics::CommandContext::BarrierUAV(GpuResource* pResource)
 {
     // 並列処理の阻止
     D3D12_RESOURCE_BARRIER barrier{};
-    barrier.Type = Type;
-    barrier.Flags = Flags;
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     barrier.UAV.pResource = pResource->GetResource();
     // UAVバリアを張る
     ResourceBarrier(1, &barrier);

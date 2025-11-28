@@ -8,10 +8,17 @@
 #include <cstdint>
 #include <mutex>
 #include <condition_variable>
+#include <concepts>
+#include <typeindex>
+#include <type_traits>
 #include "include/Graphics/GpuBuffer.h"
 
 namespace Theatria::Graphics
 {
+    /// @brief 型許可
+    template <typename T>
+    concept CmdType = std::derived_from<T, class CommandContext>;
+
     template<typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -31,7 +38,7 @@ namespace Theatria::Graphics
 
         virtual void ResourceBarrier(UINT NumBarriers, const D3D12_RESOURCE_BARRIER* pBarriers);
         virtual void BarrierTransition(GpuResource* pResource, D3D12_RESOURCE_STATES Before, D3D12_RESOURCE_STATES After);
-        virtual void BarrierUAV(GpuResource* pResource, D3D12_RESOURCE_BARRIER_TYPE Type, D3D12_RESOURCE_BARRIER_FLAGS Flags);
+        virtual void BarrierUAV(GpuResource* pResource);
 
         virtual void SetViewport(D3D12_VIEWPORT viewport);
         virtual void SetScissorRect(D3D12_RECT rect);

@@ -22,7 +22,7 @@ namespace Theatria::Graphics
     using ResourceHandle = uint32_t;
     constexpr ResourceHandle InvalidResource = UINT32_MAX;
     using PassSetupFn = std::function<void(PassBuilder&)>;
-    using PassExecuteFn = std::function<void(PassContext&, GraphicsCommandContext&)>;
+    using PassExecuteFn = std::function<void(PassContext&, CommandContext&)>;
 
     struct PassID
     {
@@ -60,6 +60,14 @@ namespace Theatria::Graphics
         Unknown ///< 使用禁止
     };
 
+    enum class FGQueue : uint8_t
+    {
+        Graphics,
+        Compute,
+        Copy,
+        Unknown ///< 使用禁止
+    };
+
     struct ResourceDesc final
     {
         uint32_t width = 0;
@@ -86,18 +94,20 @@ namespace Theatria::Graphics
 
     struct PassNode final
     {
-        std::string name;
-        uint32_t index = 0;
+        std::string name; ///< パス名
+        uint32_t index = 0; ///< パスのインデックス
 
-        std::vector<ResourceUse> reads;
-        std::vector<ResourceUse> writes;
+        FGQueue queue = FGQueue::Graphics; ///< 使用するキュー
 
-        std::vector<uint32_t> outEdges;
-        std::vector<uint32_t> inEdges;
+        std::vector<ResourceUse> reads; ///< 読み取りリソース
+        std::vector<ResourceUse> writes;///< 書き込みリソース
+
+        std::vector<uint32_t> outEdges;///< 出力先パスのインデックスリスト
+        std::vector<uint32_t> inEdges; ///< 入力元パスのインデックスリスト
 
         std::vector<BarrierInfo> barriers; // パスの冒頭のバリア
 
-        PassExecuteFn executeFn;
+        PassExecuteFn executeFn; ///< 実行関数
     };
 
     struct VirtualResource final
@@ -196,8 +206,8 @@ namespace Theatria::Graphics
         FrameGraph() = default;
         ~FrameGraph() = default;
 
-        /// @brief パスの追加
-        PassID AddPass(const std::string& name, PassSetupFn setupFn, PassExecuteFn executeFn);
+        /// @brief パスの追加(任意のキュー指定版)
+        PassID AddPass(std::string_view name, FGQueue queue, PassSetupFn setupFn, PassExecuteFn executeFn);
 
         /// @brief バリア、順序付け
         void Compile(ResourceManager& rm);

@@ -21,11 +21,19 @@ namespace Theatria::Graphics
 
         /// @brief 描画開始
         /// @return 
-        GraphicsCommandContext* BeginRenderPass() noexcept;
+        GraphicsCommandContext* BeginGraphicsPass() noexcept;
         /// @brief 描画終了
-        void EndRenderPass(GraphicsCommandContext* cmd) noexcept;
+        void EndGraphicsPass(GraphicsCommandContext* cmd) noexcept;
+        /// @brief 計算パス開始
+        ComputeCommandContext* BeginComputePass() noexcept;
+        /// @brief 計算パス終了
+        void EndComputePass(ComputeCommandContext* cmd) noexcept;
+        /// @brief コピーパス開始
+        CopyCommandContext* BeginCopyPass() noexcept;
+        /// @brief コピーパス終了
+        void EndCopyPass(CopyCommandContext* cmd) noexcept;
         /// @brief バリア挿入
-        void ApplyBarriers(FrameGraph& fg, GraphicsCommandContext* cmd, const std::vector<BarrierInfo>& barriers);
+        void ApplyBarriers(FrameGraph& fg, CommandContext* cmd, const std::vector<BarrierInfo>& barriers);
         /// @brief Present
         void Present();
     private:

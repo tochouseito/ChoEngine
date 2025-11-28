@@ -25,7 +25,7 @@ bool Theatria::Graphics::Renderer::Initialize(RenderDevice* device, ResourceMana
 
 /// @brief 描画開始
 /// @return 
-Theatria::Graphics::GraphicsCommandContext* Theatria::Graphics::Renderer::BeginRenderPass() noexcept
+Theatria::Graphics::GraphicsCommandContext* Theatria::Graphics::Renderer::BeginGraphicsPass() noexcept
 {
     GraphicsCommandContext* cmd = m_CommandPool->GetGraphicsContext();
     cmd->Reset();
@@ -33,7 +33,7 @@ Theatria::Graphics::GraphicsCommandContext* Theatria::Graphics::Renderer::BeginR
 }
 
 /// @brief 描画終了
-void Theatria::Graphics::Renderer::EndRenderPass(GraphicsCommandContext* cmd) noexcept
+void Theatria::Graphics::Renderer::EndGraphicsPass(GraphicsCommandContext* cmd) noexcept
 {
     // コマンドリストのクローズ
     cmd->Close();
@@ -48,7 +48,51 @@ void Theatria::Graphics::Renderer::EndRenderPass(GraphicsCommandContext* cmd) no
     m_CommandPool->ReturnContext(cmd);
 }
 
-void Theatria::Graphics::Renderer::ApplyBarriers(FrameGraph& fg, GraphicsCommandContext* cmd, const std::vector<BarrierInfo>& barriers)
+Theatria::Graphics::ComputeCommandContext* Theatria::Graphics::Renderer::BeginComputePass() noexcept
+{
+    ComputeCommandContext* cmd = m_CommandPool->GetComputeContext();
+    cmd->Reset();
+    return cmd;
+}
+
+void Theatria::Graphics::Renderer::EndComputePass(ComputeCommandContext* cmd) noexcept
+{
+    // コマンドリストのクローズ
+    cmd->Close();
+    // コマンドリストの実行 + signal
+    GraphicsQueueContext* graphicsQueue = m_Device->m_QueuePool->GetGraphicsQueue();
+    graphicsQueue->Execute(cmd);
+    // GPU完了待ち
+    graphicsQueue->WaitForFence();
+    // キューコンテキストの返却
+    m_Device->m_QueuePool->ReturnQueue(graphicsQueue);
+    // コマンドコンテキストの返却
+    m_CommandPool->ReturnContext(cmd);
+}
+
+Theatria::Graphics::CopyCommandContext* Theatria::Graphics::Renderer::BeginCopyPass() noexcept
+{
+    CopyCommandContext* cmd = m_CommandPool->GetCopyContext();
+    cmd->Reset();
+    return cmd;
+}
+
+void Theatria::Graphics::Renderer::EndCopyPass(CopyCommandContext* cmd) noexcept
+{
+    // コマンドリストのクローズ
+    cmd->Close();
+    // コマンドリストの実行 + signal
+    GraphicsQueueContext* graphicsQueue = m_Device->m_QueuePool->GetGraphicsQueue();
+    graphicsQueue->Execute(cmd);
+    // GPU完了待ち
+    graphicsQueue->WaitForFence();
+    // キューコンテキストの返却
+    m_Device->m_QueuePool->ReturnQueue(graphicsQueue);
+    // コマンドコンテキストの返却
+    m_CommandPool->ReturnContext(cmd);
+}
+
+void Theatria::Graphics::Renderer::ApplyBarriers(FrameGraph& fg, CommandContext* cmd, const std::vector<BarrierInfo>& barriers)
 {
     for (auto& barrier : barriers)
     {

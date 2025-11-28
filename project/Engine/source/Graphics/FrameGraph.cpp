@@ -6,7 +6,9 @@
 
 using namespace Theatria::Graphics;
 
-PassID Theatria::Graphics::FrameGraph::AddPass(const std::string& name, PassSetupFn setupFn, PassExecuteFn executeFn)
+
+/// @brief パスの追加(任意のキュー指定版)
+PassID Theatria::Graphics::FrameGraph::AddPass(std::string_view name, FGQueue queue, PassSetupFn setupFn, PassExecuteFn executeFn)
 {
     // 1) 新しい PassNode を追加
     PassNode node;
@@ -14,12 +16,12 @@ PassID Theatria::Graphics::FrameGraph::AddPass(const std::string& name, PassSetu
     {
         Core::LogAssert::Check(false, "FrameGraph", "Pass name is empty");
     }
-    node.name = name;
+    node.name = name.data();
     node.index = static_cast<uint32_t>(m_Passes.size());
+    node.queue = queue;
     node.executeFn = std::move(executeFn);
 
     m_Passes.push_back(std::move(node));
-
     // 2) この pass 用の PassBuilder を作って、リソース宣言(Read/Write/Create) をさせる
     PassBuilder builder(*this, m_Passes.back().index);
     if (setupFn)
@@ -194,17 +196,46 @@ void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager
     for (uint32_t pid : m_SortedPasses)
     {
         auto& pass = m_Passes[pid];
-
         PassContext pctx(*this, rm, pid);
-        GraphicsCommandContext* cmd = renderer.BeginRenderPass();
 
-        // バリアを挿入（FGState→D3D12_RESOURCE_STATES 変換して ResourceBarrier）
-        renderer.ApplyBarriers(*this, cmd, pass.barriers);
+        switch (pass.queue)
+        {
+        case FGQueue::Graphics:
+        {
+            GraphicsCommandContext* cmd = renderer.BeginGraphicsPass(); // 旧 BeginRenderPass に相当
 
-        // パス実行
-        pass.executeFn(pctx, *cmd);
+            renderer.ApplyBarriers(*this, cmd, pass.barriers);
+            pass.executeFn(pctx, *cmd); // void* に渡す
 
-        renderer.EndRenderPass(cmd);
+            renderer.EndGraphicsPass(cmd);
+            break;
+        }
+        case FGQueue::Compute:
+        {
+            ComputeCommandContext* cmd = renderer.BeginComputePass();
+
+            renderer.ApplyBarriers(*this, cmd, pass.barriers);
+            pass.executeFn(pctx, *cmd);
+
+            renderer.EndComputePass(cmd);
+            break;
+        }
+        case FGQueue::Copy:
+        {
+            CopyCommandContext* cmd = renderer.BeginCopyPass();
+
+            renderer.ApplyBarriers(*this, cmd, pass.barriers);
+            pass.executeFn(pctx, *cmd);
+
+            renderer.EndCopyPass(cmd);
+            break;
+        }
+        default:
+        {
+            Core::LogAssert::Check(false, "FrameGraph", "Execute: Unknown FGQueue");
+            break;
+        }
+        }
     }
     // フリップ
     renderer.Present();
