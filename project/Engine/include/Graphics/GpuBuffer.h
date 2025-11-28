@@ -417,7 +417,7 @@ namespace Theatria::Graphics
             D3D12_HEAP_PROPERTIES heapProperties{};
             heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;// DefaultHeapを使う
             D3D12_HEAP_FLAGS heapFlags = D3D12_HEAP_FLAG_NONE;
-            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
+            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
             D3D12_RESOURCE_FLAGS resourceFlags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
             GpuBuffer::CreateBuffer(
                 device, heapProperties, heapFlags,

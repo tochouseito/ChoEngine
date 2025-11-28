@@ -85,9 +85,16 @@ namespace Theatria::Graphics
         FGAccess access;
     };
 
+    enum class BarrierType : uint8_t
+    {
+        Transition,
+        UAV,
+    };
+
     struct BarrierInfo final
     {
         ResourceHandle handle;
+        BarrierType type = BarrierType::Transition;
         FGState beforeState;
         FGState afterState;
     };
@@ -124,6 +131,7 @@ namespace Theatria::Graphics
 
         // Compile 後に物理リソースIDを持つ（ResourceManager用）
         uint32_t physicalId = UINT32_MAX;
+        FGState initialState = FGState::Unknown;
     };
 
     class PassBuilder final

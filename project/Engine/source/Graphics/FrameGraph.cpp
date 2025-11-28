@@ -121,6 +121,38 @@ void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
 
     // 4) リソース状態遷移の計算
     std::vector<FGState> currentState(m_VResources.size(), FGState::Unknown);
+    for (ResourceHandle h = 0; h < m_VResources.size(); ++h)
+    {
+        VirtualResource& vr = m_VResources[h];
+        switch (vr.desc.usage)
+        {
+        case FGUsage::Texture:
+            vr.initialState = FGState::ShaderRead;
+            currentState[h] = FGState::ShaderRead;
+            break;
+        case FGUsage::Buffer:
+            vr.initialState = FGState::ShaderRead;
+            currentState[h] = FGState::ShaderRead;
+            break;
+        case FGUsage::RenderTarget:
+            vr.initialState = FGState::RenderTarget;
+            currentState[h] = FGState::RenderTarget;
+            break;
+        case FGUsage::DepthStencil:
+            vr.initialState = FGState::DepthWrite;
+            currentState[h] = FGState::DepthWrite;
+            break;
+        case FGUsage::UnorderedAccess:
+            vr.initialState = FGState::UnorderedAccess;
+            currentState[h] = FGState::UnorderedAccess;
+            break;
+        case FGUsage::Unknown:
+            Core::LogAssert::Check(false, "FrameGraph", "Compile: Unknown FGUsage");
+            break;
+        default:
+            break;
+        }
+    }
 
     for (uint32_t pid : m_SortedPasses)
     {
@@ -171,9 +203,18 @@ void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
                 currentState[h] = next;
                 continue;
             }
-            if (prev == next) continue; // バリア不要
+            if (prev == next)
+            {
+                // UAV → UAVは特殊扱い
+                if (prev == FGState::UnorderedAccess)
+                {
+                    pass.barriers.push_back(BarrierInfo{ h, BarrierType::UAV, prev, next });
+                }
+                // 状態変化なし
+                continue;
+            }
 
-            pass.barriers.push_back(BarrierInfo{ h, prev, next });
+            pass.barriers.push_back(BarrierInfo{ h, BarrierType::Transition, prev, next });
             currentState[h] = next;
         }
     }
@@ -183,16 +224,40 @@ void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
     {
         // 寿命情報: vr.firstPass ～ vr.lastPass
         // 今は使わないが、将来エイリアシングに使う。
-
-        vr.physicalId = rm.CreateRenderTargetBuffer(
-            vr.desc.width,
-            vr.desc.height,
-            vr.desc.format);
+        switch (vr.desc.usage)
+        {
+        case FGUsage::Texture:
+            break;
+        case FGUsage::Buffer:
+            break;
+        case FGUsage::RenderTarget:
+            vr.physicalId = rm.CreateRenderTargetBuffer(
+                vr.desc.width,
+                vr.desc.height,
+                vr.desc.format);
+            break;
+        case FGUsage::DepthStencil:
+            vr.physicalId = rm.CreateDepthBuffer(
+                vr.desc.width,
+                vr.desc.height);
+            break;
+        case FGUsage::UnorderedAccess:
+            break;
+        case FGUsage::Unknown:
+            Core::LogAssert::Check(false, "FrameGraph", "Compile: Unknown FGUsage");
+            break;
+        default:
+            break;
+        }
     }
 }
 
 void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager& rm)
 {
+    // キューごとに1本ずつ。実際に使われなければ nullptr のまま。
+    GraphicsCommandContext* gCmd = nullptr;
+    ComputeCommandContext* cCmd = nullptr;
+    CopyCommandContext* copyCmd = nullptr;
     for (uint32_t pid : m_SortedPasses)
     {
         auto& pass = m_Passes[pid];
@@ -202,32 +267,32 @@ void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager
         {
         case FGQueue::Graphics:
         {
-            GraphicsCommandContext* cmd = renderer.BeginGraphicsPass(); // 旧 BeginRenderPass に相当
-
-            renderer.ApplyBarriers(*this, cmd, pass.barriers);
-            pass.executeFn(pctx, *cmd); // void* に渡す
-
-            renderer.EndGraphicsPass(cmd);
+            if (!gCmd)
+            {
+                gCmd = renderer.BeginGraphicsPass();
+            }
+            renderer.ApplyBarriers(*this, gCmd, pass.barriers);
+            pass.executeFn(pctx, *gCmd);
             break;
         }
         case FGQueue::Compute:
         {
-            ComputeCommandContext* cmd = renderer.BeginComputePass();
-
-            renderer.ApplyBarriers(*this, cmd, pass.barriers);
-            pass.executeFn(pctx, *cmd);
-
-            renderer.EndComputePass(cmd);
+            if (!cCmd)
+            {
+                cCmd = renderer.BeginComputePass();
+            }
+            renderer.ApplyBarriers(*this, cCmd, pass.barriers);
+            pass.executeFn(pctx, *cCmd);
             break;
         }
         case FGQueue::Copy:
         {
-            CopyCommandContext* cmd = renderer.BeginCopyPass();
-
-            renderer.ApplyBarriers(*this, cmd, pass.barriers);
-            pass.executeFn(pctx, *cmd);
-
-            renderer.EndCopyPass(cmd);
+            if(!copyCmd)
+            {
+                copyCmd = renderer.BeginCopyPass();
+            }
+            renderer.ApplyBarriers(*this, copyCmd, pass.barriers);
+            pass.executeFn(pctx, *copyCmd);
             break;
         }
         default:
@@ -237,6 +302,12 @@ void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager
         }
         }
     }
+
+    // キューごとに閉じる
+    if (gCmd) { renderer.EndGraphicsPass(gCmd); }
+    if (cCmd) { renderer.EndComputePass(cCmd); }
+    if (copyCmd) { renderer.EndCopyPass(copyCmd); }
+
     // フリップ
     renderer.Present();
 }
@@ -287,9 +358,8 @@ FGState Theatria::Graphics::DecideState(const ResourceDesc& desc, FGAccess acces
         else
             return FGState::ShaderRead;
     case FGUsage::Buffer:
-        // ここは用途次第。とりあえず ShaderRead 向け。
         if (access == FGAccess::Write || access == FGAccess::ReadWrite)
-            return FGState::CopyDst;
+            return FGState::UnorderedAccess;
         else
             return FGState::ShaderRead;
     }

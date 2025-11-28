@@ -60,12 +60,12 @@ void Theatria::Graphics::Renderer::EndComputePass(ComputeCommandContext* cmd) no
     // コマンドリストのクローズ
     cmd->Close();
     // コマンドリストの実行 + signal
-    GraphicsQueueContext* graphicsQueue = m_Device->m_QueuePool->GetGraphicsQueue();
-    graphicsQueue->Execute(cmd);
+    ComputeQueueContext* computeQueue = m_Device->m_QueuePool->GetComputeQueue();
+    computeQueue->Execute(cmd);
     // GPU完了待ち
-    graphicsQueue->WaitForFence();
+    computeQueue->WaitForFence();
     // キューコンテキストの返却
-    m_Device->m_QueuePool->ReturnQueue(graphicsQueue);
+    m_Device->m_QueuePool->ReturnQueue(computeQueue);
     // コマンドコンテキストの返却
     m_CommandPool->ReturnContext(cmd);
 }
@@ -82,12 +82,12 @@ void Theatria::Graphics::Renderer::EndCopyPass(CopyCommandContext* cmd) noexcept
     // コマンドリストのクローズ
     cmd->Close();
     // コマンドリストの実行 + signal
-    GraphicsQueueContext* graphicsQueue = m_Device->m_QueuePool->GetGraphicsQueue();
-    graphicsQueue->Execute(cmd);
+    CopyQueueContext* copyQueue = m_Device->m_QueuePool->GetCopyQueue();
+    copyQueue->Execute(cmd);
     // GPU完了待ち
-    graphicsQueue->WaitForFence();
+    copyQueue->WaitForFence();
     // キューコンテキストの返却
-    m_Device->m_QueuePool->ReturnQueue(graphicsQueue);
+    m_Device->m_QueuePool->ReturnQueue(copyQueue);
     // コマンドコンテキストの返却
     m_CommandPool->ReturnContext(cmd);
 }
@@ -100,9 +100,16 @@ void Theatria::Graphics::Renderer::ApplyBarriers(FrameGraph& fg, CommandContext*
         const VirtualResource& vres = fg.GetVirtualResource(barrier.handle);
         GpuResource* resource = m_ResourceManager->GetBuffer(vres.physicalId);
         // バリア挿入
-        D3D12_RESOURCE_STATES beforeState = FGStateToD3D12State(barrier.beforeState);
-        D3D12_RESOURCE_STATES afterState = FGStateToD3D12State(barrier.afterState);
-        cmd->BarrierTransition(resource, beforeState, afterState);
+        if (barrier.type == BarrierType::Transition)
+        {
+            D3D12_RESOURCE_STATES beforeState = FGStateToD3D12State(barrier.beforeState);
+            D3D12_RESOURCE_STATES afterState = FGStateToD3D12State(barrier.afterState);
+            cmd->BarrierTransition(resource, beforeState, afterState);
+        }
+        else if (barrier.type == BarrierType::UAV)
+        {
+            cmd->BarrierUAV(resource);
+        }
     }
 }
 
