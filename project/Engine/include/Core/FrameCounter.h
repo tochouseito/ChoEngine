@@ -25,6 +25,7 @@ namespace Theatria::Core
             {
                 m_FPS = 0.0;
             }
+            m_Timer.Reset();
             m_Timer.Start();
         }
 
@@ -50,7 +51,7 @@ namespace Theatria::Core
 
         void SleepFrame() noexcept
         {
-            if (m_MaxFPS <= 0.0) { return; } // 無制限
+            if (m_MaxFPS == 0.0) { return; } // 0なら無制限
 
             using Clock = Platform::Timer::Clock;
             // フレーム開始時刻
