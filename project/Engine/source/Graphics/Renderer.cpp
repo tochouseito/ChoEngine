@@ -165,8 +165,7 @@ void Theatria::Graphics::Renderer::Present()
     graphicsQueue->Execute(cmd);
     // GPU完了待ち
     graphicsQueue->WaitForFence();
-    // キューコンテキストの返却
-    // m_Device->m_QueuePool->ReturnQueue(graphicsQueue);
+    // Presentキューは返却不要
     // コマンドコンテキストの返却
     m_CommandPool->ReturnContext(cmd);
     // スワップチェーンのPresent
