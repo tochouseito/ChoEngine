@@ -137,16 +137,16 @@ void Theatria::Graphics::Renderer::Present()
     cmd->SetScissorRect(rect);
     // プリミティブトポロジーの設定
     cmd->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    // レンダーターゲットの設定
-    D3D12_CPU_DESCRIPTOR_HANDLE handle = m_DescriptorAllocator->GetCPUHandle(backBuffer.rtvTableID);
-    cmd->SetRenderTargets(1, &handle, false, nullptr);
-    // レンダーターゲットのクリア
-    cmd->ClearRenderTargetView(handle, Setting::kClearColor, 0, nullptr);
     // バリア遷移 RenderTargetに遷移 → 描画 → バリア遷移 Presentに遷移
     cmd->BarrierTransition(
         backBuffer.pResource.get(),
         D3D12_RESOURCE_STATE_PRESENT,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
+    // レンダーターゲットの設定
+    D3D12_CPU_DESCRIPTOR_HANDLE handle = m_DescriptorAllocator->GetCPUHandle(backBuffer.rtvTableID);
+    cmd->SetRenderTargets(1, &handle, false, nullptr);
+    // レンダーターゲットのクリア
+    cmd->ClearRenderTargetView(handle, Setting::kClearColor, 0, nullptr);
 #ifndef NDEBUG // デバッグ、開発用
     // ImGuiの描画
 #else
@@ -161,12 +161,12 @@ void Theatria::Graphics::Renderer::Present()
     // コマンドリストのクローズ
     cmd->Close();
     // コマンドリストの実行 + signal
-    GraphicsQueueContext* graphicsQueue = m_Device->m_QueuePool->GetGraphicsQueue();
+    GraphicsQueueContext* graphicsQueue = m_Device->m_QueuePool->GetPresentQueue();
     graphicsQueue->Execute(cmd);
     // GPU完了待ち
     graphicsQueue->WaitForFence();
     // キューコンテキストの返却
-    m_Device->m_QueuePool->ReturnQueue(graphicsQueue);
+    // m_Device->m_QueuePool->ReturnQueue(graphicsQueue);
     // コマンドコンテキストの返却
     m_CommandPool->ReturnContext(cmd);
     // スワップチェーンのPresent

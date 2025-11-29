@@ -11,4 +11,6 @@ namespace Theatria::Graphics::Setting
     DXGI_FORMAT DefaultDXGIFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
     bool EnableVSync = true;          ///< VSync有効化フラグ
+
+    std::string ShaderCacheDirectory = "ShaderCache/"; ///< シェーダーキャッシュディレクトリ
 }

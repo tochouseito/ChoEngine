@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "include/Graphics/ShaderCompiler.h"
 #include "include/Core/LogAssert.h"
+#include "include/Graphics/GraphicsSetting.h"
+#include "include/Utility/TString.h"
 
-bool Theatria::Graphics::ShaderCompiler::Initialize(ID3D12Device* device)
+using namespace Theatria::Graphics;
+
+bool Theatria::Graphics::ShaderCompiler::Initialize()
 {
     if (!Core::LogAssert::Verify(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_pUtils)),
         "ShaderCompiler", "DXC Utils Create Failed!!"))
@@ -22,24 +26,106 @@ bool Theatria::Graphics::ShaderCompiler::Initialize(ID3D12Device* device)
     return true;
 }
 
-IDxcBlob* Theatria::Graphics::ShaderCompiler::CompileShader(const std::wstring& filePath, const wchar_t* profile)
+ID3D12ShaderReflection* Theatria::Graphics::ShaderCompiler::ReflectShader(IDxcBlob* shaderBlob)
+{
+    HRESULT hr = {};
+    ComPtr<IDxcContainerReflection> pContainerReflection = nullptr;
+    hr = DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pContainerReflection));
+    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC Container Reflection Create Failed!!");
+    hr = pContainerReflection->Load(shaderBlob);
+    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC Container Reflection Load Failed!!");
+    UINT32 partIndex = 0;
+    hr = pContainerReflection->FindFirstPartKind(DXC_PART_DXIL, &partIndex);
+    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC FindFirstPartKind Failed!!");
+    ID3D12ShaderReflection* pShaderReflection = nullptr;
+    hr = pContainerReflection->GetPartReflection(partIndex, IID_PPV_ARGS(&pShaderReflection));
+    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC GetPartReflection Failed!!");
+    return pShaderReflection;
+}
+
+ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::GetOrCompileShader(const ShaderCompileDesc& desc)
+{
+    // 1. キー生成
+    auto lastWrite = std::filesystem::last_write_time(desc.filePath);
+    uint64_t key = HashShaderDesc(desc, lastWrite); // 実装は好きに
+
+    std::wstringstream ss;
+    ss << std::hex << key;
+    std::filesystem::path cachePath = std::filesystem::path(Setting::ShaderCacheDirectory) / (ss.str() + L".dxil");
+
+    // 2. キャッシュファイルがあれば読み込んで終わり
+    if (std::filesystem::exists(cachePath))
+    {
+        return LoadBlobFromFile(cachePath);
+    }
+
+    // 3. 無ければコンパイルして保存
+    ComPtr<IDxcBlob> blob = CompileShaderRaw(desc);
+    SaveBlobToFile(cachePath, blob.Get());
+    return blob;
+}
+
+inline std::string Theatria::Graphics::ShaderCompiler::SerializeShaderKey(const ShaderCompileDesc& desc, std::filesystem::file_time_type lastWrite)
+{
+    std::ostringstream oss;
+    oss << Utility::ToUTF8(desc.filePath)
+        << "|" << Utility::ToUTF8(desc.entryPoint)
+        << "|" << Utility::ToUTF8(desc.profile)
+        << "|" << (desc.debug ? "D" : "R")
+        << "|" << lastWrite.time_since_epoch().count();
+
+    // defines があればそこも追加
+    return oss.str();
+}
+
+uint64_t Theatria::Graphics::ShaderCompiler::HashShaderDesc(const ShaderCompileDesc& desc, std::filesystem::file_time_type lastWrite)
+{
+    std::string keyStr = SerializeShaderKey(desc, lastWrite);
+    uint64_t h = 1469598103934665603ull; // FNV-1a 64bit offset basis
+    for (unsigned char c : keyStr)
+    {
+        h ^= c;
+        h *= 1099511628211ull;
+    }
+    return h;
+}
+
+ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::CompileShaderRaw(const ShaderCompileDesc& desc)
 {
     HRESULT hr = {};
     ComPtr<IDxcBlobEncoding> pSource = nullptr;
-    hr = m_pUtils.Get()->LoadFile(filePath.c_str(), nullptr, &pSource);
+    hr = m_pUtils.Get()->LoadFile(desc.filePath.c_str(), nullptr, &pSource);
     Core::LogAssert::Check(hr, "ShaderCompiler", "DXC LoadFile Failed!!");
     DxcBuffer sourceBuffer;
     sourceBuffer.Ptr = pSource->GetBufferPointer();
     sourceBuffer.Size = pSource->GetBufferSize();
     sourceBuffer.Encoding = DXC_CP_UTF8;
     LPCWSTR arguments[] = {
-        filePath.c_str(),       //コンパイル対象のhlslファイル名
-        L"-E",L"main",          // エントリーポイントの指定。基本的にmain以外にはしない
-        L"-T",profile,          // ShaderProfileの設定
-        L"-Zi",L"-Qembed_debug",// デバッグ用の情報を埋め込む
-        L"-Od",                 // 最適化を外しておく
-        L"-Zpr",                // メモリレイアウトは行優先
+        desc.filePath.c_str(),              //コンパイル対象のhlslファイル名
+        L"-E",L"main",                      // エントリーポイントの指定。基本的にmain以外にはしない
+        L"-T",desc.profile.c_str(),         // ShaderProfileの設定
+        L"-Zi",L"-Qembed_debug",            // デバッグ用の情報を埋め込む
+        L"-Od",                             // 最適化を外しておく
+        L"-Zpr",                            // メモリレイアウトは行優先
     };
+
+    std::vector<LPCWCH> args;
+    args.push_back(desc.filePath.c_str());// コンパイル対象のhlslファイル名
+    args.push_back(L"-E");
+    args.push_back(desc.entryPoint.c_str());// エントリーポイントの指定。基本的にmain以外にはしない
+    args.push_back(L"-T");
+    args.push_back(desc.profile.c_str());// ShaderProfileの設定
+    args.push_back(L"-Zpr");// メモリレイアウトは行優先
+    if (desc.debug)
+    {
+        args.push_back(L"-Zi");
+        args.push_back(L"-Qembed_debug");// デバッグ情報埋め込み
+        args.push_back(L"-Od");// デバッグビルドなら最適化外す
+    }
+    else
+    {
+        args.push_back(L"-O3");// リリースビルドなら最適化最大
+    }
 
     ComPtr<IDxcResult> pResult = nullptr;
     hr = m_pCompiler.Get()->Compile(
@@ -65,19 +151,37 @@ IDxcBlob* Theatria::Graphics::ShaderCompiler::CompileShader(const std::wstring& 
     return pShader;
 }
 
-ID3D12ShaderReflection* Theatria::Graphics::ShaderCompiler::ReflectShader(IDxcBlob* shaderBlob)
+ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::LoadBlobFromFile(const std::filesystem::path& path)
 {
-    HRESULT hr = {};
-    ComPtr<IDxcContainerReflection> pContainerReflection = nullptr;
-    hr = DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pContainerReflection));
-    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC Container Reflection Create Failed!!");
-    hr = pContainerReflection->Load(shaderBlob);
-    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC Container Reflection Load Failed!!");
-    UINT32 partIndex = 0;
-    hr = pContainerReflection->FindFirstPartKind(DXC_PART_DXIL, &partIndex);
-    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC FindFirstPartKind Failed!!");
-    ID3D12ShaderReflection* pShaderReflection = nullptr;
-    hr = pContainerReflection->GetPartReflection(partIndex, IID_PPV_ARGS(&pShaderReflection));
-    Core::LogAssert::Check(hr, "ShaderCompiler", "DXC GetPartReflection Failed!!");
-    return pShaderReflection;
+    std::ifstream ifs(path, std::ios::binary | std::ios::ate);
+    if (!ifs)
+    {
+        return nullptr;
+    }
+    std::streamsize size = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+
+    std::vector<uint8_t> data(size);
+    if (!ifs.read(reinterpret_cast<char*>(data.data()), size))
+    {
+        return nullptr;
+    }
+
+    ComPtr<IDxcBlob> blob;
+    // バイナリなので encoding は正直どうでもいい
+    m_pUtils->CreateBlob(data.data(), static_cast<UINT32>(size), DXC_CP_ACP,
+        reinterpret_cast<IDxcBlobEncoding**>(blob.GetAddressOf()));
+    return blob;
+}
+
+void Theatria::Graphics::ShaderCompiler::SaveBlobToFile(const std::filesystem::path& path, IDxcBlob* blob)
+{
+    std::ofstream ofs(path, std::ios::binary);
+    if (!ofs)
+    {
+        Core::LogAssert::Verify(false, "ShaderCompiler", "Failed to open shader cache file for writing!!");
+        return;
+    }
+    ofs.write(static_cast<const char*>(blob->GetBufferPointer()),
+        blob->GetBufferSize());
 }

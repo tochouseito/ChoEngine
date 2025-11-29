@@ -428,15 +428,15 @@ void Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
     }
 }
 
-bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* descAllocator, uint32_t width, uint32_t height, uint32_t refreshRate)
+bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* descAllocator, uint32_t width, uint32_t height, int32_t refreshRate)
 {
-    uint32_t w = width <= 0 ? Platform::WinApp::m_WindowWidth : width;
-    uint32_t h = height <= 0 ? Platform::WinApp::m_WindowHeight : height;
-    uint32_t rate = refreshRate <= 0 ? 60 : refreshRate;
+    UINT64 w = width <= 0 ? Platform::WinApp::m_WindowWidth : width;
+    UINT h = height <= 0 ? Platform::WinApp::m_WindowHeight : height;
+    int32_t rate = refreshRate <= 0 ? 60 : refreshRate;
     descAllocator;
     m_SwapChainContext.m_RefreshRate = rate;
     m_SwapChainContext.m_Desc.Width = static_cast<UINT>(w);// 画面の幅。ウィンドウのクライアント領域を同じものにしておく
-    m_SwapChainContext.m_Desc.Height = static_cast<UINT>(h);// 画面の高さ。ウィンドウのクライアント領域を同じものにしておく
+    m_SwapChainContext.m_Desc.Height = h;// 画面の高さ。ウィンドウのクライアント領域を同じものにしておく
     m_SwapChainContext.m_Desc.Format = Setting::DefaultDXGIFormat;// 色の形式
     m_SwapChainContext.m_Desc.SampleDesc.Count = 1;// マルチサンプルしない
     m_SwapChainContext.m_Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;// 描画のターゲットとして利用する

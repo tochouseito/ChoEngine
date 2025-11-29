@@ -312,11 +312,6 @@ namespace Theatria::Graphics
         /// @brief デストラクタ
         ~QueuePool()
         {
-            if (m_PresentQueue)
-            {
-                m_PresentQueue->Flush();
-            }
-            m_PresentQueue.reset();
         }
         GraphicsQueueContext* GetGraphicsQueue()
         {

@@ -7,6 +7,11 @@
 using namespace Theatria::Graphics;
 
 
+void Theatria::Graphics::FrameGraph::CreateDefaultPasses()
+{
+    
+}
+
 /// @brief パスの追加(任意のキュー指定版)
 PassID Theatria::Graphics::FrameGraph::AddPass(std::string_view name, FGQueue queue, PassSetupFn setupFn, PassExecuteFn executeFn)
 {

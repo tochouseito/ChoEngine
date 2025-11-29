@@ -62,7 +62,7 @@ namespace Theatria::Graphics
         const ID3D12Device* operator->() const { return m_Device.Get(); }
         ID3D12Device* GetDevice() { return m_Device.Get(); }
         /// @brief スワップチェーンの作成
-        [[nodiscard]] bool CreateSwapChain(DescriptorAllocator* descAllocator, uint32_t width = 0, uint32_t height = 0, uint32_t refreshRate = 0);
+        [[nodiscard]] bool CreateSwapChain(DescriptorAllocator* descAllocator, uint32_t width = 0, uint32_t height = 0, int32_t refreshRate = 0);
     private:
         /// @brief DXGIファクトリーの生成
         /// @param enableDebugLayer 

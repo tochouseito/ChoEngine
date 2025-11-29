@@ -214,6 +214,8 @@ namespace Theatria::Graphics
         FrameGraph() = default;
         ~FrameGraph() = default;
 
+        void CreateDefaultPasses();
+
         /// @brief パスの追加(任意のキュー指定版)
         PassID AddPass(std::string_view name, FGQueue queue, PassSetupFn setupFn, PassExecuteFn executeFn);
 

@@ -191,6 +191,8 @@ void Theatria::Engine::Operation()
             break;
         }
 
+        m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get());
+
         // ルーターがイベントを受けて、コマンドをQuereに積む
         m_pImpl->m_pRouterHub->FlushAll();
         // コマンドを実行
@@ -250,9 +252,15 @@ bool Theatria::Engine::Initialize()
         return false;
     }
     // レンダラー初期化
-    if (!m_pImpl->m_pRenderer->Initialize(m_pImpl->m_pRenderDevice.get(),m_pImpl->m_pResourceManager.get()))
+    if (!m_pImpl->m_pRenderer->Initialize(m_pImpl->m_pRenderDevice.get(),m_pImpl->m_pResourceManager.get(),m_pImpl->m_pDescriptorAllocator.get()))
     {
         Core::LogAssert::Verify(false, "Renderer Initialize", "Renderer initialization failed");
+        return false;
+    }
+    // シェーダーコンパイラー初期化
+    if (!m_pImpl->m_pShaderCompiler->Initialize())
+    {
+        Core::LogAssert::Verify(false, "ShaderCompiler Initialize", "ShaderCompiler initialization failed");
         return false;
     }
     // スワップチェーン作成
@@ -261,6 +269,9 @@ bool Theatria::Engine::Initialize()
         Core::LogAssert::Verify(false, "SwapChain Create", "SwapChain creation failed");
         return false;
     }
+    // デフォルトパス作成
+    m_pImpl->m_pFrameGraph->CreateDefaultPasses();
+    m_pImpl->m_pFrameGraph->Compile(*m_pImpl->m_pResourceManager.get());
 
     return true;
 }
@@ -270,4 +281,6 @@ void Theatria::Engine::Shutdown()
 {
     // ジョブシステムのスレッド停止
     m_pImpl->m_pJobSystem->StopAllThreads();
+    // ウィンドウの破棄
+    Platform::WinApp::TerminateWindow();
 }

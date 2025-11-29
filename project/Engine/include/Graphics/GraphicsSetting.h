@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <string>
 #include <dxgiformat.h>
 
 namespace Theatria::Graphics::Setting
@@ -13,4 +14,6 @@ namespace Theatria::Graphics::Setting
     extern DXGI_FORMAT DefaultDXGIFormat;
 
     extern bool EnableVSync;          ///< VSync有効化フラグ
+
+    extern std::string ShaderCacheDirectory; ///< シェーダーキャッシュディレクトリ
 }
