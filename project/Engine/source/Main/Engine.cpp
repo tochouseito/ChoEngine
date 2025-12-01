@@ -16,6 +16,7 @@
 #include "include/Core/LogAssert.h"
 #include "include/Core/MemoryManager.h"
 #include "include/Core/UUID.h"
+#include "include/Core/FrameJob.h"
 #include "include/Graphics/ResourceLeakChecker.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Graphics/FrameGraph.h"
@@ -137,7 +138,7 @@ private:
     std::unique_ptr<Graphics::ShaderCompiler>       m_pShaderCompiler;       ///< シェーダーコンパイラ
     std::unique_ptr<Graphics::RenderDevice>         m_pRenderDevice;         ///< レンダーデバイス
     std::unique_ptr<Graphics::DescriptorAllocator>  m_pDescriptorAllocator;  ///< ディスクリプタアロケータ
-    std::unique_ptr<Graphics::ResourceManager>      m_pResourceManager;      ///< リソースマネージャ
+    std::unique_ptr<Graphics::ResourceManager>      m_pResourceManager;     ///< リソースマネージャ
     std::unique_ptr<Graphics::GPUTimeline>          m_pGPUTimeline;          ///< GPUタイムライン
     std::unique_ptr<Graphics::FrameGraph>           m_pFrameGraph;           ///< フレームグラフ
     std::unique_ptr<Graphics::Renderer>             m_pRenderer;             ///< レンダラー
@@ -152,6 +153,10 @@ private:
     std::unique_ptr<Editor::ImGuiManager>           m_pImGuiManager;         ///< ImGuiマネージャ
 
     Core::EventCommand::CommandBuffer m_WinAppQuere;    ///< WinAppコマンドキュー
+
+    // フレームジョブ
+    Core::FrameJob updateJob;
+    Core::FrameJob renderJob;
 };
 
 /// @brief コンストラクタ
@@ -190,7 +195,21 @@ void Theatria::Engine::Operation()
             break;
         }
 
-        m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get());
+        // ==== 1) 先行上限まで新しいフレームをキック ====
+        if (m_pImpl->m_pFrameCounter->m_ProduceFrame - m_pImpl->m_pFrameCounter->m_TotalFrames < m_pImpl->m_pFrameCounter->GetMaxLead())
+        {
+            // このフレーム番号に対応するインデックスを計算
+            const uint32_t presentIndex = static_cast<uint32_t>(m_pImpl->m_pFrameCounter->m_ProduceFrame % Graphics::Setting::BufferingCount);
+            const uint32_t renderIndex = (presentIndex + Graphics::Setting::BufferingCount - 2) % Graphics::Setting::BufferingCount;
+            const uint32_t updateIndex = (presentIndex + Graphics::Setting::BufferingCount - 1) % Graphics::Setting::BufferingCount;
+
+            m_pImpl->updateJob.Kick(m_pImpl->m_pFrameCounter->m_ProduceFrame, updateIndex);
+            m_pImpl->renderJob.Kick(m_pImpl->m_pFrameCounter->m_ProduceFrame, renderIndex);
+
+            ++m_pImpl->m_pFrameCounter->m_ProduceFrame;
+        }
+
+        m_pImpl->m_pRenderer->Present();
 
         // ルーターがイベントを受けて、コマンドをQuereに積む
         m_pImpl->m_pRouterHub->FlushAll();
@@ -229,12 +248,15 @@ bool Theatria::Engine::Initialize()
     入力処理の初期化
     */
 
+    /*======================== Platform ========================*/
+    m_pImpl->m_pFrameCounter->SetMaxFPS(60); // 0なら無制限
+
     /*======================== Core ========================*/
     m_pImpl->m_pJobSystem->Initialize();
 
     /*======================== Graphics ========================*/
-    if (!Core::LogAssert::Verify((Graphics::Setting::bufferingCount == 2 || Graphics::Setting::bufferingCount == 3),
-        "Graphics Setting", "bufferingCount must 2 or 3"))
+    if(!Core::LogAssert::Verify((Graphics::Setting::BufferingCount == 2 || Graphics::Setting::BufferingCount == 3),
+        "Graphics Setting", "bufferingCount must be 2 or 3"))
     {
         return false;
     }
@@ -278,6 +300,27 @@ bool Theatria::Engine::Initialize()
     m_pImpl->m_pFrameGraph->CreateDefaultPasses();
     m_pImpl->m_pFrameGraph->Compile(*m_pImpl->m_pResourceManager.get());
 
+    // 更新、描画用フレームジョブの作成
+    m_pImpl->updateJob.Start(
+        [&]([[maybe_unused]] uint64_t frameNo, uint32_t idx)
+        {
+            Update(idx);
+        });
+    m_pImpl->renderJob.Start(
+        [&]([[maybe_unused]] uint64_t frameNo, uint32_t idx)
+        {
+            Render(idx);
+        });
+
+    // 初回バッファ埋め
+    for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; i++)
+    {
+        Update(i);
+    }
+    m_pImpl->m_pFrameCounter->SetMaxLead(Graphics::Setting::BufferingCount - 1);
+    m_pImpl->m_pFrameCounter->m_ProduceFrame = 0;
+    m_pImpl->m_pFrameCounter->m_TotalFrames = 0;
+
     return true;
 }
 
@@ -288,4 +331,13 @@ void Theatria::Engine::Shutdown()
     m_pImpl->m_pJobSystem->StopAllThreads();
     // ウィンドウの破棄
     Platform::WinApp::TerminateWindow();
+}
+
+void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
+{
+}
+
+void Theatria::Engine::Render([[maybe_unused]] uint32_t frameIdx)
+{
+    m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get());
 }

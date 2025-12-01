@@ -35,19 +35,28 @@ namespace Theatria::Graphics
         [[nodiscard]]
         uint32_t CreateConstantBuffer()
         {
-            auto buffer = std::make_shared<ConstantBuffer<T>>();
-            buffer->CreateBuffer(m_pDevice->GetDevice());
-            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            std::lock_guard<std::mutex> lock(m_MultiBufferMutex);
+            std::array<atomic_shared_ptr<GpuBuffer>, Graphics::Setting::kMaxBufferingCount> bufferSet{};
+            for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; i++)
+            {
+                bufferSet[i] = std::make_shared<ConstantBuffer<T>>();
+                bufferSet[i]->CreateBuffer(m_pDevice->GetDevice());
+            }
+            uint32_t idx = static_cast<uint32_t>(m_MultiBuffers.emplace_back(bufferSet));
             return idx;
         }
         template<typename T>
         [[nodiscard]]
         uint32_t CreateStructuredBuffer(uint32_t numElements)
         {
-            auto buffer = std::make_shared<StructuredBuffer<T>>();
-            buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
-            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
-            return idx;
+            std::lock_guard<std::mutex> lock(m_MultiBufferMutex);
+            std::array<atomic_shared_ptr<GpuBuffer>, Graphics::Setting::kMaxBufferingCount> bufferSet{};
+            for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; i++)
+            {
+                bufferSet[i] = std::make_shared<StructuredBuffer<T>>();
+                bufferSet[i]->CreateBuffer(m_pDevice->GetDevice(), numElements);
+            }
+            uint32_t idx = static_cast<uint32_t>(m_MultiBuffers.emplace_back(bufferSet));
         }
         template<typename T>
         [[nodiscard]]
@@ -55,7 +64,7 @@ namespace Theatria::Graphics
         {
             auto buffer = std::make_shared<RWStructuredBuffer<T>>();
             buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
-            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            uint32_t idx = static_cast<uint32_t>(m_SingleBuffers.emplace_back(buffer));
             return idx;
         }
         template<typename T>
@@ -64,7 +73,7 @@ namespace Theatria::Graphics
         {
             auto buffer = std::make_shared<VertexBuffer<T>>();
             buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
-            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            uint32_t idx = static_cast<uint32_t>(m_SingleBuffers.emplace_back(buffer));
             return idx;
         }
         template<typename T>
@@ -73,7 +82,7 @@ namespace Theatria::Graphics
         {
             auto buffer = std::make_shared<IndexBuffer<T>>();
             buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
-            uint32_t idx = static_cast<uint32_t>(m_Buffers.emplace_back(buffer));
+            uint32_t idx = static_cast<uint32_t>(m_SingleBuffers.emplace_back(buffer));
             return idx;
         }
         /*=============== TextureBuffer ===============*/
@@ -131,17 +140,22 @@ namespace Theatria::Graphics
         }
 
         /*=============== GetBuffer ===============*/
-        GpuBuffer* GetBuffer(uint32_t idx) noexcept
+        GpuBuffer* GetSingleBuffer(uint32_t idx) noexcept
         {
-            std::lock_guard<std::mutex> lock(m_BufferMutex);
-            return m_Buffers[idx].load().get();
+            std::lock_guard<std::mutex> lock(m_SingleBufferMutex);
+            return m_SingleBuffers[idx].load().get();
+        }
+        GpuBuffer* GetMultiBuffer(uint32_t bufferIdx, uint32_t frameIdx) noexcept
+        {
+            std::lock_guard<std::mutex> lock(m_MultiBufferMutex);
+            return m_MultiBuffers[bufferIdx][frameIdx].load().get();
         }
         TextureBuffer* GetTextureBuffer(uint32_t idx) noexcept
         {
             std::lock_guard<std::mutex> lock(m_TextureBufferMutex);
             return m_TextureBuffers[idx].load().get();
         }
-        template<typename GpuBufferType, typename T>
+        /*template<typename GpuBufferType, typename T>
         std::span<T> GetUploadBufferMappedData(uint32_t idx)
         {
             GpuBuffer* buffer = GetBuffer(idx);
@@ -207,14 +221,19 @@ namespace Theatria::Graphics
                 Core::LogAssert::Check(false, "ResourceManager", "GetReadbackBufferMappedData: Unsupported buffer type");
                 return {};
             }
-        }
+        }*/
     private:
         RenderDevice* m_pDevice = nullptr; ///< レンダーデバイス
         DescriptorAllocator* m_pDescAllocator = nullptr; ///< ディスクリプタヒープアロケータ
 
-        /*=============== バッファ群 ===============*/
-        FVector<atomic_shared_ptr<GpuBuffer>> m_Buffers;
-        std::mutex m_BufferMutex;
+        /*=============== シングルバッファ群 ===============*/
+        FVector<atomic_shared_ptr<GpuBuffer>> m_SingleBuffers;
+        std::mutex m_SingleBufferMutex;
+
+        /*=============== マルチバッファ群 ===============*/
+        FVector<std::array<atomic_shared_ptr<GpuBuffer>, Setting::kMaxBufferingCount>> m_MultiBuffers;
+        std::mutex m_MultiBufferMutex;
+
         /*=============== テクスチャバッファ群 ===============*/
         FVector<atomic_shared_ptr<TextureBuffer>> m_TextureBuffers;
         std::mutex m_TextureBufferMutex;

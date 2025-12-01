@@ -30,6 +30,9 @@ namespace Theatria
         /// @brief エンジン終了処理
         void Shutdown();
     private:
+        void Update([[maybe_unused]] uint32_t frameIdx);
+        void Render([[maybe_unused]] uint32_t frameIdx);
+
         /// @brief 実装隠蔽クラス
         class Impl;
         std::unique_ptr<Impl> m_pImpl; ///< 実装隠蔽ポインタ

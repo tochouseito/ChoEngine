@@ -92,12 +92,22 @@ namespace Theatria::Core
             m_MaxFPS = max_fps;
         }
 
+        void SetMaxLead(uint32_t max_lead) noexcept
+        {
+            m_MaxLead = max_lead;
+        }
+        uint32_t GetMaxLead() const noexcept
+        {
+            return m_MaxLead;
+        }
+    uint64_t m_TotalFrames{};///< 総フレーム数
+    uint64_t m_ProduceFrame = 0; // Update/Render をキック
     private:
         Platform::Timer m_Timer;///< タイマー
         bool m_Initialized{ false };//< 初期化フラグ
         double m_DeltaTime{};///< 1 / フレーム時間(秒)
         double m_FPS{};///< フレームレート
         uint32_t m_MaxFPS{ 60 };//< 最大フレームレート
-        uint64_t m_TotalFrames{};///< 総フレーム数
+        uint32_t m_MaxLead = 0;  // 2枚→1, 3枚→2
     };
 };

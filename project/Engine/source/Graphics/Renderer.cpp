@@ -98,7 +98,7 @@ void Theatria::Graphics::Renderer::ApplyBarriers(FrameGraph& fg, CommandContext*
     {
         // 仮想リソースから物理リソースを取得
         const VirtualResource& vres = fg.GetVirtualResource(barrier.handle);
-        GpuResource* resource = m_ResourceManager->GetBuffer(vres.physicalId);
+        GpuResource* resource = m_ResourceManager->GetTextureBuffer(vres.physicalId);
         // バリア挿入
         if (barrier.type == BarrierType::Transition)
         {

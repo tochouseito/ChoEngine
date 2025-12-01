@@ -312,9 +312,6 @@ void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager
     if (gCmd) { renderer.EndGraphicsPass(gCmd); }
     if (cCmd) { renderer.EndComputePass(cCmd); }
     if (copyCmd) { renderer.EndCopyPass(copyCmd); }
-
-    // フリップ
-    renderer.Present();
 }
 
 ResourceHandle Theatria::Graphics::FrameGraph::CreateVirtualResource(std::string_view name, const ResourceDesc& desc)
