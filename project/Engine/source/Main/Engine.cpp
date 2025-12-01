@@ -209,15 +209,23 @@ void Theatria::Engine::Operation()
             ++m_pImpl->m_pFrameCounter->m_ProduceFrame;
         }
 
-        m_pImpl->m_pRenderer->Present();
+        // ==== 2) 一番古い未表示フレームが終わっていたら Present ====
+        // presentFrame 〜 produceFrame-1 が「キック済み未表示」候補
+        if (m_pImpl->m_pFrameCounter->m_TotalFrames < m_pImpl->m_pFrameCounter->m_ProduceFrame &&
+            m_pImpl->updateJob.m_FinishedFrame >= m_pImpl->m_pFrameCounter->m_TotalFrames &&
+            m_pImpl->updateJob.m_FinishedFrame >= m_pImpl->m_pFrameCounter->m_TotalFrames)
+        {
+            // const uint32_t presentIndex = static_cast<uint32_t>(m_pImpl->m_pFrameCounter->m_TotalFrames % Graphics::Setting::BufferingCount);
 
-        // ルーターがイベントを受けて、コマンドをQuereに積む
-        m_pImpl->m_pRouterHub->FlushAll();
-        // コマンドを実行
-        m_pImpl->m_pExecutorHub->ExecuteAll();
+            m_pImpl->m_pRenderer->Present();
+            // FPS計測+Sleep制御
+            m_pImpl->m_pFrameCounter->Tick();
 
-        // フレームカウント更新
-        m_pImpl->m_pFrameCounter->Tick();
+            ++m_pImpl->m_pFrameCounter->m_TotalFrames;
+        }
+
+        // 本当に何もすることがないときは軽くyield
+        std::this_thread::yield();
     }
 
     // エンジン終了処理
@@ -329,12 +337,19 @@ void Theatria::Engine::Shutdown()
 {
     // ジョブシステムのスレッド停止
     m_pImpl->m_pJobSystem->StopAllThreads();
+    // フレームジョブの停止
+    m_pImpl->renderJob.Stop();
+    m_pImpl->updateJob.Stop();
     // ウィンドウの破棄
     Platform::WinApp::TerminateWindow();
 }
 
 void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
 {
+    // ルーターがイベントを受けて、コマンドをQuereに積む
+    m_pImpl->m_pRouterHub->FlushAll();
+    // コマンドを実行
+    m_pImpl->m_pExecutorHub->ExecuteAll();
 }
 
 void Theatria::Engine::Render([[maybe_unused]] uint32_t frameIdx)

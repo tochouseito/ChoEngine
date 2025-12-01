@@ -4,17 +4,13 @@
 
 namespace Theatria::Core
 {
-    /// @brief Update,Render用フレームジョブクラス
-    class FrameJob final
+    /// @brief Update,Render用フレームジョブ
+    struct FrameJob final
     {
         using Thread = Platform::Threading::Thread;
         using Mutex = Platform::Threading::Mutex;
         using CV = Platform::Threading::ConditionVariable;
-    public:
-        /// @brief コンストラクタ
-        FrameJob() = default;
-        /// @brief デストラクタ
-        ~FrameJob() = default;
+
         /// @brief ループジョブ開始
         template<class Func>
         void Start(Func&& func)
@@ -91,7 +87,7 @@ namespace Theatria::Core
         {
             return m_Timer;
         }
-    private:
+
         Thread m_Thread;
         Mutex m_Mutex;
         CV m_Cv;
