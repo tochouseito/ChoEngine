@@ -226,6 +226,7 @@
     <ClCompile Include="source\Core\UUID.cpp" />
     <ClCompile Include="source\Platform\WinApp.cpp" />
     <ClCompile Include="source\Utility\TString.cpp" />
+    <ClCompile Include="source\Core\FrameJob.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChoMath\ChoMath.vcxproj">
@@ -291,6 +292,7 @@
     <ClInclude Include="include\Utility\FVector.h" />
     <ClInclude Include="include\Utility\TString.h" />
     <ClInclude Include="include\Graphics\ResourceLeakChecker.h" />
+    <ClInclude Include="include\Core\FrameJob.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli" />

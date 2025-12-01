@@ -13,18 +13,61 @@ namespace Theatria::Core
         /// @brief デストラクタ
         ~FrameCounter() noexcept = default;
 
-        void BeginFrame() noexcept
+        void Tick() noexcept
         {
-            m_Timer.Stop();
+            using namespace Platform;
+
+            using Clock = Timer::Clock;
+            using TimePoint = Timer::Time_Point;
+            using micrs = Timer::micrs;
+
+            // 初回のみ
+            if (!m_Initialized)
+            {
+                m_Timer.Start();
+                m_Initialized = true;
+                return;
+            }
+
+            if (m_MaxFPS > 0)
+            {
+                // フレームレートピッタリの時間
+                const micrs frameUs = micrs(static_cast<int64_t>(1'000'000.0 / static_cast<double>(m_MaxFPS)));
+                // スピン待ち時間（マイクロ秒）
+                // ここが長いほどCPU負荷が上がるが、精度が上がる
+                const micrs spinUs = micrs(2000);
+                // フレーム開始時刻
+                const auto start = m_Timer.StartTime();
+                // 理想的な次フレーム開始時刻
+                const TimePoint target = start + frameUs;
+
+                auto now = Clock::now();
+                auto elapsed = std::chrono::duration_cast<micrs>(now - start);
+
+                // スピン待ち
+                if (elapsed < frameUs)
+                {
+                    // 大半をsleep_untilで止める
+                    TimePoint sleepUntil = target - spinUs;
+                    if (sleepUntil > now)
+                    {
+                        std::this_thread::sleep_until(sleepUntil);
+                        now = Clock::now();
+                    }
+                    // 最後の1msをスピン待ち
+                    while (Clock::now() < target)
+                    {
+                        std::this_thread::yield();
+                    }
+                }
+            }
+
             m_DeltaTime = m_Timer.ElapsedSeconds();
-            if(m_DeltaTime > 0.0)
-            {
-                m_FPS = 1.0 / m_DeltaTime;
-            }
-            else
-            {
-                m_FPS = 0.0;
-            }
+            m_FPS = (m_DeltaTime > 0.0) ? (1.0 / m_DeltaTime) : 0.0;
+            m_TotalFrames++;
+
+            // 計測開始
+            m_Timer.Stop();
             m_Timer.Reset();
             m_Timer.Start();
         }
@@ -36,9 +79,9 @@ namespace Theatria::Core
         }
 
         /// @brief フレームレート取得
-        uint32_t FPS() const noexcept
+        double FPS() const noexcept
         {
-            return static_cast<uint32_t>(m_FPS);
+            return m_FPS;
         }
 
         /// @brief 最大フレームレート設定
@@ -49,32 +92,12 @@ namespace Theatria::Core
             m_MaxFPS = max_fps;
         }
 
-        void SleepFrame() noexcept
-        {
-            if (m_MaxFPS == 0.0) { return; } // 0なら無制限
-
-            using Clock = Platform::Timer::Clock;
-            // フレーム開始時刻
-            const auto start = m_Timer.StartTime();
-
-            // 目標フレーム間隔（秒）→ Clock::duration に変換
-            const auto target_sec = Platform::Timer::Duration(1.0 / static_cast<double>(m_MaxFPS));
-            const auto target = std::chrono::duration_cast<Clock::duration>(target_sec);
-
-            // 次フレームの目標開始時刻
-            const auto next = start + target;
-
-            const auto now = Clock::now();
-            if (next > now)
-            {
-                std::this_thread::sleep_until(next);
-            }
-        }
-
     private:
         Platform::Timer m_Timer;///< タイマー
+        bool m_Initialized{ false };//< 初期化フラグ
         double m_DeltaTime{};///< 1 / フレーム時間(秒)
         double m_FPS{};///< フレームレート
         uint32_t m_MaxFPS{ 60 };//< 最大フレームレート
+        uint64_t m_TotalFrames{};///< 総フレーム数
     };
 };

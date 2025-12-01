@@ -20,10 +20,8 @@ namespace Theatria::Platform
         {
             Reset();
         }
-
         /// @brief デストラクタ
         ~Timer() noexcept = default;
-
         /// @brief リセット
         void Reset() noexcept
         {
@@ -32,7 +30,6 @@ namespace Theatria::Platform
             m_Start = Time_Point{};
             m_End = Clock::now();
         }
-
         /// @brief 記録開始
         void Start() noexcept
         {
@@ -42,7 +39,6 @@ namespace Theatria::Platform
                 m_Running = true;
             }
         }
-
         /// @brief 記録停止
         void Stop() noexcept
         {
@@ -53,7 +49,6 @@ namespace Theatria::Platform
                 m_End = Clock::now();
             }
         }
-
         /// @brief 開始からの経過時間を秒単位で取得
         /// @return 経過時間(秒) 
         double ElapsedSeconds() noexcept
@@ -65,21 +60,53 @@ namespace Theatria::Platform
             }
             return total.count();
         }
-
+        secs ElapsedSecondsDuration() noexcept
+        {
+            auto total = m_Elapsed;
+            if (m_Running)
+            {
+                total += (Clock::now() - m_Start);
+            }
+            return std::chrono::duration_cast<secs>(total);
+        }
         /// @brief 経過時間をミリ秒単位で返します
-        /// @return 経過時間をミリ秒単位で表す符号なし 64 ビット整数 (std::uint64_t)。
-        std::uint64_t ElapsedMilliseconds() noexcept
+        /// @return 経過時間をミリ秒単位で表す
+        double ElapsedMilliseconds() noexcept
         {
             auto total = m_Elapsed;
             if (m_Running) total += (Clock::now() - m_Start);
-            return std::chrono::duration_cast<millis>(total).count();
+            return total.count() * 1000.0;
         }
-
+        millis ElapsedMillisecondsDuration() noexcept
+        {
+            auto total = m_Elapsed;
+            if (m_Running)
+            {
+                total += (Clock::now() - m_Start);
+            }
+            return std::chrono::duration_cast<millis>(total);
+        }
+        /// @brief 経過時間をマイクロ秒単位で返します
+        /// @return 経過時間をマイクロ秒単位で表す
+        double ElapsedMicroseconds() noexcept
+        {
+            auto total = m_Elapsed;
+            if (m_Running) total += (Clock::now() - m_Start);
+            return total.count() * 1'000'000.0;
+        }
+        micrs ElapsedMicrosecondsDuration() noexcept
+        {
+            auto total = m_Elapsed;
+            if (m_Running)
+            {
+                total += (Clock::now() - m_Start);
+            }
+            return std::chrono::duration_cast<micrs>(total);
+        }
         /// @brief 動作中かどうか取得
         bool IsRunning() const noexcept { return m_Running; }
-
-
-        Time_Point StartTime() const noexcept { return m_Start; }///< 開始時間点取得
+        /// @brief 開始時間点取得
+        Time_Point StartTime() const noexcept { return m_Start; }
 
     private:
         Time_Point m_Start{};///< 開始時間点

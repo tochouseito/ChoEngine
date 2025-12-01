@@ -6,11 +6,10 @@ namespace Theatria::Graphics::Setting
     uint32_t ResolutionWidth = 1280;    ///< 解像度幅
     uint32_t ResolutionHeight = 720;   ///< 解像度高さ
 
+    uint32_t bufferingCount = 2; ///< バッファリング数
+
     const float kClearColor[4] = { 0.1f,0.25f,0.5f,1.0f }; ///< クリアカラー
-
     DXGI_FORMAT DefaultDXGIFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-
     bool EnableVSync = true;          ///< VSync有効化フラグ
-
     std::string ShaderCacheDirectory = "ShaderCache/"; ///< シェーダーキャッシュディレクトリ
 }

@@ -118,6 +118,11 @@ namespace Theatria::Platform::Threading
         /// @brief デストラクタ
         ~Thread() = default;
 
+        void SetThread(std::jthread&& thread) noexcept
+        {
+            m_thread = std::move(thread);
+        }
+
         /// @brief スレッド停止要求
         void RequestStop() noexcept
         {

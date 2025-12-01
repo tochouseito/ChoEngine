@@ -24,6 +24,7 @@
 #include "include/Graphics/Renderer.h"
 #include "include/Graphics/ResourceManager.h"
 #include "include/Graphics/ShaderCompiler.h"
+#include "include/Graphics/GraphicsSetting.h"
 #include "include/Physics/PhysicsWorld.h"
 #include "include/Audio/AudioEngine.h"
 #include "include/GameCore/SceneManager.h"
@@ -183,8 +184,6 @@ void Theatria::Engine::Operation()
 
     while (m_Run)
     {
-        // フレーム開始
-        m_pImpl->m_pFrameCounter->BeginFrame();
         if (Platform::WinApp::ProcessMessage())
         {
             m_Run = false;
@@ -197,8 +196,9 @@ void Theatria::Engine::Operation()
         m_pImpl->m_pRouterHub->FlushAll();
         // コマンドを実行
         m_pImpl->m_pExecutorHub->ExecuteAll();
-        // フレームスリープ
-        m_pImpl->m_pFrameCounter->SleepFrame();
+
+        // フレームカウント更新
+        m_pImpl->m_pFrameCounter->Tick();
     }
 
     // エンジン終了処理
@@ -233,6 +233,11 @@ bool Theatria::Engine::Initialize()
     m_pImpl->m_pJobSystem->Initialize();
 
     /*======================== Graphics ========================*/
+    if (!Core::LogAssert::Verify((Graphics::Setting::bufferingCount == 2 || Graphics::Setting::bufferingCount == 3),
+        "Graphics Setting", "bufferingCount must 2 or 3"))
+    {
+        return false;
+    }
     // レンダーデバイス初期化
     if (!m_pImpl->m_pRenderDevice->Initialize(true))
     {
