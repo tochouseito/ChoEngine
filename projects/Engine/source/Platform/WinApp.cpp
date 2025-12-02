@@ -19,8 +19,8 @@ ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 HWND Theatria::Platform::WinApp::m_HWND = nullptr;
 WNDCLASS Theatria::Platform::WinApp::m_WC = {};
-UINT64 Theatria::Platform::WinApp::m_WindowWidth = 1280;
-UINT Theatria::Platform::WinApp::m_WindowHeight = 720;
+UINT64 Theatria::Platform::WinApp::m_WindowWidth = 1920;
+UINT Theatria::Platform::WinApp::m_WindowHeight = 1080;
 
 /// @brief ウィンドウプロシージャ
 LRESULT Theatria::Platform::WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)

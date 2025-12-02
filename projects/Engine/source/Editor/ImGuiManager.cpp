@@ -113,7 +113,6 @@ void ImGuiManager::Begin()
 void ImGuiManager::End()
 {
     // ===== ImGui フレーム終了 =====
-    ImGui::EndFrame();
     ImGui::Render();
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();

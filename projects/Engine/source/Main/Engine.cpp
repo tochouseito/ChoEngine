@@ -40,6 +40,7 @@
 
 // === Editor ===
 #include "include/Editor/ImGuiManager.h"
+#include "include/Editor/EditorManager.h"
 
 using namespace Theatria;
 
@@ -80,8 +81,10 @@ public:
         m_pIDManager =              std::make_unique<Assets::IDManager>();
         m_pLoader =                 std::make_unique<Assets::Loader>();
         m_pScriptAPI =              std::make_unique<Scripting::ScriptAPI>();
-
+#ifndef NDEBUG
         m_pImGuiManager =           std::make_unique<Editor::ImGuiManager>();
+        m_pEditorManager = std::make_unique<Editor::EditorManager>();
+#endif // !NDEBUG
 
     }
     ~Impl() noexcept
@@ -149,8 +152,11 @@ private:
     std::unique_ptr<Assets::IDManager>              m_pIDManager;            ///< IDマネージャ
     std::unique_ptr<Assets::Loader>                 m_pLoader;               ///< アセットローダー
     std::unique_ptr<Scripting::ScriptAPI>           m_pScriptAPI;            ///< スクリプトAPI
-
+#ifndef NDEBUG
     std::unique_ptr<Editor::ImGuiManager>           m_pImGuiManager;         ///< ImGuiマネージャ
+    std::unique_ptr<Editor::EditorManager>        m_pEditorManager;        ///< エディタマネージャ
+#endif // !NDEBUG
+
 
     Core::EventCommand::CommandBuffer m_WinAppQuere;    ///< WinAppコマンドキュー
 
@@ -207,6 +213,21 @@ void Theatria::Engine::Operation()
             ++m_pImpl->m_pFrameCounter->m_ProduceFrame;
         }
 
+#ifndef NDEBUG
+        // ImGuiのフレーム開始
+        m_pImpl->m_pImGuiManager->Begin();
+        // エディタマネージャ更新
+        m_pImpl->m_pEditorManager->Update();
+#endif // !NDEBUG
+        // ルーターがイベントを受けて、コマンドをQuereに積む
+        m_pImpl->m_pRouterHub->FlushAll();
+        // コマンドを実行
+        m_pImpl->m_pExecutorHub->ExecuteAll();
+#ifndef NDEBUG
+        // ImGuiのフレーム終了
+        m_pImpl->m_pImGuiManager->End();
+#endif // !NDEBUG
+
         // ==== 2) 一番古い未表示フレームが終わっていたら Present ====
         // presentFrame 〜 produceFrame-1 が「キック済み未表示」候補
         if (m_pImpl->m_pFrameCounter->m_TotalFrames < m_pImpl->m_pFrameCounter->m_ProduceFrame &&
@@ -221,18 +242,6 @@ void Theatria::Engine::Operation()
 
             ++m_pImpl->m_pFrameCounter->m_TotalFrames;
         }
-#ifndef NDEBUG
-        // ImGuiのフレーム開始
-        m_pImpl->m_pImGuiManager->Begin();
-#endif // !NDEBUG
-        // ルーターがイベントを受けて、コマンドをQuereに積む
-        m_pImpl->m_pRouterHub->FlushAll();
-        // コマンドを実行
-        m_pImpl->m_pExecutorHub->ExecuteAll();
-#ifndef NDEBUG
-        // ImGuiのフレーム終了
-        m_pImpl->m_pImGuiManager->End();
-#endif // !NDEBUG
     }
 
     // エンジン終了処理
@@ -317,6 +326,10 @@ bool Theatria::Engine::Initialize()
     m_pImpl->m_pImGuiManager->Initialize(
         *m_pImpl->m_pRenderDevice.get(),
         *m_pImpl->m_pDescriptorAllocator.get());
+    // Rendererにセット
+    m_pImpl->m_pRenderer->SetImGuiManager(m_pImpl->m_pImGuiManager.get());
+    // エディタマネージャ初期化
+    m_pImpl->m_pEditorManager->Initialize();
 #endif // !NDEBUG
 
 

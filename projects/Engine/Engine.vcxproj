@@ -194,6 +194,7 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Editor\EditorManager.cpp" />
     <ClCompile Include="source\Graphics\GlobalBuffer.cpp" />
     <ClCompile Include="source\Graphics\GraphicsSetting.cpp" />
     <ClCompile Include="source\Utility\EngineCreateAPI.cpp" />
@@ -255,6 +256,7 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Editor\EditorManager.h" />
     <ClInclude Include="include\Graphics\GlobalBuffer.h" />
     <ClInclude Include="include\Graphics\GPUCommand.h" />
     <ClInclude Include="include\Graphics\GpuBuffer.h" />
