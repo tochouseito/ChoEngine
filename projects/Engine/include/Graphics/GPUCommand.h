@@ -31,7 +31,7 @@ namespace Theatria::Graphics
         ~CommandContext() = default;
         void Reset();
         void Close();
-        ID3D12CommandList* GetCommandList() noexcept { return m_List.Get(); }
+        ID3D12GraphicsCommandList* GetCommandList() noexcept { return m_List.Get(); }
         ID3D12CommandAllocator* GetCommandAllocator() noexcept { return m_Allocator.Get(); }
 
         virtual void SetDescriptorHeap(ID3D12DescriptorHeap* pHeap);

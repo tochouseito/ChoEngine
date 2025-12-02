@@ -6,6 +6,10 @@
 #include "include/Graphics/FrameGraph.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Platform/WinApp.h"
+#ifndef NDEBUG
+#include "include/Editor/ImGuiManager.h"
+#endif // !NDEBUG
+
 
 /// @brief 初期化
 [[nodiscard]]
@@ -149,6 +153,10 @@ void Theatria::Graphics::Renderer::Present()
     cmd->ClearRenderTargetView(handle, Setting::kClearColor, 0, nullptr);
 #ifndef NDEBUG // デバッグ、開発用
     // ImGuiの描画
+    if(m_ImGuiManager)
+    {
+        m_ImGuiManager->Draw(*cmd);
+    }
 #else
     // パイプライン、ルートシグネチャの設定
     // finalRenderTextureをセット

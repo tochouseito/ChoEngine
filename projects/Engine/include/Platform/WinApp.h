@@ -7,13 +7,22 @@ namespace Theatria
     {
         class RenderDevice;
     }
+#ifndef NDEBUG
+    namespace Editor
+    {
+        class ImGuiManager;
+    }
+#endif // !NDEBUG
     namespace Platform
     {
-        class Graphics::RenderDevice;
         /// @brief WinAppクラス
         class WinApp final
         {
             friend class Graphics::RenderDevice;
+#ifndef NDEBUG
+            friend class Editor::ImGuiManager;
+#endif // !NDEBUG
+
         public:
             /// @brief ウィンドウプロシージャ
             static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);

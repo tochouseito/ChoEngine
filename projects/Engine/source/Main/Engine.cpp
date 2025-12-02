@@ -163,20 +163,6 @@ private:
 Theatria::Engine::Engine(RuntimeMode mode)
     : m_pImpl(std::make_unique<Impl>()), m_RuntimeMode(mode)
 {
-    
-}
-
-/// @brief デストラクタ
-Theatria::Engine::~Engine() noexcept
-{
-    Shutdown();
-    // COM終了処理
-    CoUninitialize();
-}
-
-/// @brief 稼働処理
-void Theatria::Engine::Operation()
-{
     // COM初期化
     HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
     if (!Core::LogAssert::Verify(hr, "COM Initialize", "COM InitializeEx failed"))
@@ -184,6 +170,18 @@ void Theatria::Engine::Operation()
         m_Run = false;
         return;
     }
+}
+
+/// @brief デストラクタ
+Theatria::Engine::~Engine() noexcept
+{
+    // COM終了処理
+    CoUninitialize();
+}
+
+/// @brief 稼働処理
+void Theatria::Engine::Operation()
+{
     // エンジン初期化
     m_Run = Initialize();
 
@@ -223,9 +221,18 @@ void Theatria::Engine::Operation()
 
             ++m_pImpl->m_pFrameCounter->m_TotalFrames;
         }
-
-        // 本当に何もすることがないときは軽くyield
-        std::this_thread::yield();
+#ifndef NDEBUG
+        // ImGuiのフレーム開始
+        m_pImpl->m_pImGuiManager->Begin();
+#endif // !NDEBUG
+        // ルーターがイベントを受けて、コマンドをQuereに積む
+        m_pImpl->m_pRouterHub->FlushAll();
+        // コマンドを実行
+        m_pImpl->m_pExecutorHub->ExecuteAll();
+#ifndef NDEBUG
+        // ImGuiのフレーム終了
+        m_pImpl->m_pImGuiManager->End();
+#endif // !NDEBUG
     }
 
     // エンジン終了処理
@@ -304,6 +311,15 @@ bool Theatria::Engine::Initialize()
         Core::LogAssert::Verify(false, "SwapChain Create", "SwapChain creation failed");
         return false;
     }
+
+#ifndef NDEBUG
+    // ImGuiの初期化
+    m_pImpl->m_pImGuiManager->Initialize(
+        *m_pImpl->m_pRenderDevice.get(),
+        *m_pImpl->m_pDescriptorAllocator.get());
+#endif // !NDEBUG
+
+
     // デフォルトパス作成
     m_pImpl->m_pFrameGraph->CreateDefaultPasses();
     m_pImpl->m_pFrameGraph->Compile(*m_pImpl->m_pResourceManager.get());
@@ -340,16 +356,17 @@ void Theatria::Engine::Shutdown()
     // フレームジョブの停止
     m_pImpl->renderJob.Stop();
     m_pImpl->updateJob.Stop();
+#ifndef NDEBUG
+    // ImGuiの終了処理
+    m_pImpl->m_pImGuiManager->Shutdown();
+#endif // !NDEBUG
     // ウィンドウの破棄
     Platform::WinApp::TerminateWindow();
 }
 
 void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
 {
-    // ルーターがイベントを受けて、コマンドをQuereに積む
-    m_pImpl->m_pRouterHub->FlushAll();
-    // コマンドを実行
-    m_pImpl->m_pExecutorHub->ExecuteAll();
+
 }
 
 void Theatria::Engine::Render([[maybe_unused]] uint32_t frameIdx)
