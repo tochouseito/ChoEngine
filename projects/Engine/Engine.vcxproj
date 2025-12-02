@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Editor|x64">
+      <Configuration>Editor</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{45024247-5c2e-47fb-b619-2196863cb2ce}</ProjectGuid>
+    <RootNamespace>Engine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Editor|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\generated\intermediate\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\generated\intermediate\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">
+    <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\generated\intermediate\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;ENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;NOMINMAX;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)External\assimp\build\include;$(ProjectDir)include\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\assimp;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\DirectXTex;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui_Extensions</AdditionalLibraryDirectories>
+    </Link>
+    <Lib>
+      <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib</AdditionalDependencies>
+    </Lib>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;ENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;NOMINMAX;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)External\assimp\build\include;$(ProjectDir)include\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\assimp;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\DirectXTex</AdditionalLibraryDirectories>
+    </Link>
+    <Lib>
+      <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib</AdditionalDependencies>
+    </Lib>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>EDITOR;ENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;NOMINMAX;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)External\assimp\build\include;$(ProjectDir)include\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
+      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\assimp;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\DirectXTex;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui_Extensions</AdditionalLibraryDirectories>
+    </Link>
+    <Lib>
+      <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib</AdditionalDependencies>
+    </Lib>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="source\Graphics\GlobalBuffer.cpp" />
+    <ClCompile Include="source\Graphics\GraphicsSetting.cpp" />
+    <ClCompile Include="source\Utility\EngineCreateAPI.cpp" />
+    <ClCompile Include="source\Graphics\GPUCommand.cpp" />
+    <ClCompile Include="source\Graphics\GpuBuffer.cpp" />
+    <ClCompile Include="source\Graphics\ResourceLeakChecker.cpp" />
+    <ClCompile Include="source\Core\EventCommand.cpp" />
+    <ClCompile Include="source\Core\FrameCounter.cpp" />
+    <ClCompile Include="source\Main\Engine.cpp" />
+    <ClCompile Include="source\Graphics\ShaderCompiler.cpp" />
+    <ClCompile Include="source\Core\Allocators.cpp" />
+    <ClCompile Include="source\Audio\AudioEngine.cpp" />
+    <ClCompile Include="source\Graphics\DescriptorAllocator.cpp" />
+    <ClCompile Include="source\Core\FileController.cpp" />
+    <ClCompile Include="source\Platform\FileSystem.cpp" />
+    <ClCompile Include="source\Graphics\FrameGraph.cpp" />
+    <ClCompile Include="source\Graphics\GPUTimeline.cpp" />
+    <ClCompile Include="source\Assets\IDManager.cpp" />
+    <ClCompile Include="source\Editor\ImGuiManager.cpp" />
+    <ClCompile Include="source\Platform\Input.cpp" />
+    <ClCompile Include="source\Core\JobSystem.cpp" />
+    <ClCompile Include="source\Assets\Loader.cpp" />
+    <ClCompile Include="source\Core\LogAssert.cpp" />
+    <ClCompile Include="source\Core\MemoryManager.cpp" />
+    <ClCompile Include="source\Platform\Network.cpp" />
+    <ClCompile Include="source\Physics\PhysicsWorld.cpp" />
+    <ClCompile Include="source\Graphics\RenderDevice.cpp" />
+    <ClCompile Include="source\Graphics\Renderer.cpp" />
+    <ClCompile Include="source\Graphics\ResourceManager.cpp" />
+    <ClCompile Include="source\GameCore\SceneManager.cpp" />
+    <ClCompile Include="source\Scripting\ScriptAPI.cpp" />
+    <ClCompile Include="source\Core\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="source\Platform\Thread.cpp" />
+    <ClCompile Include="source\Platform\Timer.cpp" />
+    <ClCompile Include="source\Core\UUID.cpp" />
+    <ClCompile Include="source\Platform\WinApp.cpp" />
+    <ClCompile Include="source\Utility\TString.cpp" />
+    <ClCompile Include="source\Core\FrameJob.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChoMath\ChoMath.vcxproj">
+      <Project>{3cf8afa4-25ac-4b52-92f3-3af6824d3643}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\External\assimp\assimp.vcxproj">
+      <Project>{a6d704e6-3b06-3b7c-a488-6a6bfa5352cf}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\External\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
+      <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\External\imgui\imgui.vcxproj">
+      <Project>{b4e3cfd6-cd84-4565-84e7-03feb4c6881e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\PhysicsEngine\PhysicsEngine.vcxproj">
+      <Project>{9900bf4d-d7fc-4feb-868e-65fbad0d6a2d}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Graphics\GlobalBuffer.h" />
+    <ClInclude Include="include\Graphics\GPUCommand.h" />
+    <ClInclude Include="include\Graphics\GpuBuffer.h" />
+    <ClInclude Include="include\Core\Commands.h" />
+    <ClInclude Include="include\Core\EventCommand.h" />
+    <ClInclude Include="include\Core\Events.h" />
+    <ClInclude Include="include\Core\FrameCounter.h" />
+    <ClInclude Include="include\Core\Routers.h" />
+    <ClInclude Include="include\Graphics\GraphicsSetting.h" />
+    <ClInclude Include="include\Main\Engine.h" />
+    <ClInclude Include="include\Core\Allocators.h" />
+    <ClInclude Include="include\Audio\AudioEngine.h" />
+    <ClInclude Include="include\Graphics\DescriptorAllocator.h" />
+    <ClInclude Include="include\Core\FileController.h" />
+    <ClInclude Include="include\Platform\FileSystem.h" />
+    <ClInclude Include="include\Graphics\FrameGraph.h" />
+    <ClInclude Include="include\Graphics\GPUTimeline.h" />
+    <ClInclude Include="include\Assets\IDManager.h" />
+    <ClInclude Include="include\Editor\ImGuiManager.h" />
+    <ClInclude Include="include\Core\pch.h" />
+    <ClInclude Include="include\Platform\Input.h" />
+    <ClInclude Include="include\Core\JobSystem.h" />
+    <ClInclude Include="include\Assets\Loader.h" />
+    <ClInclude Include="include\Core\LogAssert.h" />
+    <ClInclude Include="include\Core\MemoryManager.h" />
+    <ClInclude Include="include\Platform\Network.h" />
+    <ClInclude Include="include\Physics\PhysicsWorld.h" />
+    <ClInclude Include="include\Graphics\RenderDevice.h" />
+    <ClInclude Include="include\Graphics\Renderer.h" />
+    <ClInclude Include="include\Graphics\ResourceManager.h" />
+    <ClInclude Include="include\GameCore\SceneManager.h" />
+    <ClInclude Include="include\Scripting\ScriptAPI.h" />
+    <ClInclude Include="include\Platform\Thread.h" />
+    <ClInclude Include="include\Platform\Timer.h" />
+    <ClInclude Include="include\Core\UUID.h" />
+    <ClInclude Include="include\Platform\WinApp.h" />
+    <ClInclude Include="include\Graphics\ShaderCompiler.h" />
+    <ClInclude Include="include\Utility\APIExportsMacro.h" />
+    <ClInclude Include="include\Utility\atomic_shared_ptr.h" />
+    <ClInclude Include="include\Utility\EngineCreateAPI.h" />
+    <ClInclude Include="include\Utility\FVector.h" />
+    <ClInclude Include="include\Utility\TString.h" />
+    <ClInclude Include="include\Graphics\ResourceLeakChecker.h" />
+    <ClInclude Include="include\Core\FrameJob.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\Header.hlsli" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
