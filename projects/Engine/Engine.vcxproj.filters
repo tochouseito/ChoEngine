@@ -195,6 +195,10 @@
     <ClCompile Include="source\Core\pch.cpp">
       <Filter>source\Core</Filter>
     </ClCompile>
+    <ClCompile Include="source\GameCore\ECSManager.cpp" />
+    <ClCompile Include="source\GameCore\EngineComponentID.cpp" />
+    <ClCompile Include="source\GameCore\GameObject.cpp" />
+    <ClCompile Include="source\GameCore\GameWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\Allocators.h">
@@ -332,6 +336,10 @@
     <ClInclude Include="include\Core\pch.h">
       <Filter>include\Core</Filter>
     </ClInclude>
+    <ClInclude Include="include\GameCore\ECSManager.h" />
+    <ClInclude Include="include\GameCore\ComponentIDHelper.h" />
+    <ClInclude Include="include\GameCore\GameObject.h" />
+    <ClInclude Include="include\GameCore\GameWorld.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli">

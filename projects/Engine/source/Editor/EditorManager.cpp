@@ -1,13 +1,15 @@
 #include "pch.h"
 #ifndef NDEBUG
 #include "include/Editor/EditorManager.h"
+#include "include/Core/FrameCounter.h"
+
 #include <imgui.h>
 
 using namespace Theatria::Editor;
 
-bool EditorManager::Initialize()
+bool EditorManager::Initialize(Core::FrameCounter* fc)
 {
-    // 初期化処理
+    m_pFrameCounter = fc;
     return true;
 }
 
@@ -58,6 +60,10 @@ void EditorManager::BackDockingWindows()
 
     ImGui::Begin("EditorManager Debug Info");
     ImGui::Text("EditorManager is running.");
+    // フレームレートを表示
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::Text("IMGUI FPS: %.1f", io.Framerate);
+    ImGui::Text("ENGINE FPS: %.1f", static_cast<float>(m_pFrameCounter->FPS()));
     ImGui::End();
 }
 

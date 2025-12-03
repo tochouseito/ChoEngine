@@ -194,7 +194,11 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\GameCore\GameObject.cpp" />
+    <ClCompile Include="source\GameCore\GameWorld.cpp" />
+    <ClCompile Include="source\GameCore\ECSManager.cpp" />
     <ClCompile Include="source\Editor\EditorManager.cpp" />
+    <ClCompile Include="source\GameCore\EngineComponentID.cpp" />
     <ClCompile Include="source\Graphics\GlobalBuffer.cpp" />
     <ClCompile Include="source\Graphics\GraphicsSetting.cpp" />
     <ClCompile Include="source\Utility\EngineCreateAPI.cpp" />
@@ -256,6 +260,10 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\GameCore\GameObject.h" />
+    <ClInclude Include="include\GameCore\GameWorld.h" />
+    <ClInclude Include="include\GameCore\ComponentIDHelper.h" />
+    <ClInclude Include="include\GameCore\ECSManager.h" />
     <ClInclude Include="include\Editor\EditorManager.h" />
     <ClInclude Include="include\Graphics\GlobalBuffer.h" />
     <ClInclude Include="include\Graphics\GPUCommand.h" />

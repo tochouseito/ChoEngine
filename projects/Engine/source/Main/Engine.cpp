@@ -29,6 +29,8 @@
 #include "include/Physics/PhysicsWorld.h"
 #include "include/Audio/AudioEngine.h"
 #include "include/GameCore/SceneManager.h"
+#include "include/GameCore/ECSManager.h"
+#include "include/GameCore/GameWorld.h"
 #include "include/Assets/IDManager.h"
 #include "include/Assets/Loader.h"
 #include "include/Scripting/ScriptAPI.h"
@@ -77,49 +79,22 @@ public:
         /*======================== Other Systems ========================*/
         m_pPhysicsWorld =           std::make_unique<Physics::PhysicsWorld>();
         m_pAudioEngine =            std::make_unique<Audio::AudioEngine>();
-        m_pSceneManager =           std::make_unique<GameCore::SceneManager>();
         m_pIDManager =              std::make_unique<Assets::IDManager>();
         m_pLoader =                 std::make_unique<Assets::Loader>();
         m_pScriptAPI =              std::make_unique<Scripting::ScriptAPI>();
+        /*======================== GameCore ========================*/
+        m_pECSManager =             std::make_unique<GameCore::ECSManager>();
+        m_pGameWorld =              std::make_unique<GameCore::GameWorld>();
+        m_pSceneManager =           std::make_unique<GameCore::SceneManager>();
 #ifndef NDEBUG
+        /*======================== Editor ========================*/
         m_pImGuiManager =           std::make_unique<Editor::ImGuiManager>();
-        m_pEditorManager = std::make_unique<Editor::EditorManager>();
+        m_pEditorManager =          std::make_unique<Editor::EditorManager>();
 #endif // !NDEBUG
 
     }
     ~Impl() noexcept
     {
-        /*======================== Other Systems ========================*/
-        m_pImGuiManager.reset();
-        m_pScriptAPI.reset();
-        m_pLoader.reset();
-        m_pIDManager.reset();
-        m_pSceneManager.reset();
-        m_pAudioEngine.reset();
-        m_pPhysicsWorld.reset();
-        /*======================== Graphics ========================*/
-        m_pRenderer.reset();
-        m_pFrameGraph.reset();
-        m_pGPUTimeline.reset();
-        m_pResourceManager.reset();
-        m_pDescriptorAllocator.reset();
-        m_pRenderDevice.reset();
-        m_pShaderCompiler.reset();
-        m_pResourceLeakChecker.reset();
-        /*======================== Core ========================*/
-        m_pUUID.reset();
-        m_pMemoryManager.reset();
-        m_pJobSystem.reset();
-        m_pFileController.reset();
-        m_pAllocators.reset();
-        m_pFrameCounter.reset();
-        /*======================== Platform ========================*/
-        m_pNetwork.reset();
-        m_pInput.reset();
-        /*======================== EventCommand ========================*/
-        m_pExecutorHub.reset();
-        m_pRouterHub.reset();
-        m_pEventSystem.reset();
     }
 private:
     /*======================== EventCommand ========================*/
@@ -148,15 +123,18 @@ private:
     /*======================== Other Systems ========================*/
     std::unique_ptr<Physics::PhysicsWorld>          m_pPhysicsWorld;         ///< 物理ワールド
     std::unique_ptr<Audio::AudioEngine>             m_pAudioEngine;          ///< オーディオエンジン
-    std::unique_ptr<GameCore::SceneManager>         m_pSceneManager;         ///< シーンマネージャ
     std::unique_ptr<Assets::IDManager>              m_pIDManager;            ///< IDマネージャ
     std::unique_ptr<Assets::Loader>                 m_pLoader;               ///< アセットローダー
     std::unique_ptr<Scripting::ScriptAPI>           m_pScriptAPI;            ///< スクリプトAPI
+    /*======================== GameCore ========================*/
+    std::unique_ptr<GameCore::ECSManager>           m_pECSManager;           ///< ECSマネージャ
+    std::unique_ptr<GameCore::GameWorld>            m_pGameWorld;            ///< ゲームワールド
+    std::unique_ptr<GameCore::SceneManager>         m_pSceneManager;         ///< シーンマネージャ
 #ifndef NDEBUG
+    /*======================== Editor ========================*/
     std::unique_ptr<Editor::ImGuiManager>           m_pImGuiManager;         ///< ImGuiマネージャ
     std::unique_ptr<Editor::EditorManager>        m_pEditorManager;        ///< エディタマネージャ
 #endif // !NDEBUG
-
 
     Core::EventCommand::CommandBuffer m_WinAppQuere;    ///< WinAppコマンドキュー
 
@@ -198,18 +176,6 @@ void Theatria::Engine::Operation()
             m_Run = false;
             break;
         }
-
-#ifndef NDEBUG
-        // ImGuiのフレーム開始
-        m_pImpl->m_pImGuiManager->Begin();
-        // エディタマネージャ更新
-        m_pImpl->m_pEditorManager->Update();
-        // ImGuiのフレーム終了
-        m_pImpl->m_pImGuiManager->End();
-#endif // !NDEBUG
-
-        // ルーターがイベントを受けて、コマンドをQuereに積む
-        m_pImpl->m_pRouterHub->FlushAll();
 
         // ==== 0) 前フレームまでのコマンドが残っているなら全部処理 ====
         if (m_pImpl->m_pExecutorHub->HasPendingCommands())
@@ -255,7 +221,18 @@ void Theatria::Engine::Operation()
             m_pImpl->renderJob.m_FinishedFrame >= m_pImpl->m_pFrameCounter->m_TotalFrames)
         {
             // const uint32_t presentIndex = static_cast<uint32_t>(m_pImpl->m_pFrameCounter->m_TotalFrames % Graphics::Setting::BufferingCount);
+#ifndef NDEBUG
+            // ImGuiのフレーム開始
+            m_pImpl->m_pImGuiManager->Begin();
+            // エディタマネージャ更新
+            m_pImpl->m_pEditorManager->Update();
+            // ImGuiのフレーム終了
+            m_pImpl->m_pImGuiManager->End();
+#endif // !NDEBUG
 
+            // ルーターがイベントを受けて、コマンドをQuereに積む
+            m_pImpl->m_pRouterHub->FlushAll();
+            // Present
             m_pImpl->m_pRenderer->Present();
             // FPS計測+Sleep制御
             m_pImpl->m_pFrameCounter->Tick();
@@ -350,7 +327,7 @@ bool Theatria::Engine::Initialize()
     // Rendererにセット
     m_pImpl->m_pRenderer->SetImGuiManager(m_pImpl->m_pImGuiManager.get());
     // エディタマネージャ初期化
-    m_pImpl->m_pEditorManager->Initialize();
+    m_pImpl->m_pEditorManager->Initialize(m_pImpl->m_pFrameCounter.get());
 #endif // !NDEBUG
 
 

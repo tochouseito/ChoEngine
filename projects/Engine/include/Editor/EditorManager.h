@@ -1,17 +1,27 @@
 #pragma once
 #ifndef NDEBUG
-namespace Theatria::Editor
-{
-    class EditorManager final
-    {
-    public:
-        bool Initialize();
-        void Shutdown();
-        void Update();
 
-    private:
-        void BackDockingWindows();
-    };
+namespace Theatria
+{
+    namespace Core
+    {
+        class FrameCounter;
+    }
+    namespace Editor
+    {
+        class EditorManager final
+        {
+        public:
+            bool Initialize(Core::FrameCounter* fc);
+            void Shutdown();
+            void Update();
+
+        private:
+            void BackDockingWindows();
+
+            Core::FrameCounter* m_pFrameCounter = nullptr;
+        };
+    }
 }
 #endif // !NDEBUG
 
