@@ -1,276 +1,341 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ソース ファイル">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="include">
+      <UniqueIdentifier>{aeeeea91-253b-46d1-a469-7a16a9521504}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="include\Assets">
+      <UniqueIdentifier>{7d9b9a1c-c371-4fa6-b717-88dc098d5a25}</UniqueIdentifier>
     </Filter>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="include\Audio">
+      <UniqueIdentifier>{1b3bdb62-05cd-460f-b6cc-5a1b2b7f646a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Core">
+      <UniqueIdentifier>{8062a068-140e-4ce6-8ba2-73ea68e00f7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Editor">
+      <UniqueIdentifier>{335b5b08-d33e-4719-adcc-2f8e89f30d2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\GameCore">
+      <UniqueIdentifier>{dc243bc1-602c-4aea-bb9a-b4bc3adcdbeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Main">
+      <UniqueIdentifier>{9092be42-b161-4971-afc5-956811b18820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Physics">
+      <UniqueIdentifier>{fe63eace-2b84-4735-b20e-52fb16c78875}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Platform">
+      <UniqueIdentifier>{603b07dc-e07c-4e72-b97d-15a3783f6a2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Scripting">
+      <UniqueIdentifier>{9458754b-6a49-4ebe-9a46-dd817efb6d44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Utility">
+      <UniqueIdentifier>{da0ba46f-6426-432a-b323-59d55c7567ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Graphics">
+      <UniqueIdentifier>{d0a67053-70ec-439a-9b3a-0e9a494f1ae3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{f61b44ef-bce0-429c-8095-7d33de43a7a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Assets">
+      <UniqueIdentifier>{870ab031-ffc9-4a2a-b470-21cbdb248d75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Audio">
+      <UniqueIdentifier>{1e688084-3909-4a78-808c-3fd4875d78f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Core">
+      <UniqueIdentifier>{432cd848-ecd6-4a80-a5ce-79650fbe526d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Editor">
+      <UniqueIdentifier>{42534c86-a55d-4b1d-9abb-e65ffd635d44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\GameCore">
+      <UniqueIdentifier>{c57b5a49-6af5-4035-9867-103e737da498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Graphics">
+      <UniqueIdentifier>{c667f05a-ecb4-42ed-a9ec-feb81df8e161}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Main">
+      <UniqueIdentifier>{d5aa8e91-c117-4be8-b692-0cf17e93a56f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Physics">
+      <UniqueIdentifier>{9b260945-bf79-40b5-a47a-53ea14a24794}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Utility">
+      <UniqueIdentifier>{2383a178-1b9d-4fca-8916-e16611ca275d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Platform">
+      <UniqueIdentifier>{b79d7150-0433-471c-b934-b775a62f701d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Scripting">
+      <UniqueIdentifier>{534b7353-c608-49c7-bc60-c05fa96ccba6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{d6b32a48-578d-4170-869c-460da772ea66}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\Core\pch.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Platform\WinApp.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Platform\Input.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Platform\FileSystem.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Platform\Timer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Platform\Thread.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Platform\Network.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Core\MemoryManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Core\LogAssert.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Core\JobSystem.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Core\UUID.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Core\Allocators.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Core\FileController.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Assets\Loader.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Assets\IDManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Graphics\RenderDevice.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Graphics\DescriptorAllocator.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Graphics\ResourceManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Graphics\FrameGraph.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Graphics\Renderer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Graphics\GPUTimeline.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\GameCore\SceneManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Physics\PhysicsWorld.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Scripting\ScriptAPI.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="source\Audio\AudioEngine.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Editor\ImGuiManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Graphics\ShaderCompiler.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>source\Audio</Filter>
     </ClCompile>
     <ClCompile Include="source\Main\Engine.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>source\Main</Filter>
     </ClCompile>
-    <ClCompile Include="source\Core\FrameCounter.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="source\Platform\WinApp.cpp">
+      <Filter>source\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="source\Utility\TString.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="source\Platform\Timer.cpp">
+      <Filter>source\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="source\Core\EventCommand.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="source\Platform\Thread.cpp">
+      <Filter>source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Platform\Network.cpp">
+      <Filter>source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Platform\Input.cpp">
+      <Filter>source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\ShaderCompiler.cpp">
+      <Filter>source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\ResourceManager.cpp">
+      <Filter>source\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="source\Graphics\ResourceLeakChecker.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>source\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="source\Graphics\GpuBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="source\Graphics\Renderer.cpp">
+      <Filter>source\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="source\Graphics\GPUCommand.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Utility\EngineCreateAPI.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="source\Graphics\RenderDevice.cpp">
+      <Filter>source\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="source\Graphics\GraphicsSetting.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\GPUTimeline.cpp">
+      <Filter>source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\GPUCommand.cpp">
+      <Filter>source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\GpuBuffer.cpp">
+      <Filter>source\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="source\Graphics\GlobalBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\DescriptorAllocator.cpp">
+      <Filter>source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Physics\PhysicsWorld.cpp">
+      <Filter>source\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GameCore\SceneManager.cpp">
+      <Filter>source\GameCore</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\Allocators.cpp">
+      <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\EventCommand.cpp">
+      <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\FileController.cpp">
+      <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\FrameCounter.cpp">
+      <Filter>source\Core</Filter>
     </ClCompile>
     <ClCompile Include="source\Core\FrameJob.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\JobSystem.cpp">
+      <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\LogAssert.cpp">
+      <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\MemoryManager.cpp">
+      <Filter>source\Core</Filter>
     </ClCompile>
     <ClCompile Include="source\Editor\EditorManager.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Utility\EngineCreateAPI.cpp">
+      <Filter>source\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Editor\ImGuiManager.cpp">
+      <Filter>source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Utility\TString.cpp">
+      <Filter>source\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Scripting\ScriptAPI.cpp">
+      <Filter>source\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Assets\IDManager.cpp">
+      <Filter>source\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Assets\Loader.cpp">
+      <Filter>source\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Platform\FileSystem.cpp">
+      <Filter>source\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Graphics\FrameGraph.cpp">
+      <Filter>source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\UUID.cpp">
+      <Filter>source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Core\pch.cpp">
+      <Filter>source\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Core\pch.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Platform\WinApp.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Platform\Input.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Platform\FileSystem.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Platform\Timer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Platform\Thread.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Platform\Network.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\MemoryManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\LogAssert.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\JobSystem.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\UUID.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="include\Core\Allocators.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\FileController.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Assets\Loader.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Assets\IDManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\RenderDevice.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\DescriptorAllocator.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\ResourceManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\FrameGraph.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\Renderer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\GPUTimeline.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GameCore\SceneManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Physics\PhysicsWorld.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Scripting\ScriptAPI.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Audio\AudioEngine.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Editor\ImGuiManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\ShaderCompiler.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Main\Engine.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\FrameCounter.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Utility\TString.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\EventCommand.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\ResourceLeakChecker.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\Events.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\Commands.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Core\Routers.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\GpuBuffer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Utility\atomic_shared_ptr.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Utility\FVector.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\GPUCommand.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>include\Core</Filter>
     </ClInclude>
     <ClInclude Include="include\Utility\APIExportsMacro.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>include\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="include\Utility\EngineCreateAPI.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="include\Utility\atomic_shared_ptr.h">
+      <Filter>include\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="include\Graphics\GraphicsSetting.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="include\Audio\AudioEngine.h">
+      <Filter>include\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="include\Graphics\GlobalBuffer.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="include\Core\Commands.h">
+      <Filter>include\Core</Filter>
     </ClInclude>
-    <ClInclude Include="include\Core\FrameJob.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="include\Graphics\DescriptorAllocator.h">
+      <Filter>include\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="include\Editor\EditorManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>include\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Main\Engine.h">
+      <Filter>include\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utility\EngineCreateAPI.h">
+      <Filter>include\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\EventCommand.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\Events.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\FileController.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\ShaderCompiler.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\ResourceManager.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\ResourceLeakChecker.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\Renderer.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\RenderDevice.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\GraphicsSetting.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\GPUTimeline.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\GPUCommand.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\GpuBuffer.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\GlobalBuffer.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utility\FVector.h">
+      <Filter>include\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utility\TString.h">
+      <Filter>include\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\FrameGraph.h">
+      <Filter>include\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Platform\WinApp.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Platform\Timer.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Platform\Thread.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Platform\Network.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Platform\Input.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Platform\FileSystem.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GameCore\SceneManager.h">
+      <Filter>include\GameCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Scripting\ScriptAPI.h">
+      <Filter>include\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Editor\ImGuiManager.h">
+      <Filter>include\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\FrameCounter.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\FrameJob.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\JobSystem.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\LogAssert.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\MemoryManager.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\Routers.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Assets\IDManager.h">
+      <Filter>include\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Assets\Loader.h">
+      <Filter>include\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Physics\PhysicsWorld.h">
+      <Filter>include\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\UUID.h">
+      <Filter>include\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Core\pch.h">
+      <Filter>include\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\Header.hlsli" />
+    <None Include="shader\Header.hlsli">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
