@@ -42,6 +42,14 @@ LRESULT Theatria::Platform::WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wpara
         pMinMaxInfo->ptMinTrackSize.y = 600; // 最小高さを設定（例：600）
         break;
     }
+    case WM_SIZE:
+        if (wparam != SIZE_MINIMIZED)
+        {
+            int width = LOWORD(lparam);
+            int height = HIWORD(lparam);
+            OnWindowResize(static_cast<UINT64>(width), static_cast<UINT>(height));
+        }
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
@@ -127,4 +135,21 @@ void Theatria::Platform::WinApp::TerminateWindow()
         DispatchMessage(&msg);
     }
     return false;
+}
+
+// ウィンドウサイズ変更時の処理
+void Theatria::Platform::WinApp::OnWindowResize(UINT64 width, UINT height)
+{
+    if (width != 0 && height != 0)
+    {
+        m_WindowWidth = width;
+        m_WindowHeight = height;
+        // 新しいクライアント領域のサイズを hwnd から取得
+        RECT rect;
+        GetClientRect(m_HWND, &rect);
+        /*int newWidth = rect.right - rect.left;
+        int newHeight = rect.bottom - rect.top;
+        newWidth;
+        newHeight;*/
+    }
 }

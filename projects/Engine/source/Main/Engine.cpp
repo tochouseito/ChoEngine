@@ -239,8 +239,6 @@ void Theatria::Engine::Operation()
             m_pImpl->m_pRenderer->Present();
             // FPS計測+Sleep制御
             m_pImpl->m_pFrameCounter->Tick();
-
-            ++m_pImpl->m_pFrameCounter->m_TotalFrames;
         }
     }
 
@@ -274,6 +272,9 @@ bool Theatria::Engine::Initialize()
 
     /*======================== Platform ========================*/
     m_pImpl->m_pFrameCounter->SetMaxFPS(60); // 0なら無制限
+    m_pImpl->m_pFrameCounter->SetMaxLead(Graphics::Setting::BufferingCount - 1); // 最大先行フレーム数
+    m_pImpl->m_pFrameCounter->m_ProduceFrame = 0;
+    m_pImpl->m_pFrameCounter->m_TotalFrames = 0;
 
     /*======================== Core ========================*/
     m_pImpl->m_pJobSystem->Initialize();
@@ -354,9 +355,6 @@ bool Theatria::Engine::Initialize()
     {
         Update(i);
     }
-    m_pImpl->m_pFrameCounter->SetMaxLead(Graphics::Setting::BufferingCount - 1);
-    m_pImpl->m_pFrameCounter->m_ProduceFrame = 0;
-    m_pImpl->m_pFrameCounter->m_TotalFrames = 0;
 
     return true;
 }
@@ -384,5 +382,5 @@ void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
 
 void Theatria::Engine::Render([[maybe_unused]] uint32_t frameIdx)
 {
-    m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get());
+    // m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get());
 }

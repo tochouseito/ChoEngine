@@ -20,6 +20,9 @@ namespace Theatria::Core
                 {
                     uint64_t currentFrame = 0;
 
+                    std::jthread::id id = std::this_thread::get_id(); // スレッドID取得（デバッガ用）
+                    id;
+
                     while (true)
                     {
                         std::unique_lock lock(m_Mutex);

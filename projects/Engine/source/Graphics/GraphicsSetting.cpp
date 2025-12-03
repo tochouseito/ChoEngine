@@ -3,8 +3,8 @@
 
 namespace Theatria::Graphics::Setting
 {
-    uint32_t ResolutionWidth = 1280;    ///< 解像度幅
-    uint32_t ResolutionHeight = 720;   ///< 解像度高さ
+    uint32_t ResolutionWidth = 1920;    ///< 解像度幅
+    uint32_t ResolutionHeight = 1080;   ///< 解像度高さ
 
     uint32_t BufferingCount = 2; ///< バッファリング数
 

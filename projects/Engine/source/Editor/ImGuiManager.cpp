@@ -28,7 +28,10 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
         Core::LogAssert::LogLevel::Info, "ImGui", "ImGui Version: {}", version);
     // コンテキストの作成
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();/*
+    io.DisplaySize = ImVec2(
+        static_cast<float>(WinApp::m_WindowWidth),
+        static_cast<float>(WinApp::m_WindowHeight));*/
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Dockingを有効化
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // マルチビューポートを有効化
     // プラットフォームのバックエンドを設定する

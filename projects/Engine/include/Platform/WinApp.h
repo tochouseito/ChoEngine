@@ -40,6 +40,9 @@ namespace Theatria
             /// @brief ウィンドウメッセージ処理
             /// @return 終了ならtrue、継続ならfalse
             [[nodiscard]] static bool ProcessMessage();
+
+            // ウィンドウサイズ変更時の処理
+            static void OnWindowResize(UINT64 width, UINT height);
         public:
             static UINT64       m_WindowWidth;  ///< ウィンドウ幅
             static UINT         m_WindowHeight; ///< ウィンドウ高さ
