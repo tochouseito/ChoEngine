@@ -199,6 +199,41 @@ void Theatria::Engine::Operation()
             break;
         }
 
+#ifndef NDEBUG
+        // ImGuiのフレーム開始
+        m_pImpl->m_pImGuiManager->Begin();
+        // エディタマネージャ更新
+        m_pImpl->m_pEditorManager->Update();
+        // ImGuiのフレーム終了
+        m_pImpl->m_pImGuiManager->End();
+#endif // !NDEBUG
+
+        // ルーターがイベントを受けて、コマンドをQuereに積む
+        m_pImpl->m_pRouterHub->FlushAll();
+
+        // ==== 0) 前フレームまでのコマンドが残っているなら全部処理 ====
+        if (m_pImpl->m_pExecutorHub->HasPendingCommands())
+        {
+            // すでにキック済みのフレームが全部終わるまで待つ
+            // Update/Render用のFrameJobがあるので、それのFinishedFrameを見る
+            if (m_pImpl->m_pFrameCounter->m_TotalFrames < m_pImpl->m_pFrameCounter->m_ProduceFrame &&
+                m_pImpl->updateJob.m_FinishedFrame >= m_pImpl->m_pFrameCounter->m_ProduceFrame - 1 &&
+                m_pImpl->renderJob.m_FinishedFrame >= m_pImpl->m_pFrameCounter->m_ProduceFrame - 1)
+            {
+                // 最後のぶん Present してから止める
+                m_pImpl->m_pRenderer->Present();
+                // FPS計測+Sleep制御
+                m_pImpl->m_pFrameCounter->Tick();
+                // コマンドを実行
+                m_pImpl->m_pExecutorHub->ExecuteAll();
+                for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; ++i)
+                {
+                    Update(i); // 新レイアウト / 新サイズで全部埋め直す
+                }
+                continue;
+            }
+        }
+
         // ==== 1) 先行上限まで新しいフレームをキック ====
         if (m_pImpl->m_pFrameCounter->m_ProduceFrame - m_pImpl->m_pFrameCounter->m_TotalFrames < m_pImpl->m_pFrameCounter->GetMaxLead())
         {
@@ -212,21 +247,6 @@ void Theatria::Engine::Operation()
 
             ++m_pImpl->m_pFrameCounter->m_ProduceFrame;
         }
-
-#ifndef NDEBUG
-        // ImGuiのフレーム開始
-        m_pImpl->m_pImGuiManager->Begin();
-        // エディタマネージャ更新
-        m_pImpl->m_pEditorManager->Update();
-#endif // !NDEBUG
-        // ルーターがイベントを受けて、コマンドをQuereに積む
-        m_pImpl->m_pRouterHub->FlushAll();
-        // コマンドを実行
-        m_pImpl->m_pExecutorHub->ExecuteAll();
-#ifndef NDEBUG
-        // ImGuiのフレーム終了
-        m_pImpl->m_pImGuiManager->End();
-#endif // !NDEBUG
 
         // ==== 2) 一番古い未表示フレームが終わっていたら Present ====
         // presentFrame 〜 produceFrame-1 が「キック済み未表示」候補

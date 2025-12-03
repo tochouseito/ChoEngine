@@ -112,6 +112,18 @@ namespace Theatria::Core
                 }
             }
 
+            bool HasPendingCommands() const
+            {
+                for (auto& e : m_Entries)
+                {
+                    if (e.buf && !e.buf->Empty())
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
         private:
             struct Entry
             {
