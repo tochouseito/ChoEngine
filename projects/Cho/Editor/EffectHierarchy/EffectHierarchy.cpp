@@ -15,9 +15,7 @@ void EffectHierarchy::Update()
 
 void EffectHierarchy::Window()
 {
-	// 移動を無効にするフラグ
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoMove;
-	ImGui::Begin("Effect Hierarchy", nullptr, windowFlags);
+	ImGui::Begin("Effect Hierarchy");
 
 	if (!m_EditorManager->GetEffectEntity().has_value())
 	{

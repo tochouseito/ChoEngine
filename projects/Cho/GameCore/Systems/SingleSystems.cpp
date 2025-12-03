@@ -1473,8 +1473,8 @@ void Rigidbody3DSystem::UpdateComponent(Entity e, TransformComponent& transform,
 	// position
 	transform.position = rb.runtimeBody->GetPosition();
 	// rotation
-	transform.degrees = rb.runtimeBody->GetRotation();
-	transform.quaternion = rb.runtimeBody->GetQuaternion();
+	//transform.degrees = rb.runtimeBody->GetRotation();
+	//transform.quaternion = rb.runtimeBody->GetQuaternion();
 	
 	// Rigidbody3DComponentに反映
 	// velocity
