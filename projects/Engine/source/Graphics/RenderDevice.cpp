@@ -440,7 +440,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
     m_SwapChainContext.m_Desc.Format = Setting::DefaultDXGIFormat;// 色の形式
     m_SwapChainContext.m_Desc.SampleDesc.Count = 1;// マルチサンプルしない
     m_SwapChainContext.m_Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;// 描画のターゲットとして利用する
-    m_SwapChainContext.m_Desc.BufferCount = k_SwapChainBufferCount;// バッファ数
+    m_SwapChainContext.m_Desc.BufferCount = Setting::BufferingCount;// バッファ数
     m_SwapChainContext.m_Desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;// モニタにうつしたら、中身を破棄
     m_SwapChainContext.m_Desc.Flags =
         DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING |
@@ -461,9 +461,29 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
     SetDXGIName(m_SwapChainContext.m_SwapChain.Get());
 
     // リフレッシュレートを取得。floatで取るのは大変なので大体あってれば良いので整数で。
-    HDC hdc = GetDC(Platform::WinApp::m_HWND);
+    // ウィンドウがあるモニターを取得
+    HMONITOR hMonitor = MonitorFromWindow(Platform::WinApp::m_HWND, MONITOR_DEFAULTTONEAREST);
+    MONITORINFOEX mi{};
+    mi.cbSize = sizeof(mi);
+    if (!GetMonitorInfo(hMonitor, &mi))
+    {
+        Core::LogAssert::Verify(false, "RenderDevice", "Failed to get monitor info for refresh rate.");
+        return false;
+    }
+    // mi.szDeviceに対応するディスプレイ設定を取得
+    DEVMODE dm{};
+    dm.dmSize = sizeof(dm);
+    if (!EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm))
+    {
+        Core::LogAssert::Verify(false, "RenderDevice", "Failed to get display settings for refresh rate.");
+        return false;
+    }
+    m_SwapChainContext.m_RefreshRate = static_cast<uint32_t>(dm.dmDisplayFrequency);
+    Setting::DisplayRefreshrate = m_SwapChainContext.m_RefreshRate;
+
+    /*HDC hdc = GetDC(Platform::WinApp::m_HWND);
     m_SwapChainContext.m_RefreshRate = GetDeviceCaps(hdc, VREFRESH);
-    ReleaseDC(Platform::WinApp::m_HWND, hdc);
+    ReleaseDC(Platform::WinApp::m_HWND, hdc);*/
 
     // VSync共存型FPS固定のためにレイテンシ1
     m_SwapChainContext.m_SwapChain->SetMaximumFrameLatency(1);
@@ -477,23 +497,25 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
     rtvDesc.Format = m_SwapChainContext.m_Desc.Format;
     rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;// 2dテクスチャとして書き込む
-    for (uint32_t i = 0; i < k_SwapChainBufferCount; ++i)
+    for (uint32_t i = 0; i < Setting::BufferingCount; ++i)
     {
-        m_SwapChainContext.m_BackBuffers[i].backBufferIndex = i;
-        m_SwapChainContext.m_BackBuffers[i].pResource = std::make_unique<GpuResource>();
-        m_SwapChainContext.m_BackBuffers[i].pResource->AttachResource(nullptr);
+        SwapChainBuffer backBuffer = {};
+        backBuffer.backBufferIndex = i;
+        backBuffer.pResource = std::make_unique<GpuResource>();
+        backBuffer.pResource->AttachResource(nullptr);
         ID3D12Resource* pResource = nullptr;
         HRESULT hr = m_SwapChainContext.m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&pResource));
         if (!Core::LogAssert::Verify(SUCCEEDED(hr), "RenderDevice", "Failed to get SwapChain back buffer resource."))
         {
             return false;
         }
-        m_SwapChainContext.m_BackBuffers[i].pResource->AttachResource(pResource);
-        m_SwapChainContext.m_BackBuffers[i].rtvTableID = descAllocator->Allocate(DescriptorAllocator::TableKind::RenderTargets);
+        backBuffer.pResource->AttachResource(pResource);
+        backBuffer.rtvTableID = descAllocator->Allocate(DescriptorAllocator::TableKind::RenderTargets);
         descAllocator->CreateRTV(
-            m_SwapChainContext.m_BackBuffers[i].rtvTableID,
-            m_SwapChainContext.m_BackBuffers[i].pResource->GetResource(),
+            backBuffer.rtvTableID,
+            backBuffer.pResource->GetResource(),
             rtvDesc);
+        m_SwapChainContext.m_BackBuffers.push_back(std::move(backBuffer));
     }
 
     return true;

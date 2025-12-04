@@ -11,6 +11,7 @@ namespace Theatria::Graphics::Setting
 
     constexpr uint32_t kMaxBufferingCount = 3; ///< 最大バッファリング数
     extern uint32_t BufferingCount; ///< バッファリング数
+    extern uint32_t DisplayRefreshrate;          ///< 最大FPS(モニターのリフレッシュレート)
 
     extern const float kClearColor[4]; ///< クリアカラー
     extern DXGI_FORMAT DefaultDXGIFormat;

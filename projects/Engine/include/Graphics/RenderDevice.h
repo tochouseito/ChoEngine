@@ -6,13 +6,12 @@
 #include "include/Graphics/GPUCommand.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Graphics/GpuBuffer.h"
+#include "include/Graphics/GraphicsSetting.h"
 
 #include <array>
 
 namespace Theatria::Graphics
 {
-    constexpr uint32_t k_SwapChainBufferCount = 2; ///> スワップチェインバッファ数
-
     struct SwapChainBuffer final
     {
         std::unique_ptr<GpuResource> pResource; ///> リソース
@@ -25,7 +24,7 @@ namespace Theatria::Graphics
         ComPtr<IDXGISwapChain4> m_SwapChain = nullptr;///> スワップチェイン
         DXGI_SWAP_CHAIN_DESC1 m_Desc = {};///> スワップチェイン記述子
         int32_t m_RefreshRate = {};///> リフレッシュレート
-        std::array<SwapChainBuffer, k_SwapChainBufferCount> m_BackBuffers = {};///> バックバッファ
+        std::vector<SwapChainBuffer> m_BackBuffers = {};///> バックバッファ
     };
 
     /// @brief レンダリングデバイス所有者。Buffer,Texture,Heap,PSO,RootSignature等のファクトリー
