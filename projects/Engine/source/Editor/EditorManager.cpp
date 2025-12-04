@@ -10,6 +10,18 @@ using namespace Theatria::Editor;
 bool EditorManager::Initialize(Core::FrameCounter* fc)
 {
     m_pFrameCounter = fc;
+
+    m_AssetBrowser = std::make_unique<AssetBrowser>();
+    m_AssetBrowser->Initialize();
+    m_GameView = std::make_unique<GameView>();
+    m_GameView->Initialize();
+    m_SceneView = std::make_unique<SceneView>();
+    m_SceneView->Initialize();
+    m_Hierarchy = std::make_unique<Hierarchy>();
+    m_Hierarchy->Initialize();
+    m_Inspector = std::make_unique<Inspector>();
+    m_Inspector->Initialize();
+
     return true;
 }
 
@@ -21,6 +33,12 @@ void EditorManager::Shutdown()
 void EditorManager::Update()
 {
     BackDockingWindows();
+
+    m_AssetBrowser->Update();
+    m_GameView->Update();
+    m_SceneView->Update();
+    m_Hierarchy->Update();
+    m_Inspector->Update();
 }
 
 void EditorManager::BackDockingWindows()

@@ -199,6 +199,11 @@
     <ClCompile Include="source\GameCore\EngineComponentID.cpp" />
     <ClCompile Include="source\GameCore\GameObject.cpp" />
     <ClCompile Include="source\GameCore\GameWorld.cpp" />
+    <ClCompile Include="source\Editor\AssetBrowser.cpp" />
+    <ClCompile Include="source\Editor\Hierarchy.cpp" />
+    <ClCompile Include="source\Editor\Inspector.cpp" />
+    <ClCompile Include="source\Editor\GameView.cpp" />
+    <ClCompile Include="source\Editor\SceneView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\Allocators.h">
@@ -340,6 +345,12 @@
     <ClInclude Include="include\GameCore\ComponentIDHelper.h" />
     <ClInclude Include="include\GameCore\GameObject.h" />
     <ClInclude Include="include\GameCore\GameWorld.h" />
+    <ClInclude Include="include\Editor\AssetBrowser.h" />
+    <ClInclude Include="include\Editor\Hierarchy.h" />
+    <ClInclude Include="include\Editor\Inspector.h" />
+    <ClInclude Include="include\Editor\GameView.h" />
+    <ClInclude Include="include\Editor\SceneView.h" />
+    <ClInclude Include="include\Editor\BaseEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli">

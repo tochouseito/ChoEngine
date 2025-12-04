@@ -194,6 +194,11 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Editor\AssetBrowser.cpp" />
+    <ClCompile Include="source\Editor\GameView.cpp" />
+    <ClCompile Include="source\Editor\Hierarchy.cpp" />
+    <ClCompile Include="source\Editor\Inspector.cpp" />
+    <ClCompile Include="source\Editor\SceneView.cpp" />
     <ClCompile Include="source\GameCore\GameObject.cpp" />
     <ClCompile Include="source\GameCore\GameWorld.cpp" />
     <ClCompile Include="source\GameCore\ECSManager.cpp" />
@@ -260,6 +265,10 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Editor\AssetBrowser.h" />
+    <ClInclude Include="include\Editor\BaseEditor.h" />
+    <ClInclude Include="include\Editor\GameView.h" />
+    <ClInclude Include="include\Editor\Hierarchy.h" />
     <ClInclude Include="include\GameCore\GameObject.h" />
     <ClInclude Include="include\GameCore\GameWorld.h" />
     <ClInclude Include="include\GameCore\ComponentIDHelper.h" />
@@ -309,6 +318,8 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <ClInclude Include="include\Utility\TString.h" />
     <ClInclude Include="include\Graphics\ResourceLeakChecker.h" />
     <ClInclude Include="include\Core\FrameJob.h" />
+    <ClInclude Include="include\Editor\Inspector.h" />
+    <ClInclude Include="include\Editor\SceneView.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli" />
