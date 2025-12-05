@@ -266,6 +266,7 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Core\LoadingStatus.h" />
     <ClInclude Include="include\Editor\AssetBrowser.h" />
     <ClInclude Include="include\Editor\BaseEditor.h" />
     <ClInclude Include="include\Editor\GameView.h" />

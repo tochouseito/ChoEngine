@@ -353,6 +353,7 @@
     <ClInclude Include="include\Editor\SceneView.h" />
     <ClInclude Include="include\Editor\BaseEditor.h" />
     <ClInclude Include="include\Graphics\PipelineManager.h" />
+    <ClInclude Include="include\Core\LoadingStatus.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli">
