@@ -1,5 +1,6 @@
 #include "pch.h"
 #ifndef NDEBUG
+// === Theatria Engine Include ===
 #include "include/Editor/ImGuiManager.h"
 #include "include/Core/LogAssert.h"
 #include "include/Platform/WinApp.h"
@@ -7,6 +8,8 @@
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Graphics/Renderer.h"
 #include "include/Graphics/GraphicsSetting.h"
+// === C++ Standard Library ===
+#include <filesystem>
 // ===== ImGui =====
 #include <External/imgui/include/imgui.h>
 #include <External/imgui/include/imgui_impl_win32.h>
@@ -34,6 +37,10 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
         static_cast<float>(WinApp::m_WindowHeight));*/
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Dockingを有効化
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // マルチビューポートを有効化
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // キーボードナビゲーションを有効化
+    io.IniFilename = nullptr; // 設定ファイルを無効化
+    // 設定ファイルの読み込み
+    LoadIni();
     // プラットフォームのバックエンドを設定する
     ImGui_ImplWin32_Init(WinApp::m_HWND);
     // レンダラーのバックエンドを設定する
@@ -98,6 +105,8 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
 
 void ImGuiManager::Shutdown()
 {
+    // 設定ファイルの保存
+    SaveIni();
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
@@ -125,6 +134,25 @@ void ImGuiManager::Draw(CommandContext& ctx)
 {
     ID3D12GraphicsCommandList* cmdList = ctx.GetCommandList();
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmdList);
+}
+
+void Theatria::Editor::ImGuiManager::SaveIni()
+{
+    namespace fs = std::filesystem;
+
+    fs::path path = "config/editor/imgui.ini";
+
+    // 親ディレクトリを全部作成（存在してたら何もしない）
+    fs::create_directories(path.parent_path());
+
+    ImGui::SaveIniSettingsToDisk(path.string().c_str());
+}
+
+void Theatria::Editor::ImGuiManager::LoadIni()
+{
+    namespace fs = std::filesystem;
+    fs::path path = "config/editor/imgui.ini";
+    ImGui::SaveIniSettingsToDisk(path.string().c_str());
 }
 
 #endif

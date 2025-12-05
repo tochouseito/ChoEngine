@@ -20,6 +20,8 @@ namespace Theatria
             void Begin();
             void End();
             void Draw(Graphics::CommandContext& ctx);
+            void SaveIni();
+            void LoadIni();
         };
     };
 };

@@ -194,6 +194,7 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\Graphics\PipelineManager.cpp" />
     <ClCompile Include="source\Editor\AssetBrowser.cpp" />
     <ClCompile Include="source\Editor\GameView.cpp" />
     <ClCompile Include="source\Editor\Hierarchy.cpp" />
@@ -320,6 +321,7 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <ClInclude Include="include\Core\FrameJob.h" />
     <ClInclude Include="include\Editor\Inspector.h" />
     <ClInclude Include="include\Editor\SceneView.h" />
+    <ClInclude Include="include\Graphics\PipelineManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli" />

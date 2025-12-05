@@ -204,6 +204,7 @@
     <ClCompile Include="source\Editor\Inspector.cpp" />
     <ClCompile Include="source\Editor\GameView.cpp" />
     <ClCompile Include="source\Editor\SceneView.cpp" />
+    <ClCompile Include="source\Graphics\PipelineManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\Allocators.h">
@@ -351,6 +352,7 @@
     <ClInclude Include="include\Editor\GameView.h" />
     <ClInclude Include="include\Editor\SceneView.h" />
     <ClInclude Include="include\Editor\BaseEditor.h" />
+    <ClInclude Include="include\Graphics\PipelineManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli">

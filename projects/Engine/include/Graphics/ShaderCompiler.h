@@ -1,11 +1,14 @@
 #pragma once
+// === DirectX ===
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <d3d12shader.h>
 #include <d3dcompiler.h>
 #include <dxcapi.h>
+// === C++ Standard Library ===
 #include <filesystem>
 #include <string>
+// === Windows Runtime Library ===
 #include <wrl.h>
 
 namespace Theatria::Graphics
@@ -13,6 +16,9 @@ namespace Theatria::Graphics
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+    extern const std::filesystem::path g_ShaderCacheDir;
+
+    /// @brief シェーダーコンパイル設定構造体
     struct ShaderCompileDesc final
     {
         std::wstring filePath;
@@ -21,6 +27,7 @@ namespace Theatria::Graphics
         bool debug = true;                // true: -Zi/-Od, false: -O3など
     };
 
+    /// @brief シェーダーコンパイラークラス
     class ShaderCompiler final
     {
     public:
