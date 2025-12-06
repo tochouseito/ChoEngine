@@ -22,6 +22,8 @@ namespace Theatria
             void Draw(Graphics::CommandContext& ctx);
             void SaveIni();
             void LoadIni();
+        private:
+            bool m_Initialized = false;
         };
     };
 };

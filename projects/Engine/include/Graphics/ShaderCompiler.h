@@ -16,7 +16,7 @@ namespace Theatria::Graphics
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-    extern const std::filesystem::path g_ShaderCacheDir;
+    std::wstring ShaderProfileToWString(D3D_SHADER_MODEL model);
 
     /// @brief シェーダーコンパイル設定構造体
     struct ShaderCompileDesc final

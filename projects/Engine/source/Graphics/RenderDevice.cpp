@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "include/Graphics/RenderDevice.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "config/engineConfig.h"
 #include "include/Graphics/DescriptorAllocator.h"
+#include "include/Graphics/ShaderCompiler.h"
 #include "include/Core/LogAssert.h"
 #include "include/Utility/TString.h"
 #include "include/Platform/WinApp.h"
@@ -13,7 +14,7 @@ bool Theatria::Graphics::RenderDevice::Initialize(bool enableDebugLayer)
     if (!CreateDXGIFactory(enableDebugLayer)) { return false; }
     if (!CreateDevice()) { return false; }
     m_QueuePool = std::make_unique<QueuePool>(m_Device.Get());
-    CheckD3D12Options();
+    if (!CheckD3D12Options()) { return false; }
     return true;
 }
 
@@ -88,7 +89,7 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
             // 採用したアダプタの情報をログに出力。wstringの方なので注意
             std::wstring wmsg = std::format(L"Use Adapter:{}\n", adapterDesc.Description);
             std::string smsg = Utility::ToUTF8(wmsg);
-            Core::LogAssert::Log(
+            Core::LogAssert::LogRuntime(
                 std::source_location::current(), Core::LogAssert::SinkKind::Console,
                 Core::LogAssert::LogLevel::Info, "RenderDevice",
                 smsg);
@@ -126,7 +127,7 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
         if (SUCCEEDED(hr))
         {
             // 生成できたのでログ出力を行ってループを抜ける
-            Core::LogAssert::Log(
+            Core::LogAssert::LogRuntime(
                 std::source_location::current(), Core::LogAssert::SinkKind::Console,
                 Core::LogAssert::LogLevel::Info, "RenderDevice",
                 "Create D3D12 Device : {}",
@@ -144,7 +145,7 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
     SetD3D12Name(m_Device.Get());
 
     // 初期化完了ログ
-    Core::LogAssert::Log(
+    Core::LogAssert::LogRuntime(
         std::source_location::current(), Core::LogAssert::SinkKind::Console,
         Core::LogAssert::LogLevel::Info, "RenderDevice",
         "Complete create D3D12Device!!!");
@@ -192,7 +193,7 @@ bool Theatria::Graphics::RenderDevice::CreateDevice()
 }
 
 /// @brief 各サポートチェック
-void Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
+[[nodiscard]] bool Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
 {
     // D3D12Options
     if (SUCCEEDED(m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &m_Options, sizeof(m_Options))))
@@ -281,6 +282,34 @@ void Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
     // D3D12Options21
     if (SUCCEEDED(m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS21, &m_Options21, sizeof(m_Options21))))
     {
+    }
+    // Shader Model
+    D3D12_FEATURE_DATA_SHADER_MODEL sm{};
+    sm.HighestShaderModel = Config::Graphics::HighestShaderModel; // 要求するシェーダモデルをセット
+    if (SUCCEEDED(m_Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm))))
+    {
+        Config::Graphics::HighestShaderModel = sm.HighestShaderModel;
+        // 要求する最低モデルを満たしているか確認
+        if (Config::Graphics::RequestedShaderModel <= Config::Graphics::HighestShaderModel)
+        {
+            Core::LogAssert::LogRuntime(
+                std::source_location::current(), Core::LogAssert::SinkKind::Console,
+                Core::LogAssert::LogLevel::Info, "RenderDevice",
+                "Supported Shader Model: {}", static_cast<int>(Config::Graphics::HighestShaderModel));
+        }
+        else
+        {
+            std::wstring wrequested = ShaderProfileToWString(Config::Graphics::RequestedShaderModel);
+            std::wstring whighest = ShaderProfileToWString(Config::Graphics::HighestShaderModel);
+            std::string requested = Utility::ToUTF8(wrequested);
+            std::string highest = Utility::ToUTF8(whighest);
+            Core::LogAssert::LogRuntime(
+                std::source_location::current(), Core::LogAssert::SinkKind::MBox,
+                Core::LogAssert::LogLevel::Info, "RenderDevice",
+                "Requested Shader Model {} is not supported. Highest Shader Model is {}.",
+                requested,highest);
+            return false;
+        }
     }
 
 
@@ -426,6 +455,8 @@ void Theatria::Graphics::RenderDevice::CheckD3D12Options() noexcept
     {
         //D3D12_FEATURE_DATA_D3D12_OPTIONS15
     }
+
+    return true;
 }
 
 bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* descAllocator, uint32_t width, uint32_t height, int32_t refreshRate)
@@ -437,10 +468,10 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
     m_SwapChainContext.m_RefreshRate = rate;
     m_SwapChainContext.m_Desc.Width = static_cast<UINT>(w);// 画面の幅。ウィンドウのクライアント領域を同じものにしておく
     m_SwapChainContext.m_Desc.Height = h;// 画面の高さ。ウィンドウのクライアント領域を同じものにしておく
-    m_SwapChainContext.m_Desc.Format = Setting::DefaultDXGIFormat;// 色の形式
+    m_SwapChainContext.m_Desc.Format = Config::Graphics::DefaultDXGIFormat;// 色の形式
     m_SwapChainContext.m_Desc.SampleDesc.Count = 1;// マルチサンプルしない
     m_SwapChainContext.m_Desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;// 描画のターゲットとして利用する
-    m_SwapChainContext.m_Desc.BufferCount = Setting::BufferingCount;// バッファ数
+    m_SwapChainContext.m_Desc.BufferCount = Config::Graphics::BufferingCount;// バッファ数
     m_SwapChainContext.m_Desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;// モニタにうつしたら、中身を破棄
     m_SwapChainContext.m_Desc.Flags =
         DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING |
@@ -479,7 +510,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
         return false;
     }
     m_SwapChainContext.m_RefreshRate = static_cast<uint32_t>(dm.dmDisplayFrequency);
-    Setting::DisplayRefreshrate = m_SwapChainContext.m_RefreshRate;
+    Config::Graphics::DisplayRefreshrate = m_SwapChainContext.m_RefreshRate;
 
     /*HDC hdc = GetDC(Platform::WinApp::m_HWND);
     m_SwapChainContext.m_RefreshRate = GetDeviceCaps(hdc, VREFRESH);
@@ -497,7 +528,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
     rtvDesc.Format = m_SwapChainContext.m_Desc.Format;
     rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;// 2dテクスチャとして書き込む
-    for (uint32_t i = 0; i < Setting::BufferingCount; ++i)
+    for (uint32_t i = 0; i < Config::Graphics::BufferingCount; ++i)
     {
         SwapChainBuffer backBuffer = {};
         backBuffer.backBufferIndex = i;

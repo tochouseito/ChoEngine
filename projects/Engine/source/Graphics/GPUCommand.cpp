@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "include/Graphics/GPUCommand.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "config/engineConfig.h"
 #include "include/Core/LogAssert.h"
 #include "include/Graphics/ResourceLeakChecker.h"
 

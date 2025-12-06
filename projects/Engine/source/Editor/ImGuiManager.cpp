@@ -1,13 +1,14 @@
 #include "pch.h"
 #ifndef NDEBUG
 // === Theatria Engine Include ===
+#include "config/engineConfig.h"
 #include "include/Editor/ImGuiManager.h"
 #include "include/Core/LogAssert.h"
 #include "include/Platform/WinApp.h"
 #include "include/Graphics/RenderDevice.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Graphics/Renderer.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "config/engineConfig.h"
 // === C++ Standard Library ===
 #include <filesystem>
 // ===== ImGui =====
@@ -27,7 +28,7 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
     // imgui バージョン表示
     IMGUI_CHECKVERSION();
     std::string version = IMGUI_VERSION;
-    Core::LogAssert::Log(std::source_location::current(), Core::LogAssert::SinkKind::Console,
+    Core::LogAssert::LogRuntime(std::source_location::current(), Core::LogAssert::SinkKind::Console,
         Core::LogAssert::LogLevel::Info, "ImGui", "ImGui Version: {}", version);
     // コンテキストの作成
     ImGui::CreateContext();
@@ -47,8 +48,8 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
     DescriptorAllocator::TableID tableID = da.Allocate(DescriptorAllocator::TableKind::Textures);
     ImGui_ImplDX12_Init(
         rdevice.GetDevice()
-        , Setting::BufferingCount,
-        Setting::DefaultDXGIFormat,
+        , Config::Graphics::BufferingCount,
+        Config::Graphics::DefaultDXGIFormat,
         da.GetDescriptorHeap(HeapType::CBV_SRV_UAV),
         da.GetCPUHandle(tableID),
         da.GetGPUHandle(tableID));
@@ -99,12 +100,13 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
     }
     // ツリーラインの表示
     style.TreeLinesFlags = ImGuiTreeNodeFlags_DrawLinesFull;
-
+    m_Initialized = true;
     return true;
 }
 
 void ImGuiManager::Shutdown()
 {
+    if (!m_Initialized) { return;}
     // 設定ファイルの保存
     SaveIni();
     ImGui_ImplDX12_Shutdown();
@@ -140,7 +142,7 @@ void Theatria::Editor::ImGuiManager::SaveIni()
 {
     namespace fs = std::filesystem;
 
-    fs::path path = "config/editor/imgui.ini";
+    fs::path path = Config::FilePath::ImGui_iniPath;
 
     // 親ディレクトリを全部作成（存在してたら何もしない）
     fs::create_directories(path.parent_path());
@@ -151,7 +153,7 @@ void Theatria::Editor::ImGuiManager::SaveIni()
 void Theatria::Editor::ImGuiManager::LoadIni()
 {
     namespace fs = std::filesystem;
-    fs::path path = "config/editor/imgui.ini";
+    fs::path path = Config::FilePath::ImGui_iniPath;
     ImGui::SaveIniSettingsToDisk(path.string().c_str());
 }
 

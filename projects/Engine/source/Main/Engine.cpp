@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "include/Main/Engine.h"
+#include "config/engineConfig.h"
 
 // === Engine Systemes ===
 #include "include/Platform/FileSystem.h"
@@ -25,7 +26,7 @@
 #include "include/Graphics/Renderer.h"
 #include "include/Graphics/ResourceManager.h"
 #include "include/Graphics/ShaderCompiler.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "include/Graphics/PipelineManager.h"
 #include "include/Physics/PhysicsWorld.h"
 #include "include/Audio/AudioEngine.h"
 #include "include/GameCore/SceneManager.h"
@@ -70,6 +71,7 @@ public:
         /*======================== Graphics ========================*/
         m_pResourceLeakChecker =    std::make_unique<Graphics::ResourceLeakChecker>();
         m_pShaderCompiler =         std::make_unique<Graphics::ShaderCompiler>();
+        m_pPipelineManager =        std::make_unique<Graphics::PipelineManager>();
         m_pRenderDevice =           std::make_unique<Graphics::RenderDevice>();
         m_pDescriptorAllocator =    std::make_unique<Graphics::DescriptorAllocator>();
         m_pResourceManager =        std::make_unique<Graphics::ResourceManager>();
@@ -114,9 +116,10 @@ private:
     /*======================== Graphics ========================*/
     std::unique_ptr<Graphics::ResourceLeakChecker>  m_pResourceLeakChecker;  ///< リソースリークチェッカー
     std::unique_ptr<Graphics::ShaderCompiler>       m_pShaderCompiler;       ///< シェーダーコンパイラ
+    std::unique_ptr<Graphics::PipelineManager>      m_pPipelineManager;      ///< パイプラインマネージャ
     std::unique_ptr<Graphics::RenderDevice>         m_pRenderDevice;         ///< レンダーデバイス
     std::unique_ptr<Graphics::DescriptorAllocator>  m_pDescriptorAllocator;  ///< ディスクリプタアロケータ
-    std::unique_ptr<Graphics::ResourceManager>      m_pResourceManager;     ///< リソースマネージャ
+    std::unique_ptr<Graphics::ResourceManager>      m_pResourceManager;      ///< リソースマネージャ
     std::unique_ptr<Graphics::GPUTimeline>          m_pGPUTimeline;          ///< GPUタイムライン
     std::unique_ptr<Graphics::FrameGraph>           m_pFrameGraph;           ///< フレームグラフ
     std::unique_ptr<Graphics::Renderer>             m_pRenderer;             ///< レンダラー
@@ -192,7 +195,7 @@ void Theatria::Engine::Operation()
                 m_pImpl->m_pFrameCounter->Tick();
                 // コマンドを実行
                 m_pImpl->m_pExecutorHub->ExecuteAll();
-                for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; ++i)
+                for (uint32_t i = 0; i < Config::Graphics::BufferingCount; ++i)
                 {
                     Update(i); // 新レイアウト / 新サイズで全部埋め直す
                 }
@@ -204,9 +207,9 @@ void Theatria::Engine::Operation()
         if (m_pImpl->m_pFrameCounter->m_ProduceFrame - m_pImpl->m_pFrameCounter->m_TotalFrames < m_pImpl->m_pFrameCounter->GetMaxLead())
         {
             // このフレーム番号に対応するインデックスを計算
-            const uint32_t presentIndex = static_cast<uint32_t>(m_pImpl->m_pFrameCounter->m_ProduceFrame % Graphics::Setting::BufferingCount);
-            const uint32_t renderIndex = (presentIndex + Graphics::Setting::BufferingCount - 2) % Graphics::Setting::BufferingCount;
-            const uint32_t updateIndex = (presentIndex + Graphics::Setting::BufferingCount - 1) % Graphics::Setting::BufferingCount;
+            const uint32_t presentIndex = static_cast<uint32_t>(m_pImpl->m_pFrameCounter->m_ProduceFrame % Config::Graphics::BufferingCount);
+            const uint32_t renderIndex = (presentIndex + Config::Graphics::BufferingCount - 2) % Config::Graphics::BufferingCount;
+            const uint32_t updateIndex = (presentIndex + Config::Graphics::BufferingCount - 1) % Config::Graphics::BufferingCount;
 
             m_pImpl->updateJob.Kick(m_pImpl->m_pFrameCounter->m_ProduceFrame, updateIndex);
             m_pImpl->renderJob.Kick(m_pImpl->m_pFrameCounter->m_ProduceFrame, renderIndex);
@@ -220,7 +223,7 @@ void Theatria::Engine::Operation()
             m_pImpl->updateJob.m_FinishedFrame >= m_pImpl->m_pFrameCounter->m_TotalFrames &&
             m_pImpl->renderJob.m_FinishedFrame >= m_pImpl->m_pFrameCounter->m_TotalFrames)
         {
-            // const uint32_t presentIndex = static_cast<uint32_t>(m_pImpl->m_pFrameCounter->m_TotalFrames % Graphics::Setting::BufferingCount);
+            // const uint32_t presentIndex = static_cast<uint32_t>(m_pImpl->m_pFrameCounter->m_TotalFrames % Config::Graphics::BufferingCount);
 #ifndef NDEBUG
             // ImGuiのフレーム開始
             m_pImpl->m_pImGuiManager->Begin();
@@ -273,7 +276,7 @@ bool Theatria::Engine::Initialize()
     m_pImpl->m_pJobSystem->Initialize();
 
     /*======================== Graphics ========================*/
-    if(!Core::LogAssert::Verify((Graphics::Setting::BufferingCount == 2 || Graphics::Setting::BufferingCount == 3),
+    if(!Core::LogAssert::Verify((Config::Graphics::BufferingCount == 2 || Config::Graphics::BufferingCount == 3),
         "Graphics Setting", "bufferingCount must be 2 or 3"))
     {
         return false;
@@ -314,8 +317,8 @@ bool Theatria::Engine::Initialize()
         Core::LogAssert::Verify(false, "SwapChain Create", "SwapChain creation failed");
         return false;
     }
-    m_pImpl->m_pFrameCounter->SetMaxFPS(Graphics::Setting::DisplayRefreshrate); // 0なら無制限
-    m_pImpl->m_pFrameCounter->SetMaxLead(Graphics::Setting::BufferingCount - 1); // 最大先行フレーム数
+    m_pImpl->m_pFrameCounter->SetMaxFPS(Config::Graphics::DisplayRefreshrate); // 0なら無制限
+    m_pImpl->m_pFrameCounter->SetMaxLead(Config::Graphics::BufferingCount - 1); // 最大先行フレーム数
     m_pImpl->m_pFrameCounter->m_ProduceFrame = 0;
     m_pImpl->m_pFrameCounter->m_TotalFrames = 0;
 
@@ -329,7 +332,6 @@ bool Theatria::Engine::Initialize()
     // エディタマネージャ初期化
     m_pImpl->m_pEditorManager->Initialize(m_pImpl->m_pFrameCounter.get());
 #endif // !NDEBUG
-
 
     // デフォルトパス作成
     m_pImpl->m_pFrameGraph->CreateDefaultPasses();
@@ -348,7 +350,7 @@ bool Theatria::Engine::Initialize()
         });
 
     // 初回バッファ埋め
-    for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; i++)
+    for (uint32_t i = 0; i < Config::Graphics::BufferingCount; i++)
     {
         Update(i);
     }

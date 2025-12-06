@@ -6,7 +6,7 @@
 #include "include/Graphics/GPUCommand.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Graphics/GpuBuffer.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "config/engineConfig.h"
 
 #include <array>
 
@@ -69,7 +69,7 @@ namespace Theatria::Graphics
         /// @brief デバイスの生成
         [[nodiscard]] bool CreateDevice();
         /// @brief 各サポートチェック
-        void CheckD3D12Options() noexcept;
+        [[nodiscard]] bool CheckD3D12Options() noexcept;
     private:
         ComPtr<IDXGIFactory7> m_DXGIFactory = nullptr;///> DXGIファクトリ
         ComPtr<ID3D12Device> m_Device = nullptr;///> D3D12デバイス

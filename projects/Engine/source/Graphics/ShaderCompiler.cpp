@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "include/Graphics/ShaderCompiler.h"
 #include "include/Core/LogAssert.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "config/engineConfig.h"
 #include "include/Utility/TString.h"
 
 using namespace Theatria::Graphics;
@@ -51,7 +51,7 @@ ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::GetOrCompileShader(const Sh
 
     std::wstringstream ss;
     ss << std::hex << key;
-    std::filesystem::path cachePath = std::filesystem::path(Setting::ShaderCacheDirectory) / (ss.str() + L".dxil");
+    std::filesystem::path cachePath = std::filesystem::path(Config::FilePath::ShaderCacheDirectory) / (ss.str() + L".dxil");
 
     // 2. キャッシュファイルがあれば読み込んで終わり
     if (std::filesystem::exists(cachePath))
@@ -141,7 +141,7 @@ ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::CompileShaderRaw(const Shad
     hr = pResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), &pErrorsUtf16);
     if (pErrors != nullptr && pErrors->GetStringLength() != 0)
     {
-        Core::LogAssert::Log(std::source_location::current(), Core::LogAssert::SinkKind::Console,
+        Core::LogAssert::LogRuntime(std::source_location::current(), Core::LogAssert::SinkKind::Console,
             Core::LogAssert::LogLevel::Error,
             "ShaderCompiler", pErrors->GetStringPointer());
         Core::LogAssert::Check(false, "ShaderCompiler", "DXC Compile Error!!");
@@ -184,4 +184,50 @@ void Theatria::Graphics::ShaderCompiler::SaveBlobToFile(const std::filesystem::p
     }
     ofs.write(static_cast<const char*>(blob->GetBufferPointer()),
         blob->GetBufferSize());
+}
+
+std::wstring Theatria::Graphics::ShaderProfileToWString(D3D_SHADER_MODEL model)
+{
+    switch (model)
+    {
+    case D3D_SHADER_MODEL_NONE:
+        return L"Unknown Model";
+        break;
+    case D3D_SHADER_MODEL_5_1:
+        return L"5_1";
+        break;
+    case D3D_SHADER_MODEL_6_0:
+        return L"6_0";
+        break;
+    case D3D_SHADER_MODEL_6_1:
+        return L"6_1";
+        break;
+    case D3D_SHADER_MODEL_6_2:
+        return L"6_2";
+        break;
+    case D3D_SHADER_MODEL_6_3:
+        return L"6_3";
+        break;
+    case D3D_SHADER_MODEL_6_4:
+        return L"6_4";
+        break;
+    case D3D_SHADER_MODEL_6_5:
+        return L"6_5";
+        break;
+    case D3D_SHADER_MODEL_6_6:
+        return L"6_6";
+        break;
+    case D3D_SHADER_MODEL_6_7:
+        return L"6_7";
+        break;
+    case D3D_SHADER_MODEL_6_8:
+        return L"6_8";
+        break;
+    case D3D_SHADER_MODEL_6_9:
+        return L"6_9";
+        break;
+    default:
+        return L"Unknown Model";
+        break;
+    }
 }

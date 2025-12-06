@@ -2,7 +2,7 @@
 #include <memory>
 #include "include/Graphics/GpuBuffer.h"
 #include "include/Graphics/RenderDevice.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "config/engineConfig.h"
 #include "include/Utility/atomic_shared_ptr.h"
 #include "include/Utility/FVector.h"
 #include <typeindex>
@@ -36,8 +36,8 @@ namespace Theatria::Graphics
         uint32_t CreateConstantBuffer()
         {
             std::lock_guard<std::mutex> lock(m_MultiBufferMutex);
-            std::array<atomic_shared_ptr<GpuBuffer>, Graphics::Setting::kMaxBufferingCount> bufferSet{};
-            for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; i++)
+            std::array<atomic_shared_ptr<GpuBuffer>, Config::Graphics::kMaxBufferingCount> bufferSet{};
+            for (uint32_t i = 0; i < Config::Graphics::BufferingCount; i++)
             {
                 bufferSet[i] = std::make_shared<ConstantBuffer<T>>();
                 bufferSet[i]->CreateBuffer(m_pDevice->GetDevice());
@@ -50,8 +50,8 @@ namespace Theatria::Graphics
         uint32_t CreateStructuredBuffer(uint32_t numElements)
         {
             std::lock_guard<std::mutex> lock(m_MultiBufferMutex);
-            std::array<atomic_shared_ptr<GpuBuffer>, Graphics::Setting::kMaxBufferingCount> bufferSet{};
-            for (uint32_t i = 0; i < Graphics::Setting::BufferingCount; i++)
+            std::array<atomic_shared_ptr<GpuBuffer>, Config::Graphics::kMaxBufferingCount> bufferSet{};
+            for (uint32_t i = 0; i < Config::Graphics::BufferingCount; i++)
             {
                 bufferSet[i] = std::make_shared<StructuredBuffer<T>>();
                 bufferSet[i]->CreateBuffer(m_pDevice->GetDevice(), numElements);
@@ -110,10 +110,10 @@ namespace Theatria::Graphics
             // クリア値の設定
             D3D12_CLEAR_VALUE clearValue = {};
             clearValue.Format = format;
-            clearValue.Color[0] = Setting::kClearColor[0];
-            clearValue.Color[1] = Setting::kClearColor[1];
-            clearValue.Color[2] = Setting::kClearColor[2];
-            clearValue.Color[3] = Setting::kClearColor[3];
+            clearValue.Color[0] = Config::Graphics::kClearColor[0];
+            clearValue.Color[1] = Config::Graphics::kClearColor[1];
+            clearValue.Color[2] = Config::Graphics::kClearColor[2];
+            clearValue.Color[3] = Config::Graphics::kClearColor[3];
             auto buffer = std::make_shared<TextureBuffer>();
             buffer->CreateBuffer(m_pDevice->GetDevice(), resourceDesc, &clearValue, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
             uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
@@ -231,7 +231,7 @@ namespace Theatria::Graphics
         std::mutex m_SingleBufferMutex;
 
         /*=============== マルチバッファ群 ===============*/
-        FVector<std::array<atomic_shared_ptr<GpuBuffer>, Setting::kMaxBufferingCount>> m_MultiBuffers;
+        FVector<std::array<atomic_shared_ptr<GpuBuffer>, Config::Graphics::kMaxBufferingCount>> m_MultiBuffers;
         std::mutex m_MultiBufferMutex;
 
         /*=============== テクスチャバッファ群 ===============*/

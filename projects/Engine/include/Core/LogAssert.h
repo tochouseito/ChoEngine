@@ -43,7 +43,8 @@ namespace Theatria::Core
         {
             Console,
             VSOutput,
-            File
+            File,
+            MBox
         };
 
         /// @brief ログメッセージ
@@ -85,12 +86,36 @@ namespace Theatria::Core
 
         /*================ Print ================*/
         /// @brief 指定シンクにログ出力
-        template<class... Args>
-        static void Log(std::source_location loc, SinkKind sink, LogLevel level, std::string_view category,
+        // ===== 実体：完成済みテキストを渡す =====
+        static void LogText(std::source_location loc,
+            SinkKind sink, LogLevel level, std::string_view category,
+            std::string_view text)
+        {
+            auto msg = BuildMessage(level, category, std::string(text), loc);
+            DispatchToSink(sink, msg);
+        }
+
+        // ===== 1) リテラル専用版：const char(&)[N] で確実に“定数式”化 =====
+        template <size_t N, class... Args>
+        static void Log(std::source_location loc,
+            SinkKind sink, LogLevel level, std::string_view category,
+            std::format_string<Args...> fmt, Args&&... args)
+        {
+            std::string text = std::format(fmt, std::forward<Args>(args)...);
+            LogText(loc, sink, level, category, text);
+        }
+
+        // ===== 2) ランタイム文字列版：vformat だが“箱詰め”して lvalue にする =====
+        template <class... Args>
+        static void LogRuntime(std::source_location loc,
+            SinkKind sink, LogLevel level, std::string_view category,
             std::string_view fmt, Args&&... args)
         {
-            auto msg = BuildMessage(level, category, fmt, loc, std::forward<Args>(args)...);
-            DispatchToSink(sink, msg);
+            auto boxed = std::make_tuple(std::forward<Args>(args)...); // rvalueを保持→lvalue化
+            std::string text = std::apply([&](auto&... a) {
+                return std::vformat(fmt, std::make_format_args(a...));
+                }, boxed);
+            LogText(loc, sink, level, category, text);
         }
         /// @brief 指定シンク群にログ出力
         template<class... Args>
@@ -265,6 +290,7 @@ namespace Theatria::Core
             case SinkKind::Console:   PushConsole(m);   break;
             case SinkKind::VSOutput:  PushVSOut(m);     break;
             case SinkKind::File:      PushFile(m);      break;
+            case SinkKind::MBox:      MBox(m);          break;
             }
         }
 

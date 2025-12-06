@@ -2,7 +2,7 @@
 #include "include/Graphics/Renderer.h"
 #include "include/Graphics/RenderDevice.h"
 #include "include/Graphics/ResourceManager.h"
-#include "include/Graphics/GraphicsSetting.h"
+#include "config/engineConfig.h"
 #include "include/Graphics/FrameGraph.h"
 #include "include/Graphics/DescriptorAllocator.h"
 #include "include/Platform/WinApp.h"
@@ -20,9 +20,9 @@ bool Theatria::Graphics::Renderer::Initialize(RenderDevice* device, ResourceMana
     m_DescriptorAllocator = da;
     m_CommandPool = std::make_unique<CommandPool>(m_Device->m_Device.Get());
     // 深度バッファの作成
-    m_DepthBufferIndex = m_ResourceManager->CreateDepthBuffer(Setting::ResolutionWidth, Setting::ResolutionHeight);
+    m_DepthBufferIndex = m_ResourceManager->CreateDepthBuffer(Config::Graphics::ResolutionWidth, Config::Graphics::ResolutionHeight);
 #ifndef NDEBUG // デバッグ、開発用
-    m_DebugDepthBufferIndex = m_ResourceManager->CreateDepthBuffer(Setting::ResolutionWidth, Setting::ResolutionHeight);
+    m_DebugDepthBufferIndex = m_ResourceManager->CreateDepthBuffer(Config::Graphics::ResolutionWidth, Config::Graphics::ResolutionHeight);
 #endif
     return true;
 }
@@ -150,7 +150,7 @@ void Theatria::Graphics::Renderer::Present()
     D3D12_CPU_DESCRIPTOR_HANDLE handle = m_DescriptorAllocator->GetCPUHandle(backBuffer.rtvTableID);
     cmd->SetRenderTargets(1, &handle, false, nullptr);
     // レンダーターゲットのクリア
-    cmd->ClearRenderTargetView(handle, Setting::kClearColor, 0, nullptr);
+    cmd->ClearRenderTargetView(handle, Config::Graphics::kClearColor, 0, nullptr);
 #ifndef NDEBUG // デバッグ、開発用
     // ImGuiの描画
     if(m_ImGuiManager)
@@ -178,7 +178,7 @@ void Theatria::Graphics::Renderer::Present()
     m_CommandPool->ReturnContext(cmd);
     // スワップチェーンのPresent
     GraphicsQueueContext* presentQueue = m_Device->m_QueuePool->GetPresentQueue();
-    if (Setting::EnableVSync)
+    if (Config::Graphics::EnableVSync)
     {
         // VSync有効
         m_Device->m_SwapChainContext.m_SwapChain->Present(1, 0);

@@ -18,7 +18,7 @@ namespace Theatria::Core::Commands
     inline void ExecShowWindow(void*, const void* data)
     {
         const auto* cmd = static_cast<const CmdShowWindow*>(data);
-         Theatria::Core::LogAssert::Log(std::source_location::current(), Theatria::Core::LogAssert::SinkKind::Console,
+         Theatria::Core::LogAssert::LogRuntime(std::source_location::current(), Theatria::Core::LogAssert::SinkKind::Console,
             Theatria::Core::LogAssert::LogLevel::Info,
             "WinApp",
             "Executing CmdShowWindow: {}", cmd->msg);

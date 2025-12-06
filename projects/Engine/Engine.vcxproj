@@ -194,6 +194,8 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="config\engineConfig.cpp" />
+    <ClCompile Include="source\Core\Parser.cpp" />
     <ClCompile Include="source\Graphics\PipelineManager.cpp" />
     <ClCompile Include="source\Editor\AssetBrowser.cpp" />
     <ClCompile Include="source\Editor\GameView.cpp" />
@@ -206,7 +208,6 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <ClCompile Include="source\Editor\EditorManager.cpp" />
     <ClCompile Include="source\GameCore\EngineComponentID.cpp" />
     <ClCompile Include="source\Graphics\GlobalBuffer.cpp" />
-    <ClCompile Include="source\Graphics\GraphicsSetting.cpp" />
     <ClCompile Include="source\Utility\EngineCreateAPI.cpp" />
     <ClCompile Include="source\Graphics\GPUCommand.cpp" />
     <ClCompile Include="source\Graphics\GpuBuffer.cpp" />
@@ -266,6 +267,7 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config\engineConfig.h" />
     <ClInclude Include="include\Core\LoadingStatus.h" />
     <ClInclude Include="include\Editor\AssetBrowser.h" />
     <ClInclude Include="include\Editor\BaseEditor.h" />
@@ -284,7 +286,6 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <ClInclude Include="include\Core\Events.h" />
     <ClInclude Include="include\Core\FrameCounter.h" />
     <ClInclude Include="include\Core\Routers.h" />
-    <ClInclude Include="include\Graphics\GraphicsSetting.h" />
     <ClInclude Include="include\Main\Engine.h" />
     <ClInclude Include="include\Core\Allocators.h" />
     <ClInclude Include="include\Audio\AudioEngine.h" />
@@ -323,6 +324,7 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <ClInclude Include="include\Editor\Inspector.h" />
     <ClInclude Include="include\Editor\SceneView.h" />
     <ClInclude Include="include\Graphics\PipelineManager.h" />
+    <ClInclude Include="include\Core\Parser.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli" />
