@@ -91,6 +91,34 @@ namespace Theatria::Utility
     public:
         FVector() = default;
 
+        // std::vector<T> からコピーして作るコンストラクタ
+        explicit FVector(const std::vector<T>& src)
+        {
+            fromVectorCopy(src);
+        }
+
+        // std::vector<T> からムーブして作るコンストラクタ
+        explicit FVector(std::vector<T>&& src)
+        {
+            fromVectorMove(std::move(src));
+        }
+
+        // std::vector<T> からの代入（コピー）
+        FVector& operator=(const std::vector<T>& src)
+        {
+            clear();
+            fromVectorCopy(src);
+            return *this;
+        }
+
+        // std::vector<T> からの代入（ムーブ）
+        FVector& operator=(std::vector<T>&& src)
+        {
+            clear();
+            fromVectorMove(std::move(src));
+            return *this;
+        }
+
         // 新しい要素を追加し、インデックスを返す
         size_t push_back(T&& value)
         {
@@ -261,6 +289,46 @@ namespace Theatria::Utility
             return const_iterator(this, nextIndex);
         }
 
+        void fromVectorCopy(const std::vector<T>& src)
+        {
+            data.clear();
+            validFlags.clear();
+            freeStack.clear();
+
+            data.reserve(src.size());
+            validFlags.reserve(src.size());
+
+            for (const auto& v : src)
+            {
+                data.emplace_back(v);     // std::optional<T>(v)
+                validFlags.push_back(1);  // 有効
+            }
+
+            nextIndex = src.size();
+            validCount = src.size();
+        }
+
+        void fromVectorMove(std::vector<T>&& src)
+        {
+            data.clear();
+            validFlags.clear();
+            freeStack.clear();
+
+            data.reserve(src.size());
+            validFlags.reserve(src.size());
+
+            for (auto& v : src)
+            {
+                data.emplace_back(std::move(v)); // 中身をムーブ
+                validFlags.push_back(1);
+            }
+
+            nextIndex = data.size();
+            validCount = data.size();
+
+            // src 側は使わないなら空にしておく（任意）
+            src.clear();
+        }
 
     private:
         std::vector<std::optional<T>> data;     // データ本体

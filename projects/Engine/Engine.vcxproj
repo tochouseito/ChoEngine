@@ -104,7 +104,8 @@
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
-xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
+xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y
+xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,7 +148,8 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
-xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
+xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y
+xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">
@@ -190,7 +192,8 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
-xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
+xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y
+xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -327,7 +330,28 @@ xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y</Command>
     <ClInclude Include="include\Core\Parser.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config\pipelines\computePipelines.ini" />
+    <None Include="config\pipelines\graphicsPipelines.ini" />
+    <None Include="config\pipelines\meshPipelines.ini" />
     <None Include="shader\Header.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shader\Basic.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shader\Basic.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -357,5 +357,12 @@
     <None Include="shader\Header.hlsli">
       <Filter>shader</Filter>
     </None>
+    <None Include="config\pipelines\graphicsPipelines.ini" />
+    <None Include="config\pipelines\computePipelines.ini" />
+    <None Include="config\pipelines\meshPipelines.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shader\Basic.VS.hlsl" />
+    <FxCompile Include="shader\Basic.PS.hlsl" />
   </ItemGroup>
 </Project>

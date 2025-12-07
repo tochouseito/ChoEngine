@@ -46,26 +46,74 @@ ID3D12ShaderReflection* Theatria::Graphics::ShaderCompiler::ReflectShader(IDxcBl
 ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::GetOrCompileShader(const ShaderCompileDesc& desc)
 {
     // 1. キー生成
-    auto lastWrite = std::filesystem::last_write_time(desc.filePath);
-    uint64_t key = HashShaderDesc(desc, lastWrite); // 実装は好きに
+    //auto lastWrite = std::filesystem::last_write_time(desc.filePath);
+    //uint64_t key = HashShaderDesc(desc, lastWrite); // 実装は好きに
 
-    std::wstringstream ss;
-    ss << std::hex << key;
-    std::filesystem::path cachePath = std::filesystem::path(Config::FilePath::ShaderCacheDirectory) / (ss.str() + L".dxil");
+    //std::wstringstream ss;
+    //ss << std::hex << key;
+    //std::filesystem::path cachePath = std::filesystem::path(Config::FilePath::ShaderCacheDirectory) / (ss.str() + L".dxil");
 
-    // 2. キャッシュファイルがあれば読み込んで終わり
-    if (std::filesystem::exists(cachePath))
-    {
-        return LoadBlobFromFile(cachePath);
-    }
+    //// 2. キャッシュファイルがあれば読み込んで終わり
+    //if (std::filesystem::exists(cachePath))
+    //{
+    //    return LoadBlobFromFile(cachePath);
+    //}
 
     // 3. 無ければコンパイルして保存
     ComPtr<IDxcBlob> blob = CompileShaderRaw(desc);
-    SaveBlobToFile(cachePath, blob.Get());
+    //SaveBlobToFile(cachePath, blob.Get());
     return blob;
 }
 
-inline std::string Theatria::Graphics::ShaderCompiler::SerializeShaderKey(const ShaderCompileDesc& desc, std::filesystem::file_time_type lastWrite)
+DXGI_FORMAT Theatria::Graphics::ShaderCompiler::GetDXGIFormat(D3D_REGISTER_COMPONENT_TYPE componentType, BYTE componentMask)
+{
+    // 成分数
+    UINT componentCount = 0;
+    if (componentMask & 0x1) ++componentCount; // x
+    if (componentMask & 0x2) ++componentCount; // y
+    if (componentMask & 0x4) ++componentCount; // z
+    if (componentMask & 0x8) ++componentCount; // w
+
+    if (componentCount == 0)
+        return DXGI_FORMAT_UNKNOWN;
+
+    switch (componentType)
+    {
+    case D3D_REGISTER_COMPONENT_UINT32:
+        switch (componentCount)
+        {
+        case 1: return DXGI_FORMAT_R32_UINT;
+        case 2: return DXGI_FORMAT_R32G32_UINT;
+        case 3: return DXGI_FORMAT_R32G32B32_UINT;
+        case 4: return DXGI_FORMAT_R32G32B32A32_UINT;
+        }
+        break;
+
+    case D3D_REGISTER_COMPONENT_SINT32:
+        switch (componentCount)
+        {
+        case 1: return DXGI_FORMAT_R32_SINT;
+        case 2: return DXGI_FORMAT_R32G32_SINT;
+        case 3: return DXGI_FORMAT_R32G32B32_SINT;
+        case 4: return DXGI_FORMAT_R32G32B32A32_SINT;
+        }
+        break;
+
+    case D3D_REGISTER_COMPONENT_FLOAT32:
+        switch (componentCount)
+        {
+        case 1: return DXGI_FORMAT_R32_FLOAT;
+        case 2: return DXGI_FORMAT_R32G32_FLOAT;
+        case 3: return DXGI_FORMAT_R32G32B32_FLOAT;
+        case 4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+        }
+        break;
+    }
+
+    return DXGI_FORMAT_UNKNOWN;
+}
+
+std::string Theatria::Graphics::ShaderCompiler::SerializeShaderKey(const ShaderCompileDesc& desc, std::filesystem::file_time_type lastWrite)
 {
     std::ostringstream oss;
     oss << Utility::ToUTF8(desc.filePath)
@@ -102,7 +150,7 @@ ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::CompileShaderRaw(const Shad
     sourceBuffer.Encoding = DXC_CP_UTF8;
     LPCWSTR arguments[] = {
         desc.filePath.c_str(),              //コンパイル対象のhlslファイル名
-        L"-E",L"main",                      // エントリーポイントの指定。基本的にmain以外にはしない
+        L"-E",desc.entryPoint.c_str(),                      // エントリーポイントの指定。基本的にmain以外にはしない
         L"-T",desc.profile.c_str(),         // ShaderProfileの設定
         L"-Zi",L"-Qembed_debug",            // デバッグ用の情報を埋め込む
         L"-Od",                             // 最適化を外しておく

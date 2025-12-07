@@ -223,9 +223,10 @@ namespace Theatria::Graphics
                 numElements, structureByteStride);
             // マッピング
             T* mappedData = nullptr;// 一時マップ用
-            size_t bufferSize = numElements;
             GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappedData));
-            m_MappedData = std::span<T>(mappedData, bufferSize);
+            m_MappedData = std::span<T>(mappedData, numElements);
+            // 0クリア
+            memset(mappedData, 0, sizeof(T) * numElements);
         }
         /// @brief マッピングデータ取得
         std::span<T>       GetMappedData() { return m_MappedData; }

@@ -37,7 +37,7 @@ std::vector<Graphics::GraphicsPipelineSettings> Theatria::Core::Parser::LoadGrap
     nlohmann::ordered_json j;
     file >> j;
 
-    if (j.contains("fileType") && j["fileType"] != "GraphicsPipeline_ini")
+    if (j.contains("fileType") && j["fileType"] != "GraphicsPipeline")
     {
         // ファイルタイプ違い
         Core::LogAssert::LogRuntime(

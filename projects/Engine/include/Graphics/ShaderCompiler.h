@@ -36,11 +36,17 @@ namespace Theatria::Graphics
         [[nodiscard]] bool Initialize();
         ID3D12ShaderReflection* ReflectShader(IDxcBlob* shaderBlob);
 
+        /// @brief キャッシュ込み
         ComPtr<IDxcBlob> GetOrCompileShader(const ShaderCompileDesc& desc);
+
+        /// @brief DXGIFormatの取得
+        DXGI_FORMAT GetDXGIFormat(D3D_REGISTER_COMPONENT_TYPE componentType, BYTE componentMask);
     private:
         std::string SerializeShaderKey(const ShaderCompileDesc& desc,
             std::filesystem::file_time_type lastWrite);
         uint64_t HashShaderDesc(const ShaderCompileDesc& desc, std::filesystem::file_time_type lastWrite);
+
+        /// @brief 生コンパイル
         ComPtr<IDxcBlob> CompileShaderRaw(const ShaderCompileDesc& desc);
         ComPtr<IDxcBlob> LoadBlobFromFile(const std::filesystem::path& path);
         void SaveBlobToFile(const std::filesystem::path& path, IDxcBlob* blob);
