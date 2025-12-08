@@ -178,6 +178,7 @@ void Theatria::Graphics::PipelineManager::CreateDefaultPipelines(ID3D12Device* d
             blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
             blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
             blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+            break;
         case BlendMode::Add:// out.rgb = src.rgb * src.a + dst.rgb
             blendDesc.RenderTarget[0].BlendEnable = true;
             blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;  // src * alpha
@@ -448,6 +449,7 @@ void Theatria::Graphics::PipelineManager::CreateGraphicsPipeline(ID3D12Device* d
             blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
             blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
             blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+            break;
         case BlendMode::Add:// out.rgb = src.rgb * src.a + dst.rgb
             blendDesc.RenderTarget[0].BlendEnable = true;
             blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;  // src * alpha
