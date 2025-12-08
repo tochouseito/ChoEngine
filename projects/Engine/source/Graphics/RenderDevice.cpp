@@ -544,7 +544,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
         backBuffer.rtvTableID = descAllocator->Allocate(DescriptorAllocator::TableKind::RenderTargets);
         descAllocator->CreateRTV(
             backBuffer.rtvTableID,
-            backBuffer.pResource->GetResource(),
+            backBuffer.pResource.get(),
             rtvDesc);
         m_SwapChainContext.m_BackBuffers.push_back(std::move(backBuffer));
     }

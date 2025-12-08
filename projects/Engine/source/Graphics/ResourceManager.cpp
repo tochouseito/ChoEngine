@@ -14,14 +14,37 @@ bool Theatria::Graphics::ResourceManager::Initialize(RenderDevice* device, Descr
 
 void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
 {
-    std::scoped_lock lock(m_ObjectBufferMutex, m_TransformBufferMutex, m_ModelInfoBufferMutex, m_DebugVPMutex);
+    std::scoped_lock lock(
+        m_GlobalObjectBuffer.mutex[0],
+        m_GlobalObjectBuffer.mutex[1],
+        m_GlobalObjectBuffer.mutex[2],
+        m_GlobalTransformBuffer.mutex[0],
+        m_GlobalTransformBuffer.mutex[1],
+        m_GlobalTransformBuffer.mutex[2],
+        m_GlobalModelInfoBuffer.mutex[0],
+        m_GlobalModelInfoBuffer.mutex[1],
+        m_GlobalModelInfoBuffer.mutex[2]
+    );
+#ifndef NDEBUG
+    std::lock_guard debuglock(m_DebugVPMutex);
+#endif // !NDEBUG
 
     for (uint32_t i = 0; i < Config::Graphics::BufferingCount; i++)
     {
-        m_ObjectBuffer[i].Create(m_pDevice->GetDevice(), 1024);
-        m_TransformBuffer[i].Create(m_pDevice->GetDevice(), 1024);
-        m_ModelInfoBuffer[i].Create(m_pDevice->GetDevice(), 256);
+        m_GlobalObjectBuffer.buffers[i].Create(m_pDevice->GetDevice(), 1024);
+        m_GlobalObjectBuffer.descriptorIDs[i] = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
+        m_pDescAllocator->CreateSRVBuffer(m_GlobalObjectBuffer.descriptorIDs[i], &m_GlobalObjectBuffer.buffers[i].GetBuffer());
+
+        m_GlobalTransformBuffer.buffers[i].Create(m_pDevice->GetDevice(), 1024);
+        m_GlobalTransformBuffer.descriptorIDs[i] = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
+        m_pDescAllocator->CreateSRVBuffer(m_GlobalTransformBuffer.descriptorIDs[i], &m_GlobalTransformBuffer.buffers[i].GetBuffer());
+
+        m_GlobalModelInfoBuffer.buffers[i].Create(m_pDevice->GetDevice(), 256);
+        m_GlobalModelInfoBuffer.descriptorIDs[i] = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
+        m_pDescAllocator->CreateSRVBuffer(m_GlobalModelInfoBuffer.descriptorIDs[i], &m_GlobalModelInfoBuffer.buffers[i].GetBuffer());
+#ifndef NDEBUG
         m_DebugVP[i].CreateBuffer(m_pDevice->GetDevice());
         m_DebugVP[i].CreateUploadBuffer(m_pDevice->GetDevice());
+#endif
     }
 }

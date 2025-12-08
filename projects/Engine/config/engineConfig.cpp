@@ -22,7 +22,7 @@ namespace Theatria::Config
         uint32_t ResolutionWidth = 1920;    ///< 解像度幅
         uint32_t ResolutionHeight = 1080;   ///< 解像度高さ
 
-        uint32_t BufferingCount = 2; ///< バッファリング数
+        uint32_t BufferingCount = 3; ///< バッファリング数
         uint32_t DisplayRefreshrate = 60;          ///< 最大FPS(モニターのリフレッシュレート)
 
         const float kClearColor[4] = { 0.1f,0.25f,0.5f,1.0f }; ///< クリアカラー

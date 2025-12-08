@@ -38,6 +38,8 @@ namespace Theatria::Graphics
             m_FreeList.push_back(index);
         }
 
+        StructuredBuffer<T>& GetBuffer() noexcept { return m_Buffer; }
+
     private:
         StructuredBuffer<T> m_Buffer;
         size_t m_Size{};

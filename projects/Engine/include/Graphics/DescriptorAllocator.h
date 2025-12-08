@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d12.h>
 #include <wrl.h>
+#include "include/Graphics/GpuBuffer.h"
 
 #include <cstdint>
 #include <array>
@@ -50,11 +51,12 @@ namespace Theatria::Graphics
         TableID Allocate(TableKind k);
         void    Free(const TableID& id);
 
-        void CreateSRVTexture2D(TableID& id, ID3D12Resource* res, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
-        void CreateSRVBuffer(TableID& id, ID3D12Resource* res, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
-        void CreateUAVBuffer(TableID& id, ID3D12Resource* res, const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc);
+        void CreateCBV(TableID& id, GpuBuffer* buf);  
+        void CreateSRVTexture2D(TableID& id, GpuBuffer* buf, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
+        void CreateSRVBuffer(TableID& id, GpuBuffer* buf);
+        void CreateUAVBuffer(TableID& id, GpuBuffer* buf);
 
-        void CreateRTV(TableID& id, ID3D12Resource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc);
+        void CreateRTV(TableID& id, GpuResource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc);
 
         /// @brief テーブルベースアドレス取得
         D3D12_GPU_DESCRIPTOR_HANDLE GetTableBaseGPU(TableKind k);

@@ -243,12 +243,17 @@ namespace Theatria::Graphics
         std::mutex m_TextureBufferMutex;
 
         /*=============== グローバルバッファ ===============*/
-        std::array<GlobalBuffer<ShaderStruct::SObject>, Config::Graphics::kMaxBufferingCount> m_ObjectBuffer;
-        std::mutex m_ObjectBufferMutex;
-        std::array < GlobalBuffer<ShaderStruct::STransform>, Config::Graphics::kMaxBufferingCount> m_TransformBuffer;
-        std::mutex m_TransformBufferMutex;
-        std::array < GlobalBuffer<ShaderStruct::SModelInfo>, Config::Graphics::kMaxBufferingCount> m_ModelInfoBuffer;
-        std::mutex m_ModelInfoBufferMutex;
+        template<typename T>
+        struct GlobalBuffers
+        {
+            std::array<GlobalBuffer<T>, Config::Graphics::kMaxBufferingCount> buffers;
+            std::array<std::mutex, Config::Graphics::kMaxBufferingCount> mutex;
+            std::array<DescriptorAllocator::TableID, Config::Graphics::kMaxBufferingCount> descriptorIDs;
+        };
+
+        GlobalBuffers<ShaderStruct::SObject> m_GlobalObjectBuffer;
+        GlobalBuffers<ShaderStruct::STransform> m_GlobalTransformBuffer;
+        GlobalBuffers<ShaderStruct::SModelInfo> m_GlobalModelInfoBuffer;
 
 #ifndef NDEBUG
         std::array<ConstantBuffer<ShaderStruct::SViewProjection>, Config::Graphics::kMaxBufferingCount> m_DebugVP;

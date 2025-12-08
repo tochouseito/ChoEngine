@@ -111,27 +111,53 @@ void Theatria::Graphics::DescriptorAllocator::Free(const TableID& id)
     // 任意：ヌルSRV/UAVを書いておくと安全
 }
 
-void Theatria::Graphics::DescriptorAllocator::CreateSRVTexture2D(TableID& id, ID3D12Resource* res, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
+void Theatria::Graphics::DescriptorAllocator::CreateCBV(TableID& id, GpuBuffer* buf)
 {
+    D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
+    desc.BufferLocation = buf->GetResource()->GetGPUVirtualAddress();
+    desc.SizeInBytes = (static_cast<UINT>(buf->GetBufferSize()) + 255) & ~255; // 256バイトアライメント
     auto cpuH = GetCPUHandle(id);
-    m_pRenderDevice->m_Device->CreateShaderResourceView(res, &desc, cpuH);
+    m_pRenderDevice->m_Device->CreateConstantBufferView(&desc, cpuH);
 }
 
-void Theatria::Graphics::DescriptorAllocator::CreateSRVBuffer(TableID& id, ID3D12Resource* res, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
+void Theatria::Graphics::DescriptorAllocator::CreateSRVTexture2D(TableID& id, GpuBuffer* buf, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
 {
     auto cpuH = GetCPUHandle(id);
-    m_pRenderDevice->m_Device->CreateShaderResourceView(res, &desc, cpuH);
+    m_pRenderDevice->m_Device->CreateShaderResourceView(buf->GetResource(), &desc, cpuH);
 }
 
-void Theatria::Graphics::DescriptorAllocator::CreateUAVBuffer(TableID& id, ID3D12Resource* res, const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc)
+void Theatria::Graphics::DescriptorAllocator::CreateSRVBuffer(TableID& id, GpuBuffer* buf)
 {
+    // SRVの設定
+    D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
+    desc.Format = DXGI_FORMAT_UNKNOWN;
+    desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+    desc.Buffer.FirstElement = 0;
+    desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+    desc.Buffer.NumElements = buf->GetNumElements();
+    desc.Buffer.StructureByteStride = buf->GetStructureByteStride();
     auto cpuH = GetCPUHandle(id);
-    m_pRenderDevice->m_Device->CreateUnorderedAccessView(res, nullptr, &desc, cpuH);
+    m_pRenderDevice->m_Device->CreateShaderResourceView(buf->GetResource(), &desc, cpuH);
 }
 
-void Theatria::Graphics::DescriptorAllocator::CreateRTV(TableID& id, ID3D12Resource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc)
+void Theatria::Graphics::DescriptorAllocator::CreateUAVBuffer(TableID& id, GpuBuffer* buf)
 {
-    m_pRenderDevice->m_Device->CreateRenderTargetView(res, &desc, GetCPUHandle(id));
+    // UAVの設定
+    D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+    desc.Format = DXGI_FORMAT_UNKNOWN;
+    desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+    desc.Buffer.FirstElement = 0;
+    desc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+    desc.Buffer.NumElements = buf->GetNumElements();
+    desc.Buffer.StructureByteStride = buf->GetStructureByteStride();
+    auto cpuH = GetCPUHandle(id);
+    m_pRenderDevice->m_Device->CreateUnorderedAccessView(buf->GetResource(), nullptr, &desc, cpuH);
+}
+
+void Theatria::Graphics::DescriptorAllocator::CreateRTV(TableID& id, GpuResource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc)
+{
+    m_pRenderDevice->m_Device->CreateRenderTargetView(res->GetResource(), &desc, GetCPUHandle(id));
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetTableBaseGPU(TableKind k) 
