@@ -72,7 +72,7 @@ std::vector<Graphics::GraphicsPipelineSettings> Theatria::Core::Parser::LoadGrap
         pipeline.gs = pipeline_ini.value("gs", "");
         pipeline.hs = pipeline_ini.value("hs", "");
         pipeline.ds = pipeline_ini.value("ds", "");
-        pipelines.push_back(pipeline);
+        pipelines.push_back(std::move(pipeline));
     }
 
     return pipelines;

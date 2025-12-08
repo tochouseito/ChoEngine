@@ -131,8 +131,8 @@ namespace Theatria::Graphics
             m_StructureByteStride = {};
         }
         //virtual byte_span GetRawSpan() const noexcept = 0;
-        virtual std::type_index GetElementType() const noexcept = 0;
-        virtual std::type_index GetBufferType() const noexcept = 0;
+        virtual std::type_index GetElementType() const noexcept { return typeid(void); }
+        virtual std::type_index GetBufferType() const noexcept { return typeid(GpuBuffer); }
         //virtual size_t GetElementCount() const noexcept = 0;
         //virtual size_t GetElementSize() const noexcept = 0;
     protected:

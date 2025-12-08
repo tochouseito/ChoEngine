@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 #include "include/Graphics/GpuBuffer.h"
+#include "include/Graphics/GlobalBuffer.h"
+#include "include/Graphics/ShaderStruct.h"
 #include "include/Graphics/RenderDevice.h"
 #include "config/engineConfig.h"
 #include "include/Utility/atomic_shared_ptr.h"
@@ -31,6 +33,8 @@ namespace Theatria::Graphics
         bool Initialize(RenderDevice* device, DescriptorAllocator* descAllocator);
 
         /*=============== CreateResources ===============*/
+        void CreateGlobalBuffers();
+
         template<typename T>
         [[nodiscard]]
         uint32_t CreateConstantBuffer()
@@ -237,5 +241,19 @@ namespace Theatria::Graphics
         /*=============== テクスチャバッファ群 ===============*/
         FVector<atomic_shared_ptr<TextureBuffer>> m_TextureBuffers;
         std::mutex m_TextureBufferMutex;
+
+        /*=============== グローバルバッファ ===============*/
+        std::array<GlobalBuffer<ShaderStruct::SObject>, Config::Graphics::kMaxBufferingCount> m_ObjectBuffer;
+        std::mutex m_ObjectBufferMutex;
+        std::array < GlobalBuffer<ShaderStruct::STransform>, Config::Graphics::kMaxBufferingCount> m_TransformBuffer;
+        std::mutex m_TransformBufferMutex;
+        std::array < GlobalBuffer<ShaderStruct::SModelInfo>, Config::Graphics::kMaxBufferingCount> m_ModelInfoBuffer;
+        std::mutex m_ModelInfoBufferMutex;
+
+#ifndef NDEBUG
+        std::array<ConstantBuffer<ShaderStruct::SViewProjection>, Config::Graphics::kMaxBufferingCount> m_DebugVP;
+        std::mutex m_DebugVPMutex;
+#endif // !NDEBUG
+
     };
 };

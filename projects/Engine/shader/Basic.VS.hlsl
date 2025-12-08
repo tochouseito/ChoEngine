@@ -1,4 +1,9 @@
-float4 main( float4 pos : POSITION ) : SV_POSITION
-{
-	return pos;
-}
+#include "Basic.hlsli"
+
+// BindResources
+
+// ViewProjection
+ConstantBuffer<ViewProjection> gVP : register(b0, space0);
+// Transform
+StructuredBuffer<Transform> gTransforms : register(t0, space0);
+// 

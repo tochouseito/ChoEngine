@@ -3,6 +3,7 @@
 #include <string>
 #include <d3d12.h>
 #include <dxgiformat.h>
+
 namespace Theatria::Config
 {
     extern const std::string version;

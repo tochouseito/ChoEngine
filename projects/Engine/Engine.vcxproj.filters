@@ -204,6 +204,7 @@
     <ClCompile Include="source\Graphics\PipelineManager.cpp" />
     <ClCompile Include="source\Core\Parser.cpp" />
     <ClCompile Include="config\engineConfig.cpp" />
+    <ClCompile Include="source\Editor\DebugCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\Allocators.h">
@@ -352,6 +353,8 @@
     <ClInclude Include="include\Core\LoadingStatus.h" />
     <ClInclude Include="include\Core\Parser.h" />
     <ClInclude Include="config\engineConfig.h" />
+    <ClInclude Include="include\Graphics\ShaderStruct.h" />
+    <ClInclude Include="include\Editor\DebugCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli">
@@ -360,6 +363,8 @@
     <None Include="config\pipelines\graphicsPipelines.ini" />
     <None Include="config\pipelines\computePipelines.ini" />
     <None Include="config\pipelines\meshPipelines.ini" />
+    <None Include="shader\Basic.hlsli" />
+    <None Include="shader\Object.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\Basic.VS.hlsl" />
