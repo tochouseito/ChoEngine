@@ -17,7 +17,7 @@ namespace Theatria::Graphics::ShaderStruct
     {
         uint32_t id;
         uint32_t visible;
-        uint32_t modelId;
+        uint32_t meshId;
         uint32_t transformId;
     };
 
@@ -32,7 +32,7 @@ namespace Theatria::Graphics::ShaderStruct
         float4x4 projection;
     };
 
-    struct SModelInfo
+    struct SMeshInfo
     {
         uint32_t indexOffset;
         uint32_t indexCount;

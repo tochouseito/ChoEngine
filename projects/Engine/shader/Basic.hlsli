@@ -4,7 +4,7 @@ struct Object
 {
     uint id;
     uint visible;
-    uint modelId;
+    uint meshId;
     uint transformId;
 };
 
@@ -19,7 +19,7 @@ struct ViewProjection
     float4x4 projection;
 };
 
-struct ModelInfo
+struct MeshInfo
 {
     uint indexOffset;
     uint indexCount;

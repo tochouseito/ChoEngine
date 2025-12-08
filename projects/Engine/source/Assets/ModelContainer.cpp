@@ -119,6 +119,12 @@ void Theatria::Assets::ModelContainer::CreateCube(Graphics::ResourceManager& rm)
     // Bufferの作成
     meshData.vertexResourceID = rm.CreateVertexBuffer(vertices, meshData.vertices);
     meshData.indexResourceID = rm.CreateIndexBuffer(indices, meshData.indices);
+    // meshInfoに先頭オフセットを設定
+    meshData.meshInfo.baseVertex = m_NextBaseVertexOffset;// 統合VB内の先頭オフセットを設定
+    m_NextBaseVertexOffset += vertices;// 次のオフセットを進める
+    meshData.meshInfo.indexOffset = m_NextBaseIndexOffset;// 統合IB内の先頭オフセットを設定
+    m_NextBaseIndexOffset += indices;// 次のオフセットを進める
+    meshData.meshInfo.indexCount = indices;// インデックス数を設定
     // メッシュ追加
     modelData.meshes.push_back(meshData);
     // コンテナに追加

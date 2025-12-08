@@ -2,7 +2,7 @@ struct Object
 {
     uint id;
     uint visible;
-    uint modelId;
+    uint meshId;
     uint transformId;
 };
 
@@ -11,7 +11,7 @@ struct Transform
     float4x4 worldMatrix;
 };
 
-struct ModelData
+struct MeshData
 {
     uint indexOffset;
     uint indexCount;
@@ -36,7 +36,7 @@ struct IndirectCommand
 // SRV
 StructuredBuffer<Object> g_Objects : register(t0);
 StructuredBuffer<Transform> g_Transforms : register(t1);
-StructuredBuffer<ModelData> g_Models : register(t2);
+StructuredBuffer<MeshData> g_Meshes : register(t2);
 
 // UAV
 RWStructuredBuffer<IndirectCommand> g_IndirectCommands : register(u0);
@@ -58,7 +58,7 @@ void CSMain(uint3 dtid : SV_DispatchThreadID)
     if (obj.visible == 0)
         return;
 
-    ModelData model = g_Models[obj.modelId];
+    MeshData model = g_Meshes[obj.meshId];
 
     // g_CommandCount[0] を原子的にインクリメント
     uint dstIndex;

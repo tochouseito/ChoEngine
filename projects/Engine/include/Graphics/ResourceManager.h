@@ -246,10 +246,12 @@ namespace Theatria::Graphics
         std::mutex m_MultiBufferMutex;
 
         /*=============== 頂点、インデックスバッファ ===============*/
-        FVector<VertexBuffer<Assets::VertexData>> m_VertexBuffers;
+        /*FVector<VertexBuffer<Assets::VertexData>> m_VertexBuffers;
         std::mutex m_VertexBufferMutex;
         FVector<IndexBuffer<uint32_t>> m_IndexBuffers;
-        std::mutex m_IndexBufferMutex;
+        std::mutex m_IndexBufferMutex;*/
+        /*=============== 統合頂点、インデックスバッファ ===============*/
+        
 
         /*=============== テクスチャバッファ群 ===============*/
         FVector<atomic_shared_ptr<TextureBuffer>> m_TextureBuffers;
@@ -258,7 +260,7 @@ namespace Theatria::Graphics
         /*=============== グローバルバッファ ===============*/
         GlobalBuffer<ShaderStruct::SObject> m_GlobalObjectBuffer;
         GlobalBuffer<ShaderStruct::STransform> m_GlobalTransformBuffer;
-        GlobalBuffer<ShaderStruct::SModelInfo> m_GlobalModelInfoBuffer;
+        GlobalBuffer<ShaderStruct::SMeshInfo> m_GlobalModelInfoBuffer;
 
         RWStructuredBuffer<uint32_t> m_IndirectCommandCountBuffer;
         DescriptorAllocator::TableID m_IndirectCommandCountBufferDescriptorIDs;

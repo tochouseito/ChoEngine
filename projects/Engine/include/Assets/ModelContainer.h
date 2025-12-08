@@ -1,8 +1,11 @@
 #pragma once
 
+// C++ Standard Library
 #include <vector>
 #include <string>
 #include <unordered_map>
+// Theatria Engine Includes
+#include "include/Graphics/ShaderStruct.h"
 // Theatria Math Library
 #include <ChoMath/include/Vector2.h>
 #include <ChoMath/include/Vector3.h>
@@ -31,8 +34,8 @@ namespace Theatria
             std::wstring name = L"";
             std::vector<VertexData> vertices;
             std::vector<uint32_t> indices;
-            uint32_t vertexResourceID = UINT32_MAX;
-            uint32_t indexResourceID = UINT32_MAX;
+
+            Graphics::ShaderStruct::SMeshInfo meshInfo = {};
         };
 
         struct ModelData
@@ -60,6 +63,8 @@ namespace Theatria
             std::vector<ModelData> m_Models;
             std::vector<uint32_t> m_FreeList;
             std::unordered_map<std::wstring, uint32_t> m_ModelNameToIndex;
+            uint64_t m_NextBaseVertexOffset = 0;
+            uint64_t m_NextBaseIndexOffset = 0;
         };
     }
 }
