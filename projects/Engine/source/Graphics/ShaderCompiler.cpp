@@ -189,7 +189,7 @@ ComPtr<IDxcBlob> Theatria::Graphics::ShaderCompiler::CompileShaderRaw(const Shad
     hr = pResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), &pErrorsUtf16);
     if (pErrors != nullptr && pErrors->GetStringLength() != 0)
     {
-        Core::LogAssert::LogRuntime(std::source_location::current(), Core::LogAssert::SinkKind::Console,
+        Core::LogAssert::LogRuntime(std::source_location::current(), Core::LogAssert::SinkKind::VSOutput,
             Core::LogAssert::LogLevel::Error,
             "ShaderCompiler", pErrors->GetStringPointer());
         Core::LogAssert::Check(false, "ShaderCompiler", "DXC Compile Error!!");

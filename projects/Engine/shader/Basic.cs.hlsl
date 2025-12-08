@@ -48,7 +48,7 @@ cbuffer DispatchParam : register(b0)
 };
 
 [numthreads(64, 1, 1)]
-void CSBuildIndirect(uint3 dtid : SV_DispatchThreadID)
+void CSMain(uint3 dtid : SV_DispatchThreadID)
 {
     uint objIndex = dtid.x;
     if (objIndex >= g_ObjectCount)
