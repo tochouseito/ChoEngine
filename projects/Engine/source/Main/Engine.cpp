@@ -34,6 +34,7 @@
 #include "include/GameCore/GameWorld.h"
 #include "include/Assets/IDManager.h"
 #include "include/Assets/Loader.h"
+#include "include/Assets/ModelContainer.h"
 #include "include/Scripting/ScriptAPI.h"
 
 // === EventCommands ===
@@ -88,6 +89,8 @@ public:
         m_pECSManager =             std::make_unique<GameCore::ECSManager>();
         m_pGameWorld =              std::make_unique<GameCore::GameWorld>();
         m_pSceneManager =           std::make_unique<GameCore::SceneManager>();
+        /*======================== Assets ========================*/
+        m_pModelContainer =         std::make_unique<Assets::ModelContainer>();
 #ifndef NDEBUG
         /*======================== Editor ========================*/
         m_pImGuiManager =           std::make_unique<Editor::ImGuiManager>();
@@ -133,6 +136,8 @@ private:
     std::unique_ptr<GameCore::ECSManager>           m_pECSManager;           ///< ECSマネージャ
     std::unique_ptr<GameCore::GameWorld>            m_pGameWorld;            ///< ゲームワールド
     std::unique_ptr<GameCore::SceneManager>         m_pSceneManager;         ///< シーンマネージャ
+    /*======================== Assets ========================*/
+    std::unique_ptr<Assets::ModelContainer>        m_pModelContainer;       ///< モデルコンテナ
 #ifndef NDEBUG
     /*======================== Editor ========================*/
     std::unique_ptr<Editor::ImGuiManager>           m_pImGuiManager;         ///< ImGuiマネージャ
@@ -294,7 +299,7 @@ bool Theatria::Engine::Initialize()
         return false;
     }
     // リソースマネージャ初期化
-    if (!m_pImpl->m_pResourceManager->Initialize(m_pImpl->m_pRenderDevice.get(), m_pImpl->m_pDescriptorAllocator.get()))
+    if (!m_pImpl->m_pResourceManager->Initialize(m_pImpl->m_pRenderDevice.get(), m_pImpl->m_pDescriptorAllocator.get(), m_pImpl->m_pRenderer.get()))
     {
         Core::LogAssert::Verify(false, "ResourceManager Initialize", "ResourceManager initialization failed");
         return false;
@@ -342,6 +347,9 @@ bool Theatria::Engine::Initialize()
     // デフォルトパス作成
     m_pImpl->m_pFrameGraph->CreateDefaultPasses();
     m_pImpl->m_pFrameGraph->Compile(*m_pImpl->m_pResourceManager.get());
+
+    // デフォルトモデル生成
+    m_pImpl->m_pModelContainer->CreateDefaultModels(*m_pImpl->m_pResourceManager.get());
 
     // 更新、描画用フレームジョブの作成
     m_pImpl->updateJob.Start(

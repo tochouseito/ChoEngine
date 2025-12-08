@@ -4,6 +4,7 @@
 #include "include/Graphics/GlobalBuffer.h"
 #include "include/Graphics/ShaderStruct.h"
 #include "include/Graphics/RenderDevice.h"
+#include "include/Assets/ModelContainer.h"
 #include "config/engineConfig.h"
 #include "include/Utility/atomic_shared_ptr.h"
 #include "include/Utility/FVector.h"
@@ -13,6 +14,7 @@ namespace Theatria::Graphics
 {
     class RenderDevice;
     class DescriptorAllocator;
+    class Renderer;
 
     template <typename T>
     using FVector = Theatria::Utility::FVector<T>;
@@ -32,7 +34,7 @@ namespace Theatria::Graphics
         /// @param descAllocator 
         /// @return 
         [[nodiscard]]
-        bool Initialize(RenderDevice* device, DescriptorAllocator* descAllocator);
+        bool Initialize(RenderDevice* device, DescriptorAllocator* descAllocator, Renderer* renderer);
 
         /*=============== CreateResources ===============*/
         void CreateGlobalBuffers();
@@ -73,24 +75,10 @@ namespace Theatria::Graphics
             uint32_t idx = static_cast<uint32_t>(m_SingleBuffers.emplace_back(buffer));
             return idx;
         }
-        template<typename T>
         [[nodiscard]]
-        uint32_t CreateVertexBuffer(uint32_t numElements)
-        {
-            auto buffer = std::make_shared<VertexBuffer<T>>();
-            buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
-            uint32_t idx = static_cast<uint32_t>(m_SingleBuffers.emplace_back(buffer));
-            return idx;
-        }
-        template<typename T>
+        uint32_t CreateVertexBuffer(uint32_t numVertices, const std::vector<Assets::VertexData>& vec);
         [[nodiscard]]
-        uint32_t CreateIndexBuffer(uint32_t numElements)
-        {
-            auto buffer = std::make_shared<IndexBuffer<T>>();
-            buffer->CreateBuffer(m_pDevice->GetDevice(), numElements);
-            uint32_t idx = static_cast<uint32_t>(m_SingleBuffers.emplace_back(buffer));
-            return idx;
-        }
+        uint32_t CreateIndexBuffer(uint32_t numIndices, const std::vector<uint32_t>& vec);
         /*=============== TextureBuffer ===============*/
         [[nodiscard]]
         uint32_t CreateTextureBuffer(D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES& state)
@@ -247,6 +235,7 @@ namespace Theatria::Graphics
     private:
         RenderDevice* m_pDevice = nullptr; ///< レンダーデバイス
         DescriptorAllocator* m_pDescAllocator = nullptr; ///< ディスクリプタヒープアロケータ
+        Renderer* m_pRenderer = nullptr; ///< レンダラー
 
         /*=============== シングルバッファ群 ===============*/
         FVector<atomic_shared_ptr<GpuBuffer>> m_SingleBuffers;
@@ -255,6 +244,12 @@ namespace Theatria::Graphics
         /*=============== マルチバッファ群 ===============*/
         FVector<std::array<atomic_shared_ptr<GpuBuffer>, Config::Graphics::kMaxBufferingCount>> m_MultiBuffers;
         std::mutex m_MultiBufferMutex;
+
+        /*=============== 頂点、インデックスバッファ ===============*/
+        FVector<VertexBuffer<Assets::VertexData>> m_VertexBuffers;
+        std::mutex m_VertexBufferMutex;
+        FVector<IndexBuffer<uint32_t>> m_IndexBuffers;
+        std::mutex m_IndexBufferMutex;
 
         /*=============== テクスチャバッファ群 ===============*/
         FVector<atomic_shared_ptr<TextureBuffer>> m_TextureBuffers;

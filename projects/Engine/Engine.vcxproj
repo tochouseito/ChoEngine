@@ -201,6 +201,7 @@ xcopy "$(ProjectDir)shader" "$(TargetDir)shader" /E /I /Y</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="config\engineConfig.cpp" />
+    <ClCompile Include="source\Assets\ModelContainer.cpp" />
     <ClCompile Include="source\Editor\DebugCamera.cpp" />
     <ClCompile Include="source\Core\Parser.cpp" />
     <ClCompile Include="source\Graphics\PipelineManager.cpp" />
@@ -334,6 +335,8 @@ xcopy "$(ProjectDir)shader" "$(TargetDir)shader" /E /I /Y</Command>
     <ClInclude Include="include\Editor\SceneView.h" />
     <ClInclude Include="include\Graphics\PipelineManager.h" />
     <ClInclude Include="include\Core\Parser.h" />
+    <ClInclude Include="include\Assets\ModelContainer.h" />
+    <ClInclude Include="include\Utility\UniqueGenerate.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\pipelines\computePipelines.ini" />

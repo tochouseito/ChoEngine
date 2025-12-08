@@ -205,6 +205,7 @@
     <ClCompile Include="source\Core\Parser.cpp" />
     <ClCompile Include="config\engineConfig.cpp" />
     <ClCompile Include="source\Editor\DebugCamera.cpp" />
+    <ClCompile Include="source\Assets\ModelContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\Allocators.h">
@@ -355,6 +356,8 @@
     <ClInclude Include="config\engineConfig.h" />
     <ClInclude Include="include\Graphics\ShaderStruct.h" />
     <ClInclude Include="include\Editor\DebugCamera.h" />
+    <ClInclude Include="include\Assets\ModelContainer.h" />
+    <ClInclude Include="include\Utility\UniqueGenerate.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\Header.hlsli">
