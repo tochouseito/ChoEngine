@@ -9,7 +9,25 @@ using namespace Theatria::Graphics;
 
 void Theatria::Graphics::FrameGraph::CreateDefaultPasses()
 {
-    
+    //AddPass("CreateIndirectCommandPass", FGQueue::Compute,
+    //    [&](PassBuilder& builder)
+    //    {
+    //        // セットアップ
+    //    },
+    //    [&](PassContext& passCtx, CommandContext& cmdCtx)
+    //    {
+    //        // パス実行
+    //    });
+
+    //AddPass("BasicForwardPass", FGQueue::Graphics,
+    //    [&](PassBuilder& builder)
+    //    {
+    //        // パスセットアップ（リソース宣言など）
+    //    },
+    //    [&](PassContext& passCtx, CommandContext& cmdCtx)
+    //    {
+    //        // パス実行内容
+    //    });
 }
 
 /// @brief パスの追加(任意のキュー指定版)
@@ -227,6 +245,7 @@ void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
     // 5) 物理リソース割当（まずは1:1）
     for (auto& vr : m_VResources)
     {
+        if (vr.desc.existsGlobalBufferType.has_value()) { continue; }
         // 寿命情報: vr.firstPass ～ vr.lastPass
         // 今は使わないが、将来エイリアシングに使う。
         switch (vr.desc.usage)
@@ -257,7 +276,7 @@ void Theatria::Graphics::FrameGraph::Compile(ResourceManager& rm)
     }
 }
 
-void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager& rm)
+void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager& rm, PipelineManager& pm)
 {
     // キューごとに1本ずつ。実際に使われなければ nullptr のまま。
     GraphicsCommandContext* gCmd = nullptr;
@@ -266,7 +285,7 @@ void Theatria::Graphics::FrameGraph::Execute(Renderer& renderer, ResourceManager
     for (uint32_t pid : m_SortedPasses)
     {
         auto& pass = m_Passes[pid];
-        PassContext pctx(*this, rm, pid);
+        PassContext pctx(*this, rm, pm, pid);
 
         switch (pass.queue)
         {

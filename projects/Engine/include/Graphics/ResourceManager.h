@@ -21,6 +21,8 @@ namespace Theatria::Graphics
 
     class ResourceManager final
     {
+        friend class FrameGraph;
+        friend class Renderer;
     public:
         ResourceManager() = default;
         ~ResourceManager() = default;
@@ -226,6 +228,22 @@ namespace Theatria::Graphics
                 return {};
             }
         }*/
+
+        GpuBuffer& GetGlobalBuffer(GlobalBufferType type, uint32_t frameIndex) noexcept
+        {
+            switch (type)
+            {
+            case GlobalBufferType::ObjectBuffer:
+                return m_GlobalObjectBuffer.GetGpuBuffer(frameIndex);
+            case GlobalBufferType::TransformBuffer:
+                return m_GlobalTransformBuffer.GetGpuBuffer(frameIndex);
+            case GlobalBufferType::ModelInfoBuffer:
+                return m_GlobalModelInfoBuffer.GetGpuBuffer(frameIndex);
+            default:
+                Core::LogAssert::Check(false, "ResourceManager", "GetGlobalBuffer: Unsupported GlobalBufferType");
+                return m_GlobalObjectBuffer.GetGpuBuffer(frameIndex);
+            }
+        }
     private:
         RenderDevice* m_pDevice = nullptr; ///< レンダーデバイス
         DescriptorAllocator* m_pDescAllocator = nullptr; ///< ディスクリプタヒープアロケータ
@@ -243,23 +261,17 @@ namespace Theatria::Graphics
         std::mutex m_TextureBufferMutex;
 
         /*=============== グローバルバッファ ===============*/
-        template<typename T>
-        struct GlobalBuffers
-        {
-            std::array<GlobalBuffer<T>, Config::Graphics::kMaxBufferingCount> buffers;
-            std::array<std::mutex, Config::Graphics::kMaxBufferingCount> mutex;
-            std::array<DescriptorAllocator::TableID, Config::Graphics::kMaxBufferingCount> descriptorIDs;
-        };
+        GlobalBuffer<ShaderStruct::SObject> m_GlobalObjectBuffer;
+        GlobalBuffer<ShaderStruct::STransform> m_GlobalTransformBuffer;
+        GlobalBuffer<ShaderStruct::SModelInfo> m_GlobalModelInfoBuffer;
 
-        GlobalBuffers<ShaderStruct::SObject> m_GlobalObjectBuffer;
-        GlobalBuffers<ShaderStruct::STransform> m_GlobalTransformBuffer;
-        GlobalBuffers<ShaderStruct::SModelInfo> m_GlobalModelInfoBuffer;
-        std::array<RWStructuredBuffer<uint32_t>, Config::Graphics::kMaxBufferingCount> m_IndirectCommandCountBuffer;
-        std::array<DescriptorAllocator::TableID, Config::Graphics::kMaxBufferingCount> m_IndirectCommandCountBufferDescriptorIDs;
-        std::array<std::mutex, Config::Graphics::kMaxBufferingCount> m_IndirectCommandCountBufferMutex;
+        RWStructuredBuffer<uint32_t> m_IndirectCommandCountBuffer;
+        DescriptorAllocator::TableID m_IndirectCommandCountBufferDescriptorIDs;
+        std::mutex m_IndirectCommandCountBufferMutex;
 
 #ifndef NDEBUG
         std::array<ConstantBuffer<ShaderStruct::SViewProjection>, Config::Graphics::kMaxBufferingCount> m_DebugVP;
+        UploadBuffer<ShaderStruct::SViewProjection> m_DebugVPUploadBuffer;
         std::mutex m_DebugVPMutex;
 #endif // !NDEBUG
 

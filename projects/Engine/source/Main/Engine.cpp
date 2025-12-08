@@ -387,5 +387,5 @@ void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
 
 void Theatria::Engine::Render([[maybe_unused]] uint32_t frameIdx)
 {
-    // m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get());
+    m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get(), *m_pImpl->m_pPipelineManager.get());
 }

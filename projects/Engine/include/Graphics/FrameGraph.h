@@ -7,13 +7,16 @@
 #include <string_view>
 #include <functional>
 #include <vector>
+#include <optional>
 #include <unordered_map>
 
 #include "include/Graphics/GPUCommand.h"
+#include "include/Graphics/GlobalBuffer.h"
 
 namespace Theatria::Graphics
 {
     class ResourceManager;
+    class PipelineManager;
     class Renderer;
     class FrameGraph;
     class PassBuilder;
@@ -74,6 +77,7 @@ namespace Theatria::Graphics
         uint32_t height = 0;
         DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
         FGUsage usage = FGUsage::Texture;
+        std::optional<GlobalBufferType> existsGlobalBufferType = std::nullopt;
     };
 
     FGState DecideState(const ResourceDesc& desc, FGAccess access);
@@ -173,8 +177,9 @@ namespace Theatria::Graphics
     public:
         PassContext(FrameGraph& fg,
             ResourceManager& rm,
+            PipelineManager& pm,
             uint32_t passIndex)
-            : m_FrameGraph(fg), m_ResourceManager(rm), m_PassIndex(passIndex)
+            : m_FrameGraph(fg), m_ResourceManager(rm), m_PipelineManager(pm), m_PassIndex(passIndex)
         {
         }
 
@@ -205,6 +210,7 @@ namespace Theatria::Graphics
     private:
         FrameGraph& m_FrameGraph;
         ResourceManager& m_ResourceManager;
+        PipelineManager& m_PipelineManager;
         uint32_t         m_PassIndex;
     };
 
@@ -222,7 +228,7 @@ namespace Theatria::Graphics
         /// @brief バリア、順序付け
         void Compile(ResourceManager& rm);
         /// @brief PassExecuteの実行
-        void Execute(Renderer& renderer, ResourceManager& rm);
+        void Execute(Renderer& renderer, ResourceManager& rm, PipelineManager& pm);
         /// @brief クリア
         void Clear()
         {
