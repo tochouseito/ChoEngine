@@ -7,12 +7,15 @@
 #include <array>
 #include "include/Utility/FVector.h"
 #include "include/Graphics/GpuBuffer.h"
+#include "include/Graphics/DescriptorAllocator.h"
 
 namespace Theatria::Graphics
 {
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+    class ResourceManager;
+    class DescriptorAllocator;
     class ShaderCompiler;
 
     struct NumThreads
@@ -50,7 +53,7 @@ namespace Theatria::Graphics
         kCount ///< BlendModeの数
     };
 
-    struct Pipeline
+    struct GraphicsPipelineSettings
     {
         std::string name = "";///< Pipeline name
         // D3D12 Objects
@@ -58,11 +61,8 @@ namespace Theatria::Graphics
         std::array<ComPtr<ID3D12PipelineState>, static_cast<size_t>(BlendMode::kCount)> pso;
         ComPtr<ID3D12CommandSignature> commandSignature = nullptr;
         // Indirect Args Buffer
-        std::unique_ptr<StructuredBuffer<RBasicIndirectCommand>> argsBuffer = nullptr;
-    };
-
-    struct GraphicsPipelineSettings : public Pipeline
-    {
+        RWStructuredBuffer<RBasicIndirectCommand> argsBuffer;
+        DescriptorAllocator::TableID argsDescriptorTableID;
         // Shader names
         std::string vs = "";///< Vertex Shader
         std::string ps = "";///< Pixel Shader
@@ -71,14 +71,24 @@ namespace Theatria::Graphics
         std::string ds = "";///< Domain Shader
     };
 
-    struct ComputePipelineSettings : public Pipeline
+    struct ComputePipelineSettings
     {
+        std::string name = "";///< Pipeline name
+        // D3D12 Objects
+        ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+        ComPtr<ID3D12PipelineState> pso = nullptr;
+        ComPtr<ID3D12CommandSignature> commandSignature = nullptr;
         std::string cs = "";///< Compute Shader
         NumThreads numThreads = { 1, 1, 1 };///< Number of threads
     };
 
-    struct MeshPipelineSettings : public Pipeline
+    struct MeshPipelineSettings
     {
+        std::string name = "";///< Pipeline name
+        // D3D12 Objects
+        ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+        ComPtr<ID3D12PipelineState> pso = nullptr;
+        ComPtr<ID3D12CommandSignature> commandSignature = nullptr;
         // Mesh Shader names
         std::string ms = "";///< Mesh Shader
         std::string as = "";///< Amplification Shader
@@ -91,6 +101,8 @@ namespace Theatria::Graphics
         PipelineManager() = default;
         ~PipelineManager() = default;
 
+        [[nodiscard]] bool Initialize(ID3D12Device* device, ShaderCompiler* compiler, DescriptorAllocator* descriptorAllocator);
+
         void CreateDefaultPipelines(ID3D12Device* device, ShaderCompiler* compiler);
     private:
         void CreateGraphicsPipeline(ID3D12Device* device, GraphicsPipelineSettings& setting, ShaderCompiler* compiler);
@@ -102,6 +114,8 @@ namespace Theatria::Graphics
             std::vector<D3D12_DESCRIPTOR_RANGE>& outRenges,
             D3D12_DESCRIPTOR_RANGE& outTexRenge,
             bool& outUseTexBuf);
+
+        DescriptorAllocator* m_pDescriptorAllocator = nullptr;
 
         Utility::FVector<GraphicsPipelineSettings> m_GraphicsPipelines;
         Utility::FVector<ComputePipelineSettings> m_ComputePipelines;

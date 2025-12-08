@@ -311,6 +311,12 @@ bool Theatria::Engine::Initialize()
         Core::LogAssert::Verify(false, "ShaderCompiler Initialize", "ShaderCompiler initialization failed");
         return false;
     }
+    // パイプラインマネージャ初期化
+    if(!m_pImpl->m_pPipelineManager->Initialize(m_pImpl->m_pRenderDevice->GetDevice(),m_pImpl->m_pShaderCompiler.get(),m_pImpl->m_pDescriptorAllocator.get()))
+    {
+        Core::LogAssert::Verify(false, "PipelineManager Initialize", "PipelineManager initialization failed");
+        return false;
+    }
     // スワップチェーン作成
     if (!m_pImpl->m_pRenderDevice->CreateSwapChain(m_pImpl->m_pDescriptorAllocator.get()))
     {

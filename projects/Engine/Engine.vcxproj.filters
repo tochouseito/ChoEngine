@@ -364,10 +364,10 @@
     <None Include="config\pipelines\computePipelines.ini" />
     <None Include="config\pipelines\meshPipelines.ini" />
     <None Include="shader\Basic.hlsli" />
-    <None Include="shader\Object.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader\Basic.VS.hlsl" />
-    <FxCompile Include="shader\Basic.PS.hlsl" />
+    <FxCompile Include="shader\Basic.vs.hlsl" />
+    <FxCompile Include="shader\Basic.ps.hlsl" />
+    <FxCompile Include="shader\Basic.cs.hlsl" />
   </ItemGroup>
 </Project>

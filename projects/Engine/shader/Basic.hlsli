@@ -1,5 +1,13 @@
 #pragma once
 
+struct Object
+{
+    uint id;
+    uint visible;
+    uint modelId;
+    uint transformId;
+};
+
 struct Transform
 {
     float4x4 worldMatrix;
@@ -17,6 +25,20 @@ struct ModelInfo
     uint indexCount;
     int baseVertex;
     uint pad;
+};
+
+struct IndirectCommand
+{
+    uint ObjectId;
+    uint _pad0;
+    uint _pad1;
+    uint _pad2;
+
+    uint IndexCountPerInstance;
+    uint InstanceCount;
+    uint StartIndexLocation;
+    int BaseVertexLocation;
+    uint StartInstanceLocation;
 };
 
 struct VSIn

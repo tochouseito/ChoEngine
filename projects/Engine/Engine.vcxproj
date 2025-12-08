@@ -105,7 +105,8 @@
       <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
 xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y
-xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
+xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y
+xcopy "$(ProjectDir)shader" "$(TargetDir)shader" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,7 +150,8 @@ xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
       <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
 xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y
-xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
+xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y
+xcopy "$(ProjectDir)shader" "$(TargetDir)shader" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">
@@ -193,7 +195,8 @@ xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
       <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
 xcopy "$(ProjectDir)package" "$(TargetDir)package" /E /I /Y
-xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
+xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y
+xcopy "$(ProjectDir)shader" "$(TargetDir)shader" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -337,11 +340,21 @@ xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
     <None Include="config\pipelines\graphicsPipelines.ini" />
     <None Include="config\pipelines\meshPipelines.ini" />
     <None Include="shader\Basic.hlsli" />
-    <None Include="shader\Object.hlsli" />
     <None Include="shader\Header.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader\Basic.PS.hlsl">
+    <FxCompile Include="shader\Basic.cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shader\Basic.ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -349,7 +362,7 @@ xcopy "$(ProjectDir)config" "$(TargetDir)config" /E /I /Y</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="shader\Basic.VS.hlsl">
+    <FxCompile Include="shader\Basic.vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
