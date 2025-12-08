@@ -155,6 +155,21 @@ void Theatria::Graphics::DescriptorAllocator::CreateUAVBuffer(TableID& id, GpuBu
     m_pRenderDevice->m_Device->CreateUnorderedAccessView(buf->GetResource(), nullptr, &desc, cpuH);
 }
 
+void Theatria::Graphics::DescriptorAllocator::CreateUAVRawBuffer(TableID& id, GpuBuffer* buf)
+{
+    // UAVの設定
+    D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
+    desc.Format = DXGI_FORMAT_R32_TYPELESS; // RAW のお作法
+    desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+    desc.Buffer.FirstElement = 0;
+    desc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW;
+    desc.Buffer.NumElements = buf->GetNumElements();
+    desc.Buffer.StructureByteStride = 0;
+    desc.Buffer.CounterOffsetInBytes = 0;
+    auto cpuH = GetCPUHandle(id);
+    m_pRenderDevice->m_Device->CreateUnorderedAccessView(buf->GetResource(), nullptr, &desc, cpuH);
+}
+
 void Theatria::Graphics::DescriptorAllocator::CreateRTV(TableID& id, GpuResource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc)
 {
     m_pRenderDevice->m_Device->CreateRenderTargetView(res->GetResource(), &desc, GetCPUHandle(id));

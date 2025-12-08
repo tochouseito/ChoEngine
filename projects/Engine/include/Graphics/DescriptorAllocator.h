@@ -55,6 +55,7 @@ namespace Theatria::Graphics
         void CreateSRVTexture2D(TableID& id, GpuBuffer* buf, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
         void CreateSRVBuffer(TableID& id, GpuBuffer* buf);
         void CreateUAVBuffer(TableID& id, GpuBuffer* buf);
+        void CreateUAVRawBuffer(TableID& id, GpuBuffer* buf);
 
         void CreateRTV(TableID& id, GpuResource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc);
 

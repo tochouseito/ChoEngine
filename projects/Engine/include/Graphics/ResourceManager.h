@@ -254,6 +254,9 @@ namespace Theatria::Graphics
         GlobalBuffers<ShaderStruct::SObject> m_GlobalObjectBuffer;
         GlobalBuffers<ShaderStruct::STransform> m_GlobalTransformBuffer;
         GlobalBuffers<ShaderStruct::SModelInfo> m_GlobalModelInfoBuffer;
+        std::array<RWStructuredBuffer<uint32_t>, Config::Graphics::kMaxBufferingCount> m_IndirectCommandCountBuffer;
+        std::array<DescriptorAllocator::TableID, Config::Graphics::kMaxBufferingCount> m_IndirectCommandCountBufferDescriptorIDs;
+        std::array<std::mutex, Config::Graphics::kMaxBufferingCount> m_IndirectCommandCountBufferMutex;
 
 #ifndef NDEBUG
         std::array<ConstantBuffer<ShaderStruct::SViewProjection>, Config::Graphics::kMaxBufferingCount> m_DebugVP;

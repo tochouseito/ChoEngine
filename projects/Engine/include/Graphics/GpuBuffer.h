@@ -268,7 +268,7 @@ namespace Theatria::Graphics
             D3D12_HEAP_PROPERTIES heapProperties{};
             heapProperties.Type = D3D12_HEAP_TYPE_READBACK;// ReadBackHeapを使う
             D3D12_HEAP_FLAGS heapFlags = D3D12_HEAP_FLAG_NONE;
-            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COPY_DEST;
+            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
             D3D12_RESOURCE_FLAGS resourceFlags = D3D12_RESOURCE_FLAG_NONE;
             GpuBuffer::CreateBuffer(
                 device, heapProperties, heapFlags,
@@ -419,7 +419,7 @@ namespace Theatria::Graphics
             D3D12_HEAP_PROPERTIES heapProperties{};
             heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;// DefaultHeapを使う
             D3D12_HEAP_FLAGS heapFlags = D3D12_HEAP_FLAG_NONE;
-            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
             D3D12_RESOURCE_FLAGS resourceFlags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
             GpuBuffer::CreateBuffer(
                 device, heapProperties, heapFlags,
@@ -467,7 +467,7 @@ namespace Theatria::Graphics
             // Tが構造体、クラスの時、サイズチェック
             static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT;
-            D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+            D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_COMMON;
             D3D12_RESOURCE_FLAGS resourceFlag = D3D12_RESOURCE_FLAG_NONE;
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
@@ -537,7 +537,7 @@ namespace Theatria::Graphics
             D3D12_HEAP_PROPERTIES heapProperties{};
             heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;// DefaultHeapを使う
             D3D12_HEAP_FLAGS heapFlags = D3D12_HEAP_FLAG_NONE;
-            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_INDEX_BUFFER;
+            D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
             D3D12_RESOURCE_FLAGS resourceFlags = D3D12_RESOURCE_FLAG_NONE;
             GpuBuffer::CreateBuffer(
                 device, heapProperties, heapFlags,

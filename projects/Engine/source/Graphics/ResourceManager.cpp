@@ -23,7 +23,10 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
         m_GlobalTransformBuffer.mutex[2],
         m_GlobalModelInfoBuffer.mutex[0],
         m_GlobalModelInfoBuffer.mutex[1],
-        m_GlobalModelInfoBuffer.mutex[2]
+        m_GlobalModelInfoBuffer.mutex[2],
+        m_IndirectCommandCountBufferMutex[0],
+        m_IndirectCommandCountBufferMutex[1],
+        m_IndirectCommandCountBufferMutex[2]
     );
 #ifndef NDEBUG
     std::lock_guard debuglock(m_DebugVPMutex);
@@ -42,6 +45,10 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
         m_GlobalModelInfoBuffer.buffers[i].Create(m_pDevice->GetDevice(), 256);
         m_GlobalModelInfoBuffer.descriptorIDs[i] = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
         m_pDescAllocator->CreateSRVBuffer(m_GlobalModelInfoBuffer.descriptorIDs[i], &m_GlobalModelInfoBuffer.buffers[i].GetBuffer());
+
+        m_IndirectCommandCountBuffer[i].CreateBuffer(m_pDevice->GetDevice(), 1);
+        m_IndirectCommandCountBufferDescriptorIDs[i] = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
+        m_pDescAllocator->CreateUAVRawBuffer(m_IndirectCommandCountBufferDescriptorIDs[i], &m_IndirectCommandCountBuffer[i]);
 #ifndef NDEBUG
         m_DebugVP[i].CreateBuffer(m_pDevice->GetDevice());
         m_DebugVP[i].CreateUploadBuffer(m_pDevice->GetDevice());
