@@ -6,12 +6,31 @@
 #include "config/engineConfig.h"
 #include "include/Core/LogAssert.h"
 
+#include <ChoMath/include/choMath.h>
+
 bool Theatria::Graphics::ResourceManager::Initialize(RenderDevice* device, DescriptorAllocator* descAllocator, Renderer* renderer)
 {
     m_pDevice = device;
     m_pDescAllocator = descAllocator;
     m_pRenderer = renderer;
     CreateGlobalBuffers();
+
+    auto upObjBuf = m_GlobalObjectBuffer.GetUploadBuffer();
+    auto upTransBuf = m_GlobalTransformBuffer.GetUploadBuffer();
+    auto upModelInfoBuf = m_GlobalMeshInfoBuffer.GetUploadBuffer();
+    uint32_t objIdx = m_GlobalObjectBuffer.Allocate();
+    uint32_t transIdx = m_GlobalTransformBuffer.Allocate();
+    std::span<ShaderStruct::SObject> objData = upObjBuf.GetMappedData();
+    std::span<ShaderStruct::STransform> transData = upTransBuf.GetMappedData();
+    ShaderStruct::SObject defaultObj{};
+    defaultObj.id = objIdx;
+    defaultObj.visible = true;
+    defaultObj.meshId = 0;
+    defaultObj.transformId = transIdx;
+    objData[objIdx] = defaultObj;
+    ShaderStruct::STransform defaultTrans{};
+    defaultTrans.worldMatrix = Math::float4x4::Identity();
+    transData[transIdx] = defaultTrans;
 
     return true;
 }
@@ -26,7 +45,7 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
     {
         m_GlobalObjectBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 1024);
         m_GlobalTransformBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 1024);
-        m_GlobalModelInfoBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 256);
+        m_GlobalMeshInfoBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 256);
 #ifndef NDEBUG
         m_DebugVP[i].CreateBuffer(m_pDevice->GetDevice());
 #endif
@@ -34,6 +53,9 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
 #ifndef NDEBUG
     m_DebugVPUploadBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);
 #endif
+    m_IndirectCommandCountBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);
+    m_IndirectCommandCountBufferDescriptorIDs = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
+    m_pDescAllocator->CreateUAVRawBuffer(m_IndirectCommandCountBufferDescriptorIDs, &m_IndirectCommandCountBuffer);
 }
 
 [[nodiscard]]

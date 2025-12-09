@@ -4,6 +4,7 @@
 #include "include/Graphics/Renderer.h"
 #include "include/Graphics/ResourceManager.h"
 #include "include/Core/LogAssert.h"
+#include "include/Graphics/ShaderStruct.h"
 #include "include/Utility/TString.h"
 #include "include/Utility/UniqueGenerate.h"
 
@@ -37,6 +38,11 @@ void Theatria::Assets::ModelContainer::CreateDefaultModels(Graphics::ResourceMan
             // 頂点、インデックス追加
             allVertices.insert(allVertices.end(), mesh.vertices.begin(), mesh.vertices.end());
             allIndices.insert(allIndices.end(), mesh.indices.begin(), mesh.indices.end());
+
+            Graphics::GlobalBuffer<Graphics::ShaderStruct::SMeshInfo>& meshInfoBuf = rm.GetGlobalMeshInfoBuffer<Graphics::ShaderStruct::SMeshInfo>();
+            mesh.modelIndex = meshInfoBuf.Allocate();
+            std::span<Graphics::ShaderStruct::SMeshInfo> mappedData = meshInfoBuf.GetUploadBuffer().GetMappedData();
+            mappedData[mesh.modelIndex] = mesh.meshInfo;
         }
     }
     // VB,IB再構築

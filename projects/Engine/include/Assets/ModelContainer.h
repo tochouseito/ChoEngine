@@ -36,6 +36,7 @@ namespace Theatria
             std::vector<uint32_t> indices;
 
             Graphics::ShaderStruct::SMeshInfo meshInfo = {};
+            uint32_t modelIndex = UINT32_MAX;
         };
 
         struct ModelData

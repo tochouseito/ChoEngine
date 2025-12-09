@@ -391,9 +391,24 @@ void Theatria::Engine::Shutdown()
 void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
 {
 
+    Graphics::CopyCommandContext* copyCmd = m_pImpl->m_pRenderer->BeginCopyPass();
+
+    // コピー
+    Graphics::GpuBuffer& objectBuf = m_pImpl->m_pResourceManager->GetGlobalObjectBuffer<Graphics::ShaderStruct::SObject>().GetGpuBuffer(frameIdx);
+    Graphics::GpuBuffer& transformBuf = m_pImpl->m_pResourceManager->GetGlobalTransformBuffer<Graphics::ShaderStruct::STransform>().GetGpuBuffer(frameIdx);
+    Graphics::GpuBuffer& meshInfoBuf = m_pImpl->m_pResourceManager->GetGlobalMeshInfoBuffer<Graphics::ShaderStruct::SMeshInfo>().GetGpuBuffer(frameIdx);
+    Graphics::GpuBuffer& upObjectBuf = m_pImpl->m_pResourceManager->GetGlobalUploadBuffer(Graphics::GlobalBufferType::ObjectBuffer);
+    Graphics::GpuBuffer& upTransformBuf = m_pImpl->m_pResourceManager->GetGlobalUploadBuffer(Graphics::GlobalBufferType::TransformBuffer);
+    Graphics::GpuBuffer& upMeshInfoBuf = m_pImpl->m_pResourceManager->GetGlobalUploadBuffer(Graphics::GlobalBufferType::MeshInfoBuffer);
+
+    copyCmd->CopyResource(objectBuf.GetResource(), upObjectBuf.GetResource());
+    copyCmd->CopyResource(transformBuf.GetResource(), upTransformBuf.GetResource());
+    copyCmd->CopyResource(meshInfoBuf.GetResource(), upMeshInfoBuf.GetResource());
+
+    m_pImpl->m_pRenderer->EndCopyPass(copyCmd);;
 }
 
 void Theatria::Engine::Render([[maybe_unused]] uint32_t frameIdx)
 {
-    m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pDescriptorAllocator.get(), *m_pImpl->m_pResourceManager.get(), *m_pImpl->m_pPipelineManager.get());
+    m_pImpl->m_pFrameGraph->Execute(frameIdx, *m_pImpl->m_pRenderer.get(), *m_pImpl->m_pDescriptorAllocator.get(), *m_pImpl->m_pResourceManager.get(), *m_pImpl->m_pPipelineManager.get());
 }

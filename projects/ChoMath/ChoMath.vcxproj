@@ -100,7 +100,7 @@
   <ItemGroup>
     <ClInclude Include="include\chomath.h" />
     <ClInclude Include="include\mathShapes.h" />
-    <ClInclude Include="chomath_pch.h" />
+    <ClInclude Include="include\chomath_pch.h" />
     <ClInclude Include="include\MathStructAllowedList.h" />
     <ClInclude Include="include\Matrix4.h" />
     <ClInclude Include="include\Quaternion.h" />
@@ -110,7 +110,7 @@
     <ClInclude Include="include\Vector4.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="chomath_pch.cpp">
+    <ClCompile Include="src\chomath_pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>

@@ -11,7 +11,7 @@ namespace Theatria::Graphics
     {
         ObjectBuffer = 0,
         TransformBuffer = 1,
-        ModelInfoBuffer = 2
+        MeshInfoBuffer = 2
     };
 
     /// @brief 
@@ -35,6 +35,7 @@ namespace Theatria::Graphics
                 m_DescriptorTableIDs[i] = da->Allocate(DescriptorAllocator::TableKind::Buffers);
                 da->CreateSRVBuffer(m_DescriptorTableIDs[i], &m_Buffers[i]);
             }
+            m_UploadBuffer.CreateBuffer(device, numElements);
         }
 
         [[nodiscard]]
@@ -48,6 +49,7 @@ namespace Theatria::Graphics
             }
             else
             {
+                m_TotalCount++;
                 return m_NextIndex++;
             }
         }
@@ -55,6 +57,7 @@ namespace Theatria::Graphics
         void Free(uint32_t index) noexcept
         {
             m_FreeList.push_back(index);
+            m_TotalCount--;
         }
 
         StructuredBuffer<T>& GetBuffer(uint32_t frameIndex) noexcept
@@ -72,6 +75,16 @@ namespace Theatria::Graphics
             return m_DescriptorTableIDs[frameIndex];
         }
 
+        UploadBuffer<T>& GetUploadBuffer() noexcept
+        {
+            return m_UploadBuffer;
+        }
+
+        uint32_t GetTotalCount() const noexcept
+        {
+            return m_TotalCount;
+        }
+
     private:
         std::array<StructuredBuffer<T>, Config::Graphics::kMaxBufferingCount> m_Buffers;
         std::array<std::mutex, Config::Graphics::kMaxBufferingCount> m_Mutexes;
@@ -79,6 +92,7 @@ namespace Theatria::Graphics
         UploadBuffer<T> m_UploadBuffer;
         std::vector<uint32_t> m_FreeList{};
         uint32_t m_NextIndex{ 0 };
+        uint32_t m_TotalCount{ 0 };
     };
 }
 

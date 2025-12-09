@@ -73,6 +73,12 @@ void Theatria::Graphics::CommandContext::SetDescriptorHeap(ID3D12DescriptorHeap*
     m_List->SetDescriptorHeaps(_countof(heaps), heaps);
 }
 
+void Theatria::Graphics::CommandContext::CopyResource(ID3D12Resource* pDstResource, ID3D12Resource* pSrcResource)
+{
+    // リソースのコピー
+    m_List->CopyResource(pDstResource, pSrcResource);
+}
+
 void Theatria::Graphics::CommandContext::ResourceBarrier(UINT NumBarriers, const D3D12_RESOURCE_BARRIER* pBarriers)
 {
     // リソースバリアの設定

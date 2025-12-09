@@ -38,7 +38,7 @@ namespace Theatria::Graphics
     using PassSetupFn = std::function<void(PassBuilder&)>;
 
     /// @brief パス実行関数
-    using PassExecuteFn = std::function<void(PassContext&, CommandContext&)>;
+    using PassExecuteFn = std::function<void(PassContext&, CommandContext&, uint32_t)>;
 
     /// @brief PassID（インデックスのラッパ）
     struct PassID
@@ -279,7 +279,7 @@ namespace Theatria::Graphics
         void Compile(DescriptorAllocator& da, ResourceManager& rm);
 
         /// @brief PassExecute の実行（実行時にバリア計算）
-        void Execute(Renderer& renderer, DescriptorAllocator& da, ResourceManager& rm, PipelineManager& pm);
+        void Execute(uint32_t frameIdx, Renderer& renderer, DescriptorAllocator& da, ResourceManager& rm, PipelineManager& pm);
 
         /// @brief グラフのクリア
         void Clear()

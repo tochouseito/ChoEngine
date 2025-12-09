@@ -36,6 +36,8 @@ namespace Theatria::Graphics
 
         virtual void SetDescriptorHeap(ID3D12DescriptorHeap* pHeap);
 
+        virtual void CopyResource(ID3D12Resource* pDstResource, ID3D12Resource* pSrcResource);
+
         virtual void ResourceBarrier(UINT NumBarriers, const D3D12_RESOURCE_BARRIER* pBarriers);
         virtual void BarrierTransition(GpuResource* pResource, D3D12_RESOURCE_STATES Before, D3D12_RESOURCE_STATES After);
         virtual void BarrierUAV(GpuResource* pResource);

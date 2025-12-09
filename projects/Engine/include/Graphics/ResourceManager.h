@@ -218,19 +218,35 @@ namespace Theatria::Graphics
             }
         }*/
 
-        GpuBuffer& GetGlobalBuffer(GlobalBufferType type, uint32_t frameIndex) noexcept
+        template <typename T>
+        GlobalBuffer<T>& GetGlobalObjectBuffer() noexcept
+        {
+            return m_GlobalObjectBuffer;
+        }
+        template <typename T>
+        GlobalBuffer<T>& GetGlobalTransformBuffer() noexcept
+        {
+            return m_GlobalTransformBuffer;
+        }
+        template <typename T>
+        GlobalBuffer<T>& GetGlobalMeshInfoBuffer() noexcept
+        {
+            return m_GlobalMeshInfoBuffer;
+        }
+
+        GpuBuffer& GetGlobalUploadBuffer(GlobalBufferType type) noexcept
         {
             switch (type)
             {
             case GlobalBufferType::ObjectBuffer:
-                return m_GlobalObjectBuffer.GetGpuBuffer(frameIndex);
+                return m_GlobalObjectBuffer.GetUploadBuffer();
             case GlobalBufferType::TransformBuffer:
-                return m_GlobalTransformBuffer.GetGpuBuffer(frameIndex);
-            case GlobalBufferType::ModelInfoBuffer:
-                return m_GlobalModelInfoBuffer.GetGpuBuffer(frameIndex);
+                return m_GlobalTransformBuffer.GetUploadBuffer();
+            case GlobalBufferType::MeshInfoBuffer:
+                return m_GlobalMeshInfoBuffer.GetUploadBuffer();
             default:
-                Core::LogAssert::Check(false, "ResourceManager", "GetGlobalBuffer: Unsupported GlobalBufferType");
-                return m_GlobalObjectBuffer.GetGpuBuffer(frameIndex);
+                Core::LogAssert::Check(false, "ResourceManager", "GetGlobalUploadBuffer: Unsupported GlobalBufferType");
+                return m_GlobalObjectBuffer.GetUploadBuffer();
             }
         }
 
@@ -272,7 +288,7 @@ namespace Theatria::Graphics
         /*=============== グローバルバッファ ===============*/
         GlobalBuffer<ShaderStruct::SObject> m_GlobalObjectBuffer;
         GlobalBuffer<ShaderStruct::STransform> m_GlobalTransformBuffer;
-        GlobalBuffer<ShaderStruct::SMeshInfo> m_GlobalModelInfoBuffer;
+        GlobalBuffer<ShaderStruct::SMeshInfo> m_GlobalMeshInfoBuffer;
 
         RWStructuredBuffer<uint32_t> m_IndirectCommandCountBuffer;
         DescriptorAllocator::TableID m_IndirectCommandCountBufferDescriptorIDs;

@@ -20,7 +20,38 @@ using namespace Theatria::Graphics;
 
 void FrameGraph::CreateDefaultPasses()
 {
-    // 例: FinalColor のみ定義
+    //AddPass(
+    //    "CreateIndirectCommand", FGQueue::Compute,
+    //    [&](PassBuilder& builder)
+    //    {
+    //        builder;
+    //    },
+    //    [&](PassContext& passCtx, CommandContext& cmdCtx, uint32_t frameIdx)
+    //    {
+    //        // デスクリプタヒープ設定
+    //        ID3D12DescriptorHeap* heap =
+    //            passCtx.m_DescriptorAllocator.GetDescriptorHeap(HeapType::CBV_SRV_UAV);
+    //        cmdCtx.SetDescriptorHeap(heap);
+
+    //        // パイプライン
+    //        GraphicsPipelineSettings* pipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
+    //        cmdCtx.SetPipelineState(pipeline->pso[static_cast<size_t>(BlendMode::Normal)].Get());
+    //        cmdCtx.SetGraphicsRootSignature(pipeline->rootSignature.Get());
+
+    //        UINT clearValues[4] = { 0, 0, 0, 0 };
+    //        GpuBuffer& u1 = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
+    //        DescriptorAllocator::TableID u1Handle = passCtx.m_ResourceManager.GetIndirectCommandCountBufferDescriptorID();
+    //        D3D12_GPU_DESCRIPTOR_HANDLE u1GPUHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(u1Handle);
+    //        D3D12_CPU_DESCRIPTOR_HANDLE u1CPUHandle = passCtx.m_DescriptorAllocator.GetCPUHandle(u1Handle);
+    //        cmdCtx.ClearUnorderedAccessViewUint(
+    //            u1GPUHandle,
+    //            u1CPUHandle,
+    //            u1.GetResource(),
+    //            clearValues,
+    //            0, nullptr);
+
+    //    });
+
     AddPass(
         "FinalColor",
         FGQueue::Graphics,
@@ -39,7 +70,7 @@ void FrameGraph::CreateDefaultPasses()
             // このパスでは RenderTarget として書き込む
             builder.Write("finalColor");
         },
-        [&](PassContext& passCtx, CommandContext& cmdCtx)
+        [&](PassContext& passCtx, CommandContext& cmdCtx, uint32_t frameIdx)
         {
             // デスクリプタヒープ設定
             ID3D12DescriptorHeap* heap =
@@ -79,6 +110,7 @@ void FrameGraph::CreateDefaultPasses()
             cmdCtx.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
             // TODO: パイプライン設定 / DrawCall など
+            frameIdx;
         });
 }
 
@@ -274,7 +306,8 @@ void FrameGraph::Compile(DescriptorAllocator& da, ResourceManager& rm)
 //  - 各パスの前後で ApplyPassBarriersBegin/End を呼ぶ
 //--------------------------------------------------
 
-void FrameGraph::Execute(Renderer& renderer,
+void FrameGraph::Execute(uint32_t frameIdx,
+    Renderer& renderer,
     DescriptorAllocator& da,
     ResourceManager& rm,
     PipelineManager& pm)
@@ -329,7 +362,7 @@ void FrameGraph::Execute(Renderer& renderer,
         ApplyPassBarriersBegin(renderer, baseCmd, pass);
 
         // パス実行
-        pass.executeFn(pctx, *baseCmd);
+        pass.executeFn(pctx, *baseCmd, frameIdx);
 
         // パス終了後バリア（パス用ステート → 休み状態）
         ApplyPassBarriersEnd(renderer, baseCmd, pass);
