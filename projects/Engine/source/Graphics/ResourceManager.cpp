@@ -105,3 +105,62 @@ uint32_t Theatria::Graphics::ResourceManager::CreateIndexBuffer(uint32_t numIndi
     uint32_t idx = static_cast<uint32_t>(m_IndexBuffers.emplace_back(std::move(buffer)));
     return idx;
 }
+
+void Theatria::Graphics::ResourceManager::RemakeIntegratedVBIB(const std::vector<Assets::VertexData>& vertices, const std::vector<uint32_t>& indices)
+{
+    std::lock_guard<std::mutex> lock(m_IntVBIBMutex);
+    // 頂点バッファ再作成
+
+    // 1) 破棄
+    m_IntegratedVertexBuffer.Destroy();
+    m_IntegratedIndexBuffer.Destroy();
+    // 2) 作成
+    m_IntegratedVertexBuffer.CreateBuffer(m_pDevice->GetDevice(), static_cast<UINT>(vertices.size()));
+    m_IntegratedIndexBuffer.CreateBuffer(m_pDevice->GetDevice(), static_cast<UINT>(indices.size()));
+    // アップロードバッファ作成
+    UploadBuffer<Assets::VertexData> vertexUploadBuffer;
+    vertexUploadBuffer.CreateBuffer(m_pDevice->GetDevice(), static_cast<UINT>(vertices.size()));
+    UploadBuffer<uint32_t> indexUploadBuffer;
+    indexUploadBuffer.CreateBuffer(m_pDevice->GetDevice(), static_cast<UINT>(indices.size()));
+    // データコピー、アップロード
+    {
+        std::span<Assets::VertexData> mappedData = vertexUploadBuffer.GetMappedData();
+        memcpy(mappedData.data(), vertices.data(), sizeof(Assets::VertexData) * vertices.size());
+    }
+    {
+        std::span<uint32_t> mappedData = indexUploadBuffer.GetMappedData();
+        memcpy(mappedData.data(), indices.data(), sizeof(uint32_t) * indices.size());
+    }
+    // コマンドリストでコピー
+    auto queue = m_pDevice->m_QueuePool->GetComputeQueue();
+    auto cmd = m_pRenderer->BeginComputePass();
+    // バリア挿入
+    cmd->BarrierTransition(
+        &m_IntegratedVertexBuffer,
+        m_IntegratedVertexBuffer.GetUseState(),
+        D3D12_RESOURCE_STATE_COPY_DEST);// コピー先へ
+    cmd->BarrierTransition(
+        &m_IntegratedIndexBuffer,
+        m_IntegratedIndexBuffer.GetUseState(),
+        D3D12_RESOURCE_STATE_COPY_DEST);// コピー先へ
+    // コピー
+    cmd->GetCommandList()->CopyResource(
+        m_IntegratedVertexBuffer.GetResource(),
+        vertexUploadBuffer.GetResource());
+    cmd->GetCommandList()->CopyResource(
+        m_IntegratedIndexBuffer.GetResource(),
+        indexUploadBuffer.GetResource());
+    // バリア挿入
+    cmd->BarrierTransition(
+        &m_IntegratedVertexBuffer,
+        m_IntegratedVertexBuffer.GetUseState(),
+        D3D12_RESOURCE_STATE_COMMON);
+    cmd->BarrierTransition(
+        &m_IntegratedIndexBuffer,
+        m_IntegratedIndexBuffer.GetUseState(),
+        D3D12_RESOURCE_STATE_COMMON);
+    m_pRenderer->EndComputePass(cmd);
+    m_pDevice->m_QueuePool->ReturnQueue(queue);
+    vertexUploadBuffer.Destroy();// アップロードバッファ破棄
+    indexUploadBuffer.Destroy();// アップロードバッファ破棄
+}

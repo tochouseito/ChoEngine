@@ -79,6 +79,7 @@ namespace Theatria::Graphics
         uint32_t CreateVertexBuffer(uint32_t numVertices, const std::vector<Assets::VertexData>& vec);
         [[nodiscard]]
         uint32_t CreateIndexBuffer(uint32_t numIndices, const std::vector<uint32_t>& vec);
+        void RemakeIntegratedVBIB(const std::vector<Assets::VertexData>& vertices, const std::vector<uint32_t>& indices);
         /*=============== TextureBuffer ===============*/
         [[nodiscard]]
         uint32_t CreateTextureBuffer(D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES& state)
@@ -246,12 +247,14 @@ namespace Theatria::Graphics
         std::mutex m_MultiBufferMutex;
 
         /*=============== 頂点、インデックスバッファ ===============*/
-        /*FVector<VertexBuffer<Assets::VertexData>> m_VertexBuffers;
+        FVector<VertexBuffer<Assets::VertexData>> m_VertexBuffers;
         std::mutex m_VertexBufferMutex;
         FVector<IndexBuffer<uint32_t>> m_IndexBuffers;
-        std::mutex m_IndexBufferMutex;*/
+        std::mutex m_IndexBufferMutex;
         /*=============== 統合頂点、インデックスバッファ ===============*/
-        
+        VertexBuffer<Assets::VertexData> m_IntegratedVertexBuffer;
+        IndexBuffer<uint32_t> m_IntegratedIndexBuffer;
+        std::mutex m_IntVBIBMutex;
 
         /*=============== テクスチャバッファ群 ===============*/
         FVector<atomic_shared_ptr<TextureBuffer>> m_TextureBuffers;

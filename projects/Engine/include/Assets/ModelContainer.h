@@ -58,13 +58,13 @@ namespace Theatria
         private:
             uint32_t Allocate(ModelData& model);
 
-            void CreateCube(Graphics::ResourceManager& rm);
+            void CreateCube();
 
             std::vector<ModelData> m_Models;
             std::vector<uint32_t> m_FreeList;
             std::unordered_map<std::wstring, uint32_t> m_ModelNameToIndex;
-            uint64_t m_NextBaseVertexOffset = 0;
-            uint64_t m_NextBaseIndexOffset = 0;
+            uint32_t m_NextBaseVertexOffset = 0;
+            uint32_t m_NextBaseIndexOffset = 0;
         };
     }
 }

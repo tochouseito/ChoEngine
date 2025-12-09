@@ -9,7 +9,38 @@
 
 void Theatria::Assets::ModelContainer::CreateDefaultModels(Graphics::ResourceManager& rm)
 {
-    CreateCube(rm);
+    CreateCube();
+
+    // VB,IBの再構築
+    std::vector<VertexData> allVertices;
+    std::vector<uint32_t> allIndices;
+    size_t verSize = 0;
+    size_t idxSize = 0;
+    for (auto& model : m_Models)
+    {
+        for (auto& mesh : model.meshes)
+        {
+            verSize += mesh.vertices.size();
+            idxSize += mesh.indices.size();
+        }
+    }
+    allVertices.reserve(verSize);
+    allIndices.reserve(idxSize);
+    for (auto& model : m_Models)
+    {
+        for (auto& mesh : model.meshes)
+        {
+            // メッシュ情報設定
+            mesh.meshInfo.baseVertex = static_cast<int32_t>(allVertices.size());
+            mesh.meshInfo.indexOffset = static_cast<uint32_t>(allIndices.size());
+            mesh.meshInfo.indexCount = static_cast<uint32_t>(mesh.indices.size());
+            // 頂点、インデックス追加
+            allVertices.insert(allVertices.end(), mesh.vertices.begin(), mesh.vertices.end());
+            allIndices.insert(allIndices.end(), mesh.indices.begin(), mesh.indices.end());
+        }
+    }
+    // VB,IB再構築
+    rm.RemakeIntegratedVBIB(allVertices, allIndices);
 }
 
 uint32_t Theatria::Assets::ModelContainer::Allocate(ModelData& model)
@@ -40,7 +71,7 @@ uint32_t Theatria::Assets::ModelContainer::Allocate(ModelData& model)
     }
 }
 
-void Theatria::Assets::ModelContainer::CreateCube(Graphics::ResourceManager& rm)
+void Theatria::Assets::ModelContainer::CreateCube()
 {
     // Cube
     std::wstring modelName = L"Cube";
@@ -116,9 +147,6 @@ void Theatria::Assets::ModelContainer::CreateCube(Graphics::ResourceManager& rm)
     meshData.indices[30] = 20; meshData.indices[31] = 22; meshData.indices[32] = 21;
     meshData.indices[33] = 22; meshData.indices[34] = 23; meshData.indices[35] = 21;
 #pragma endregion
-    // Bufferの作成
-    meshData.vertexResourceID = rm.CreateVertexBuffer(vertices, meshData.vertices);
-    meshData.indexResourceID = rm.CreateIndexBuffer(indices, meshData.indices);
     // meshInfoに先頭オフセットを設定
     meshData.meshInfo.baseVertex = m_NextBaseVertexOffset;// 統合VB内の先頭オフセットを設定
     m_NextBaseVertexOffset += vertices;// 次のオフセットを進める
