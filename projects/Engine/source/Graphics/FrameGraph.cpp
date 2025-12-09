@@ -20,37 +20,91 @@ using namespace Theatria::Graphics;
 
 void FrameGraph::CreateDefaultPasses()
 {
-    //AddPass(
-    //    "CreateIndirectCommand", FGQueue::Compute,
-    //    [&](PassBuilder& builder)
-    //    {
-    //        builder;
-    //    },
-    //    [&](PassContext& passCtx, CommandContext& cmdCtx, uint32_t frameIdx)
-    //    {
-    //        // デスクリプタヒープ設定
-    //        ID3D12DescriptorHeap* heap =
-    //            passCtx.m_DescriptorAllocator.GetDescriptorHeap(HeapType::CBV_SRV_UAV);
-    //        cmdCtx.SetDescriptorHeap(heap);
+    AddPass(
+        "CreateIndirectCommand", FGQueue::Compute,
+        [&](PassBuilder& builder)
+        {
+            builder;
+        },
+        [&](PassContext& passCtx, CommandContext& cmdCtx, uint32_t frameIdx)
+        {
+            GraphicsPipelineSettings* gPipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
+            ComputePipelineSettings* pipeline = passCtx.m_PipelineManager.GetComputePipelineByName("BasicPipeline");
 
-    //        // パイプライン
-    //        GraphicsPipelineSettings* pipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
-    //        cmdCtx.SetPipelineState(pipeline->pso[static_cast<size_t>(BlendMode::Normal)].Get());
-    //        cmdCtx.SetGraphicsRootSignature(pipeline->rootSignature.Get());
+            // バッファ取得
+            auto& gObjBuf = passCtx.m_ResourceManager.GetGlobalObjectBuffer<ShaderStruct::SObject>();
+            auto& objBuf = gObjBuf.GetGpuBuffer(frameIdx);
+            auto& gTransBuf = passCtx.m_ResourceManager.GetGlobalTransformBuffer<ShaderStruct::STransform>();
+            auto& transBuf = gTransBuf.GetGpuBuffer(frameIdx);
+            auto& gMeshBuf = passCtx.m_ResourceManager.GetGlobalMeshInfoBuffer<ShaderStruct::SMeshInfo>();
+            auto& meshBuf = gMeshBuf.GetGpuBuffer(frameIdx);
+            auto& indirectCmdCountBuf = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
+            auto& indirectCmdBuf = gPipeline->argsBuffer;
 
-    //        UINT clearValues[4] = { 0, 0, 0, 0 };
-    //        GpuBuffer& u1 = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
-    //        DescriptorAllocator::TableID u1Handle = passCtx.m_ResourceManager.GetIndirectCommandCountBufferDescriptorID();
-    //        D3D12_GPU_DESCRIPTOR_HANDLE u1GPUHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(u1Handle);
-    //        D3D12_CPU_DESCRIPTOR_HANDLE u1CPUHandle = passCtx.m_DescriptorAllocator.GetCPUHandle(u1Handle);
-    //        cmdCtx.ClearUnorderedAccessViewUint(
-    //            u1GPUHandle,
-    //            u1CPUHandle,
-    //            u1.GetResource(),
-    //            clearValues,
-    //            0, nullptr);
+            // バリア
+            cmdCtx.BarrierTransition(
+                &objBuf,
+                objBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+            cmdCtx.BarrierTransition(
+                &transBuf,
+                transBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+            cmdCtx.BarrierTransition(
+                &meshBuf,
+                meshBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+            cmdCtx.BarrierTransition(
+                &indirectCmdCountBuf,
+                indirectCmdCountBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            cmdCtx.BarrierTransition(
+                &indirectCmdBuf,
+                indirectCmdBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
-    //    });
+
+            // CommandCount バッファのクリア
+            UINT clearValues[4] = { 0, 0, 0, 0 };
+            GpuBuffer& u1 = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
+            DescriptorAllocator::TableID u1Handle = passCtx.m_ResourceManager.GetIndirectCommandCountBufferDescriptorID();
+            D3D12_GPU_DESCRIPTOR_HANDLE u1GPUHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(u1Handle);
+            D3D12_CPU_DESCRIPTOR_HANDLE u1CPUHandle = passCtx.m_DescriptorAllocator.GetCPUHandle(u1Handle);
+            cmdCtx.ClearUnorderedAccessViewUint(
+                u1GPUHandle,
+                u1CPUHandle,
+                u1.GetResource(),
+                clearValues,
+                0, nullptr);
+
+            // デスクリプタヒープ設定
+            ID3D12DescriptorHeap* heap =
+                passCtx.m_DescriptorAllocator.GetDescriptorHeap(HeapType::CBV_SRV_UAV);
+            cmdCtx.SetDescriptorHeap(heap);
+
+            // パイプライン
+            cmdCtx.SetPipelineState(pipeline->pso.Get());
+            cmdCtx.SetComputeRootSignature(pipeline->rootSignature.Get());
+
+            // バインド
+            D3D12_GPU_DESCRIPTOR_HANDLE gpuSrvHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(gObjBuf.GetDescriptorTableID(frameIdx));
+            cmdCtx.SetComputeRootDescriptorTable(0, gpuSrvHandle);
+
+            D3D12_GPU_DESCRIPTOR_HANDLE gpuUavHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(gPipeline->argsDescriptorTableID);
+            cmdCtx.SetComputeRootDescriptorTable(1, gpuUavHandle);
+
+            uint32_t objCount = gObjBuf.GetTotalCount();
+            cmdCtx.SetComputeRoot32BitConstant(2, objCount, 0);
+
+            // Dispatch
+            UINT groupSize = 64;
+            UINT dispatchCount = (objCount + groupSize - 1) / groupSize;
+            cmdCtx.Dispatch(dispatchCount, 1, 1);
+
+            // UAVバリア
+            cmdCtx.BarrierUAV(&indirectCmdCountBuf);
+            cmdCtx.BarrierUAV(&indirectCmdBuf);
+        });
 
     AddPass(
         "FinalColor",
@@ -110,7 +164,20 @@ void FrameGraph::CreateDefaultPasses()
             cmdCtx.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
             // TODO: パイプライン設定 / DrawCall など
-            frameIdx;
+            GraphicsPipelineSettings* pipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
+            cmdCtx.SetPipelineState(pipeline->pso[static_cast<size_t>(BlendMode::Normal)].Get());
+            cmdCtx.SetGraphicsRootSignature(pipeline->rootSignature.Get());
+
+            auto& devCam = passCtx.m_ResourceManager.GetDebugCamBuf(frameIdx);
+            cmdCtx.SetGraphicsRootConstantBufferView(0, devCam->GetGPUVirtualAddress());
+
+            auto& gObjBuf = passCtx.m_ResourceManager.GetGlobalObjectBuffer<ShaderStruct::SObject>();
+            auto& objBuf = gObjBuf.GetGpuBuffer(frameIdx);
+            auto& gTransBuf = passCtx.m_ResourceManager.GetGlobalTransformBuffer<ShaderStruct::STransform>();
+            auto& transBuf = gTransBuf.GetGpuBuffer(frameIdx);
+            auto& gMeshBuf = passCtx.m_ResourceManager.GetGlobalMeshInfoBuffer<ShaderStruct::SMeshInfo>();
+            auto& meshBuf = gMeshBuf.GetGpuBuffer(frameIdx);
+            auto& integratedVB = passCtx.m_ResourceManager.GetVerte
         });
 }
 

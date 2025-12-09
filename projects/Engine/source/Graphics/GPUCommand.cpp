@@ -187,6 +187,32 @@ void Theatria::Graphics::CommandContext::SetComputeRootDescriptorTable(UINT Root
     m_List->SetComputeRootDescriptorTable(RootParameterIndex, BaseDescriptor);
 }
 
+void Theatria::Graphics::CommandContext::SetGraphicsRootConstantBufferView(UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+{
+    m_List->SetGraphicsRootConstantBufferView(RootParameterIndex, BufferLocation);
+}
+
+void Theatria::Graphics::CommandContext::SetComputeRoot32BitConstant(UINT RootParameterIndex, UINT SrcData, UINT DestOffsetIn32BitValues)
+{
+    m_List->SetComputeRoot32BitConstant(RootParameterIndex, SrcData, DestOffsetIn32BitValues);
+}
+
+void Theatria::Graphics::CommandContext::Dispatch(UINT ThreadGroupCountX, UINT ThreadGroupCountY, UINT ThreadGroupCountZ)
+{
+    m_List->Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
+}
+
+void Theatria::Graphics::CommandContext::ExecuteIndirect(ID3D12CommandSignature* pCommandSignature, UINT MaxCommandCount, ID3D12Resource* pArgumentBuffer, UINT64 ArgumentBufferOffset, ID3D12Resource* pCountBuffer, UINT64 CountBufferOffset)
+{
+    m_List->ExecuteIndirect(
+        pCommandSignature,
+        MaxCommandCount,
+        pArgumentBuffer,
+        ArgumentBufferOffset,
+        pCountBuffer,
+        CountBufferOffset);
+}
+
 /// @brief コンストラクタ
 Theatria::Graphics::QueueContext::QueueContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
 {

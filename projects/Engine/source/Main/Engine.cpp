@@ -56,9 +56,9 @@ public:
     Impl()
     {
         /*======================== EventCommand ========================*/
-        m_pEventSystem = std::make_unique<Core::EventCommand::EventSystem>();
-        m_pRouterHub = std::make_unique<Core::EventCommand::RouterHub>();
-        m_pExecutorHub = std::make_unique<Core::EventCommand::ExecutorHub>();
+        m_pEventSystem =            std::make_unique<Core::EventCommand::EventSystem>();
+        m_pRouterHub =              std::make_unique<Core::EventCommand::RouterHub>();
+        m_pExecutorHub =            std::make_unique<Core::EventCommand::ExecutorHub>();
         /*======================== Platform ========================*/
         m_pInput =                  std::make_unique<Platform::Input>();
         m_pNetwork =                std::make_unique<Platform::Network>();
@@ -404,6 +404,12 @@ void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
     copyCmd->CopyResource(objectBuf.GetResource(), upObjectBuf.GetResource());
     copyCmd->CopyResource(transformBuf.GetResource(), upTransformBuf.GetResource());
     copyCmd->CopyResource(meshInfoBuf.GetResource(), upMeshInfoBuf.GetResource());
+
+#ifndef NDEBUG
+    Graphics::GpuBuffer& debugCamBuf = m_pImpl->m_pResourceManager->GetDebugCamBuf(frameIdx);
+    Graphics::GpuBuffer& upDebugCamBuf = m_pImpl->m_pResourceManager->GetDebugCamUploadBuf();
+    copyCmd->CopyResource(debugCamBuf.GetResource(), upDebugCamBuf.GetResource());
+#endif // !NDEBUG
 
     m_pImpl->m_pRenderer->EndCopyPass(copyCmd);;
 }

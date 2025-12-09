@@ -52,6 +52,13 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
     }
 #ifndef NDEBUG
     m_DebugVPUploadBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);
+    auto span = m_DebugVPUploadBuffer.GetMappedData();
+    Math::float3 debugCamPos = { 0.0f, 0.0f, -5.0f };
+    Math::float3 debugCamRot = { 0.0f, 0.0f, 0.0f };
+    Math::float3 debugCamScale = { 1.0f, 1.0f, 1.0f };
+    Math::float4x4 matW = Math::MakeAffineMatrix(debugCamScale, debugCamRot, debugCamPos);
+    span[0].view = Math::float4x4::Inverse(matW);
+    span[0].projection = Math::PerspectiveFovMatrix(45.0f * Math::PI / 180.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 #endif
     m_IndirectCommandCountBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);
     m_IndirectCommandCountBufferDescriptorIDs = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);

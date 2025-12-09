@@ -258,6 +258,28 @@ namespace Theatria::Graphics
         {
             return m_IndirectCommandCountBufferDescriptorIDs;
         }
+
+        VertexBuffer<Assets::VertexData>& GetIntegratedVertexBuffer() noexcept
+        {
+            return m_IntegratedVertexBuffer;
+        }
+
+        IndexBuffer<uint32_t>& GetIntegratedIndexBuffer() noexcept
+        {
+            return m_IntegratedIndexBuffer;
+        }
+
+#ifndef NDEBUG
+        GpuBuffer& GetDebugCamBuf(uint32_t frameIdx)
+        {
+            return m_DebugVP[frameIdx];
+        }
+        GpuBuffer& GetDebugCamUploadBuf()
+        {
+            return m_DebugVPUploadBuffer;
+        }
+#endif // !NDEBUG
+
     private:
         RenderDevice* m_pDevice = nullptr; ///< レンダーデバイス
         DescriptorAllocator* m_pDescAllocator = nullptr; ///< ディスクリプタヒープアロケータ

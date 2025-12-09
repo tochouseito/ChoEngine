@@ -71,6 +71,19 @@ namespace Theatria::Graphics
 
         virtual void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
         virtual void SetComputeRootDescriptorTable(UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
+
+        virtual void SetGraphicsRootConstantBufferView(UINT RootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS BufferLocation);
+
+        virtual void SetComputeRoot32BitConstant(UINT RootParameterIndex, UINT SrcData, UINT DestOffsetIn32BitValues);
+
+        virtual void Dispatch(UINT ThreadGroupCountX, UINT ThreadGroupCountY, UINT ThreadGroupCountZ);
+        virtual void ExecuteIndirect(
+            ID3D12CommandSignature* pCommandSignature,
+            UINT MaxCommandCount,
+            ID3D12Resource* pArgumentBuffer,
+            UINT64 ArgumentBufferOffset,
+            ID3D12Resource* pCountBuffer,
+            UINT64 CountBufferOffset);
     protected:
         ComPtr<ID3D12GraphicsCommandList> m_List = nullptr;
         ComPtr<ID3D12CommandAllocator> m_Allocator = nullptr;
