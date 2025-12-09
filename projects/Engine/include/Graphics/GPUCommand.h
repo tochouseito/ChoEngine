@@ -54,6 +54,21 @@ namespace Theatria::Graphics
             const FLOAT ColorRGBA[4],
             UINT NumRects,
             const D3D12_RECT* pRects);
+
+        virtual void ClearUnorderedAccessViewUint(
+            D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap,
+            D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle,
+            ID3D12Resource* pResource,
+            const UINT Values[4],
+            UINT NumRects,
+            const D3D12_RECT* pRects);
+
+        virtual void SetPipelineState(ID3D12PipelineState* pPipelineState);
+        virtual void SetGraphicsRootSignature(ID3D12RootSignature* pRootSignature);
+        virtual void SetComputeRootSignature(ID3D12RootSignature* pRootSignature);
+
+        virtual void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
+        virtual void SetComputeRootDescriptorTable(UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor);
     protected:
         ComPtr<ID3D12GraphicsCommandList> m_List = nullptr;
         ComPtr<ID3D12CommandAllocator> m_Allocator = nullptr;

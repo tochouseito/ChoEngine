@@ -145,6 +145,42 @@ void Theatria::Graphics::CommandContext::ClearRenderTargetView(D3D12_CPU_DESCRIP
         pRects);
 }
 
+void Theatria::Graphics::CommandContext::ClearUnorderedAccessViewUint(D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource* pResource, const UINT Values[4], UINT NumRects, const D3D12_RECT* pRects)
+{
+    m_List->ClearUnorderedAccessViewUint(
+        ViewGPUHandleInCurrentHeap,
+        ViewCPUHandle,
+        pResource,
+        Values,
+        NumRects,
+        pRects);
+}
+
+void Theatria::Graphics::CommandContext::SetPipelineState(ID3D12PipelineState* pPipelineState)
+{
+    m_List->SetPipelineState(pPipelineState);
+}
+
+void Theatria::Graphics::CommandContext::SetGraphicsRootSignature(ID3D12RootSignature* pRootSignature)
+{
+    m_List->SetGraphicsRootSignature(pRootSignature);
+}
+
+void Theatria::Graphics::CommandContext::SetComputeRootSignature(ID3D12RootSignature* pRootSignature)
+{
+    m_List->SetComputeRootSignature(pRootSignature);
+}
+
+void Theatria::Graphics::CommandContext::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+{
+    m_List->SetGraphicsRootDescriptorTable(RootParameterIndex, BaseDescriptor);
+}
+
+void Theatria::Graphics::CommandContext::SetComputeRootDescriptorTable(UINT RootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE BaseDescriptor)
+{
+    m_List->SetComputeRootDescriptorTable(RootParameterIndex, BaseDescriptor);
+}
+
 /// @brief コンストラクタ
 Theatria::Graphics::QueueContext::QueueContext(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
 {

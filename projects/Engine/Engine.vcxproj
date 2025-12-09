@@ -60,14 +60,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\intermediate\$(ProjectName)\</IntDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\intermediate\$(ProjectName)\</IntDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor|x64'">
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\intermediate\$(ProjectName)\</IntDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -89,13 +95,15 @@
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 /we26800 %(AdditionalOptions)</AdditionalOptions>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\assimp;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\DirectXTex;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui_Extensions</AdditionalLibraryDirectories>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <Lib>
       <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>
@@ -134,13 +142,15 @@ xcopy "$(ProjectDir)shader" "$(TargetDir)shader" /E /I /Y</Command>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 /we26800 %(AdditionalOptions)</AdditionalOptions>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\assimp;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\DirectXTex</AdditionalLibraryDirectories>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <Lib>
       <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>
@@ -179,13 +189,15 @@ xcopy "$(ProjectDir)shader" "$(TargetDir)shader" /E /I /Y</Command>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <AdditionalOptions>/utf-8 /bigobj /wd4201 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /bigobj /wd4201 /we26800 %(AdditionalOptions)</AdditionalOptions>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>dxcompiler.lib;d3dcompiler.lib;dxguid.lib;d3d12.lib;d3d11.lib;d2d1.lib;dwrite.lib;dxgi.lib;dinput8.lib;xinput.lib;xaudio2.lib;imgui.lib;imgui_Extensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\generated\outputs\$(Configuration)\;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\assimp;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\DirectXTex;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui;$(SolutionDir)..\generated\outputs\$(Configuration)\Externals\imgui_Extensions</AdditionalLibraryDirectories>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <Lib>
       <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 /ignore:4006 %(AdditionalOptions)</AdditionalOptions>

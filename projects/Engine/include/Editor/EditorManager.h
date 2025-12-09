@@ -15,12 +15,17 @@ namespace Theatria
     {
         class FrameCounter;
     }
+    namespace Graphics
+    {
+        class DescriptorAllocator;
+        class FrameGraph;
+    }
     namespace Editor
     {
         class EditorManager final
         {
         public:
-            bool Initialize(Core::FrameCounter* fc);
+            bool Initialize(Core::FrameCounter* fc,Graphics::DescriptorAllocator* da, Graphics::FrameGraph* fg);
             void Shutdown();
             void Update();
 

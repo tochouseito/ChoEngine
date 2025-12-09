@@ -546,7 +546,7 @@ namespace Theatria::Graphics
             m_Dimension = D3D12_RESOURCE_DIMENSION_UNKNOWN;
         }
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES state)
+        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue)
         {
             // 利用するHeapの設定
             D3D12_HEAP_PROPERTIES heapProperties{};
@@ -558,6 +558,7 @@ namespace Theatria::Graphics
             m_ArraySize = desc.DepthOrArraySize;
             m_Format = desc.Format;
             m_Dimension = desc.Dimension;
+            D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON;
             GpuResource::CreateResource(device, heapProperties, D3D12_HEAP_FLAG_NONE, desc, state, clearValue);
         }
         UINT64 GetWidth() const { return m_Width; }
@@ -602,7 +603,7 @@ namespace Theatria::Graphics
             TextureBuffer::Destroy();
         }
         /// @brief バッファ作成
-        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc, D3D12_RESOURCE_STATES state)
+        void CreateBuffer(ID3D12Device* device, D3D12_RESOURCE_DESC& desc)
         {
             // 利用するHeapの設定
             D3D12_HEAP_PROPERTIES heapProperties{};
@@ -613,7 +614,7 @@ namespace Theatria::Graphics
             D3D12_CLEAR_VALUE clearValue{};
             clearValue.DepthStencil.Depth = 1.0f;// 1.0f（最大値）でクリア
             clearValue.Format = desc.Format;// フォーマット。Resourceと合わせる
-            TextureBuffer::CreateBuffer(device, desc, &clearValue, state);
+            TextureBuffer::CreateBuffer(device, desc, &clearValue);
         }
     private:
     };

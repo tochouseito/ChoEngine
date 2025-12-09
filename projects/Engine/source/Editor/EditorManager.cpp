@@ -7,7 +7,7 @@
 
 using namespace Theatria::Editor;
 
-bool EditorManager::Initialize(Core::FrameCounter* fc)
+bool EditorManager::Initialize(Core::FrameCounter* fc, Graphics::DescriptorAllocator* da, Graphics::FrameGraph* fg)
 {
     m_pFrameCounter = fc;
 
@@ -15,7 +15,7 @@ bool EditorManager::Initialize(Core::FrameCounter* fc)
     m_AssetBrowser->Initialize();
     m_GameView = std::make_unique<GameView>();
     m_GameView->Initialize();
-    m_SceneView = std::make_unique<SceneView>();
+    m_SceneView = std::make_unique<SceneView>(da, fg);
     m_SceneView->Initialize();
     m_Hierarchy = std::make_unique<Hierarchy>();
     m_Hierarchy->Initialize();

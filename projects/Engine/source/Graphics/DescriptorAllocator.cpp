@@ -120,10 +120,16 @@ void Theatria::Graphics::DescriptorAllocator::CreateCBV(TableID& id, GpuBuffer* 
     m_pRenderDevice->m_Device->CreateConstantBufferView(&desc, cpuH);
 }
 
-void Theatria::Graphics::DescriptorAllocator::CreateSRVTexture2D(TableID& id, GpuBuffer* buf, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
+void Theatria::Graphics::DescriptorAllocator::CreateSRVTexture2D(TableID& id, GpuResource* res)
 {
+    // SRVの設定
+    D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
+    desc.Format = Config::Graphics::DefaultDXGIFormat;
+    desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    desc.Texture2D.MipLevels = 1;
     auto cpuH = GetCPUHandle(id);
-    m_pRenderDevice->m_Device->CreateShaderResourceView(buf->GetResource(), &desc, cpuH);
+    m_pRenderDevice->m_Device->CreateShaderResourceView(res->GetResource(), &desc, cpuH);
 }
 
 void Theatria::Graphics::DescriptorAllocator::CreateSRVBuffer(TableID& id, GpuBuffer* buf)
@@ -170,8 +176,11 @@ void Theatria::Graphics::DescriptorAllocator::CreateUAVRawBuffer(TableID& id, Gp
     m_pRenderDevice->m_Device->CreateUnorderedAccessView(buf->GetResource(), nullptr, &desc, cpuH);
 }
 
-void Theatria::Graphics::DescriptorAllocator::CreateRTV(TableID& id, GpuResource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc)
+void Theatria::Graphics::DescriptorAllocator::CreateRTV(TableID& id, GpuResource* res)
 {
+    D3D12_RENDER_TARGET_VIEW_DESC desc = {};
+    desc.Format = Config::Graphics::DefaultDXGIFormat;
+    desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;// 2dテクスチャとして書き込む
     m_pRenderDevice->m_Device->CreateRenderTargetView(res->GetResource(), &desc, GetCPUHandle(id));
 }
 
@@ -183,7 +192,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetTableBas
     return h;
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetGPUHandle(TableID& id)
+D3D12_GPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetGPUHandle(TableID id)
 {
     Table& t = GetTable(id.kind);
     D3D12_GPU_DESCRIPTOR_HANDLE h = m_DescriptorHeaps[static_cast<size_t>(t.heapType)]->GetGPUDescriptorHandleForHeapStart();
@@ -191,7 +200,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetGPUHandl
     return h;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetCPUHandle(TableID& id)
+D3D12_CPU_DESCRIPTOR_HANDLE Theatria::Graphics::DescriptorAllocator::GetCPUHandle(TableID id)
 {
     Table& t = GetTable(id.kind);
     D3D12_CPU_DESCRIPTOR_HANDLE h = m_DescriptorHeaps[static_cast<size_t>(t.heapType)]->GetCPUDescriptorHandleForHeapStart();

@@ -341,12 +341,12 @@ bool Theatria::Engine::Initialize()
     // Rendererにセット
     m_pImpl->m_pRenderer->SetImGuiManager(m_pImpl->m_pImGuiManager.get());
     // エディタマネージャ初期化
-    m_pImpl->m_pEditorManager->Initialize(m_pImpl->m_pFrameCounter.get());
+    m_pImpl->m_pEditorManager->Initialize(m_pImpl->m_pFrameCounter.get(), m_pImpl->m_pDescriptorAllocator.get(), m_pImpl->m_pFrameGraph.get());
 #endif // !NDEBUG
 
     // デフォルトパス作成
     m_pImpl->m_pFrameGraph->CreateDefaultPasses();
-    m_pImpl->m_pFrameGraph->Compile(*m_pImpl->m_pResourceManager.get());
+    m_pImpl->m_pFrameGraph->Compile(*m_pImpl->m_pDescriptorAllocator.get(), *m_pImpl->m_pResourceManager.get());
 
     // デフォルトモデル生成
     m_pImpl->m_pModelContainer->CreateDefaultModels(*m_pImpl->m_pResourceManager.get());
@@ -395,5 +395,5 @@ void Theatria::Engine::Update([[maybe_unused]] uint32_t frameIdx)
 
 void Theatria::Engine::Render([[maybe_unused]] uint32_t frameIdx)
 {
-    m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pResourceManager.get(), *m_pImpl->m_pPipelineManager.get());
+    m_pImpl->m_pFrameGraph->Execute(*m_pImpl->m_pRenderer.get(), *m_pImpl->m_pDescriptorAllocator.get(), *m_pImpl->m_pResourceManager.get(), *m_pImpl->m_pPipelineManager.get());
 }

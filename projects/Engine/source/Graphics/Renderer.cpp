@@ -106,7 +106,8 @@ void Theatria::Graphics::Renderer::ApplyBarriers(FrameGraph& fg, CommandContext*
         // バリア挿入
         if (barrier.type == BarrierType::Transition)
         {
-            D3D12_RESOURCE_STATES beforeState = FGStateToD3D12State(barrier.beforeState);
+            D3D12_RESOURCE_STATES beforeState = // FGStateToD3D12State(barrier.beforeState);
+                resource->GetUseState();
             D3D12_RESOURCE_STATES afterState = FGStateToD3D12State(barrier.afterState);
             cmd->BarrierTransition(resource, beforeState, afterState);
         }

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <cstdint>
@@ -15,6 +16,7 @@
 
 namespace Theatria::Graphics
 {
+    class DescriptorAllocator;
     class ResourceManager;
     class PipelineManager;
     class Renderer;
@@ -22,16 +24,29 @@ namespace Theatria::Graphics
     class PassBuilder;
     class PassContext;
 
+    struct GraphicsPipelineSettings;
+    struct ComputePipelineSettings;
+    struct DescriptorAllocator::TableID;
+
+    /// @brief FrameGraph 上のリソースハンドル
     using ResourceHandle = uint32_t;
+
+    /// @brief 無効なリソースハンドル値
     constexpr ResourceHandle InvalidResource = UINT32_MAX;
+
+    /// @brief パスセットアップ関数
     using PassSetupFn = std::function<void(PassBuilder&)>;
+
+    /// @brief パス実行関数
     using PassExecuteFn = std::function<void(PassContext&, CommandContext&)>;
 
+    /// @brief PassID（インデックスのラッパ）
     struct PassID
     {
         uint32_t idx = 0;
     };
 
+    /// @brief FrameGraph 上でのリソース用途
     enum class FGUsage : uint8_t
     {
         Texture,
@@ -42,6 +57,7 @@ namespace Theatria::Graphics
         Unknown ///< 使用禁止
     };
 
+    /// @brief パスから見たアクセス種別
     enum class FGAccess : uint8_t
     {
         Read,
@@ -50,8 +66,10 @@ namespace Theatria::Graphics
         Unknown ///< 使用禁止
     };
 
+    /// @brief FrameGraph 上で管理するリソース状態
     enum class FGState : uint8_t
     {
+        Common,
         RenderTarget,
         DepthWrite,
         DepthRead,
@@ -63,6 +81,7 @@ namespace Theatria::Graphics
         Unknown ///< 使用禁止
     };
 
+    /// @brief 使用する GPU キュー種別
     enum class FGQueue : uint8_t
     {
         Graphics,
@@ -71,6 +90,7 @@ namespace Theatria::Graphics
         Unknown ///< 使用禁止
     };
 
+    /// @brief FrameGraph 用リソース記述
     struct ResourceDesc final
     {
         uint32_t width = 0;
@@ -80,21 +100,27 @@ namespace Theatria::Graphics
         std::optional<GlobalBufferType> existsGlobalBufferType = std::nullopt;
     };
 
+    /// @brief ResourceDesc + Access から、パス中で使う FGState を決定する
     FGState DecideState(const ResourceDesc& desc, FGAccess access);
+
+    /// @brief FGState を D3D12_RESOURCE_STATES に変換
     D3D12_RESOURCE_STATES FGStateToD3D12State(FGState state);
 
+    /// @brief パスから見たリソース使用
     struct ResourceUse final
     {
         ResourceHandle handle;
         FGAccess access;
     };
 
+    /// @brief バリアの種類
     enum class BarrierType : uint8_t
     {
         Transition,
         UAV,
     };
 
+    /// @brief バリア情報（FrameGraph → Renderer.ApplyBarriers に渡す）
     struct BarrierInfo final
     {
         ResourceHandle handle;
@@ -103,173 +129,222 @@ namespace Theatria::Graphics
         FGState afterState;
     };
 
+    /// @brief 1つのパスノード
     struct PassNode final
     {
-        std::string name; ///< パス名
-        uint32_t index = 0; ///< パスのインデックス
+        /// @brief パス名
+        std::string name;
 
-        FGQueue queue = FGQueue::Graphics; ///< 使用するキュー
+        /// @brief パスインデックス（m_Passes 内の index）
+        uint32_t index = 0;
 
-        std::vector<ResourceUse> reads; ///< 読み取りリソース
-        std::vector<ResourceUse> writes;///< 書き込みリソース
+        /// @brief 使用するキュー種別
+        FGQueue queue = FGQueue::Graphics;
 
-        std::vector<uint32_t> outEdges;///< 出力先パスのインデックスリスト
-        std::vector<uint32_t> inEdges; ///< 入力元パスのインデックスリスト
+        /// @brief このパスで読み取るリソース
+        std::vector<ResourceUse> reads;
 
-        std::vector<BarrierInfo> barriers; // パスの冒頭のバリア
+        /// @brief このパスで書き込むリソース
+        std::vector<ResourceUse> writes;
 
-        PassExecuteFn executeFn; ///< 実行関数
+        /// @brief 依存先パスのインデックスリスト（このパスから出るエッジ）
+        std::vector<uint32_t> outEdges;
+
+        /// @brief 依存元パスのインデックスリスト（このパスに入るエッジ）
+        std::vector<uint32_t> inEdges;
+
+        /// @brief パス実行関数
+        PassExecuteFn executeFn;
     };
 
+    /// @brief FrameGraph 上の仮想リソース情報
     struct VirtualResource final
     {
+        /// @brief リソース名（デバッグ用）
         std::string  name;
+
+        /// @brief リソース記述
         ResourceDesc desc;
 
-        // 使用されるパスの index のリスト（build 時に埋める）
+        /// @brief 使用されるパスのインデックスリスト
         std::vector<uint32_t> usedInPass;
 
-        // 寿命 [firstPass, lastPass]
+        /// @brief 使用開始パスインデックス
         uint32_t firstPass = UINT32_MAX;
+
+        /// @brief 使用終了パスインデックス
         uint32_t lastPass = 0;
 
-        // Compile 後に物理リソースIDを持つ（ResourceManager用）
+        /// @brief ResourceManager 上の物理リソース ID
         uint32_t physicalId = UINT32_MAX;
-        FGState initialState = FGState::Unknown;
+
+        /// @brief 描画用ディスクリプタテーブル ID（RTV/SRV 等）
+        DescriptorAllocator::TableID rtvTableId;
+        DescriptorAllocator::TableID dsvTableId;
+        DescriptorAllocator::TableID srvTableId;
+
+        /// @brief フレームの外での「休み状態」＝パス間を跨ぐときに戻す状態
+        FGState initialState = FGState::Common;
     };
 
+    /// @brief パス登録時に使うビルダー
     class PassBuilder final
     {
     public:
+        /// @brief コンストラクタ
         PassBuilder(FrameGraph& fg, uint32_t passIndex)
             : m_FrameGraph(fg), m_PassIndex(passIndex)
         {
         }
 
-        // ---- 仮想リソース生成 ----
-        ResourceHandle Create(std::string_view name, const ResourceDesc& desc)
-        {
-            return registerNewResource(name, desc);
-        }
+        /// @brief 仮想リソース生成（初期ステート指定）
+        /// @param name リソース名
+        /// @param desc リソース記述
+        /// @param initialState パスの外での休み状態
+        ResourceHandle Create(std::string_view name, const ResourceDesc& desc, FGState initialState = FGState::Common);
 
-        // ---- Read/Write 宣言（名前版）----
-        ResourceHandle Read(std::string_view name) { return registerUse(name, FGAccess::Read); }
-        ResourceHandle Write(std::string_view name) { return registerUse(name, FGAccess::Write); }
-        ResourceHandle ReadWrite(std::string_view name) { return registerUse(name, FGAccess::ReadWrite); }
+        /// @brief 既存リソースを Read として使う（名前指定）
+        ResourceHandle Read(std::string_view name);
 
-        // ---- Read/Write 宣言（Handle版）----
-        void Read(ResourceHandle h) { registerUse(h, FGAccess::Read); }
-        void Write(ResourceHandle h) { registerUse(h, FGAccess::Write); }
-        void ReadWrite(ResourceHandle h) { registerUse(h, FGAccess::ReadWrite); }
+        /// @brief 既存リソースを Write として使う（名前指定）
+        ResourceHandle Write(std::string_view name);
 
-        // any other setup functions color,depth, etc.
+        /// @brief 既存リソースを ReadWrite として使う（名前指定）
+        ResourceHandle ReadWrite(std::string_view name);
+
+        /// @brief 既存リソースを Read として使う（ハンドル指定）
+        void Read(ResourceHandle h);
+
+        /// @brief 既存リソースを Write として使う（ハンドル指定）
+        void Write(ResourceHandle h);
+
+        /// @brief 既存リソースを ReadWrite として使う（ハンドル指定）
+        void ReadWrite(ResourceHandle h);
+
     private:
         FrameGraph& m_FrameGraph;
         uint32_t    m_PassIndex;
 
-        ResourceHandle registerNewResource(std::string_view name, const ResourceDesc& desc);
+        ResourceHandle registerNewResource(std::string_view name, const ResourceDesc& desc, FGState initialState);
         ResourceHandle registerUse(std::string_view name, FGAccess access);
         void           registerUse(ResourceHandle h, FGAccess access);
     };
 
+    /// @brief パス実行時のコンテキスト
     class PassContext final
     {
+        friend class FrameGraph;
     public:
+        /// @brief コンストラクタ
         PassContext(FrameGraph& fg,
+            DescriptorAllocator& da,
             ResourceManager& rm,
             PipelineManager& pm,
             uint32_t passIndex)
-            : m_FrameGraph(fg), m_ResourceManager(rm), m_PipelineManager(pm), m_PassIndex(passIndex)
+            : m_FrameGraph(fg), m_DescriptorAllocator(da), m_ResourceManager(rm), m_PipelineManager(pm), m_PassIndex(passIndex)
         {
         }
 
+        /// @brief パスインデックス取得
         uint32_t GetPassIndex() const noexcept { return m_PassIndex; }
 
-        //// ---- リソース情報 ----
-        //const ResourceDesc& GetResourceDesc(ResourceHandle h) const;
-        //// 生リソース（GPUリソース）
-        //ID3D12Resource* GetResource(ResourceHandle h) const;
+        /// @brief グラフィックスパイプライン取得
+        GraphicsPipelineSettings* GetGraphicsPipelineByName(const std::string& name);
 
-        //// ---- ビュー取得 ----
-        //D3D12_CPU_DESCRIPTOR_HANDLE GetRTV(ResourceHandle h) const;
-        //D3D12_CPU_DESCRIPTOR_HANDLE GetDSV(ResourceHandle h) const;
-        //D3D12_GPU_DESCRIPTOR_HANDLE GetSRV(ResourceHandle h) const;
-        //D3D12_GPU_DESCRIPTOR_HANDLE GetUAV(ResourceHandle h) const;
-
-        //// 名前から取る版（便利だけど遅いのでデバッグ用）
-        //ResourceHandle Find(std::string_view name) const;
-        //D3D12_CPU_DESCRIPTOR_HANDLE GetRTV(std::string_view name) const
-        //{
-        //    return GetRTV(Find(name));
-        //}
-
-        //// ビューポート/シザーなどを frameGraph 側で決めて渡したいならここでもいい
-        //D3D12_VIEWPORT GetViewport() const;
-        //D3D12_RECT     GetScissor()  const;
+        /// @brief コンピュートパイプライン取得
+        ComputePipelineSettings* GetComputePipelineByName(const std::string& name);
 
     private:
         FrameGraph& m_FrameGraph;
+        DescriptorAllocator& m_DescriptorAllocator;
         ResourceManager& m_ResourceManager;
         PipelineManager& m_PipelineManager;
-        uint32_t         m_PassIndex;
+        uint32_t             m_PassIndex;
     };
 
+    /// @brief FrameGraph 本体
     class FrameGraph final
     {
     public:
         FrameGraph() = default;
         ~FrameGraph() = default;
 
+        /// @brief デフォルトパスの生成（FinalColor など）
         void CreateDefaultPasses();
 
-        /// @brief パスの追加(任意のキュー指定版)
+        /// @brief パス追加（キュー指定版）
         PassID AddPass(std::string_view name, FGQueue queue, PassSetupFn setupFn, PassExecuteFn executeFn);
 
-        /// @brief バリア、順序付け
-        void Compile(ResourceManager& rm);
-        /// @brief PassExecuteの実行
-        void Execute(Renderer& renderer, ResourceManager& rm, PipelineManager& pm);
-        /// @brief クリア
+        /// @brief パス依存・トポロジカルソート・物理リソース確保
+        void Compile(DescriptorAllocator& da, ResourceManager& rm);
+
+        /// @brief PassExecute の実行（実行時にバリア計算）
+        void Execute(Renderer& renderer, DescriptorAllocator& da, ResourceManager& rm, PipelineManager& pm);
+
+        /// @brief グラフのクリア
         void Clear()
         {
             m_Passes.clear();
             m_VResources.clear();
             m_SortedPasses.clear();
             m_NameToResource.clear();
+            m_CurrentStates.clear();
         }
-        ResourceHandle CreateVirtualResource(std::string_view name, const ResourceDesc& desc);
+
+        /// @brief 仮想リソースの生成
+        ResourceHandle CreateVirtualResource(std::string_view name, const ResourceDesc& desc, FGState initialState);
+
+        /// @brief 仮想リソース取得
         const VirtualResource& GetVirtualResource(ResourceHandle h) const
         {
             return m_VResources[h];
         }
+
+        /// @brief パス取得
         PassNode& GetPass(uint32_t passIndex)
         {
             return m_Passes[passIndex];
         }
+
+        /// @brief 名前からリソースハンドルを検索
         ResourceHandle FindResourceHandle(std::string_view name) const
         {
             if (name.empty()) { return InvalidResource; }
-            if (m_NameToResource.contains(name.data()))
+            if (m_NameToResource.contains(std::string(name)))
             {
-                return m_NameToResource.at(name.data());
+                return m_NameToResource.at(std::string(name));
             }
             else
             {
                 return InvalidResource;
             }
         }
-        /// @brief 依存関係追加
-        /// @param before 
-        /// @param after 
+
+        /// @brief パス間依存関係の追加（before → after）
         void AddDependency(PassID before, PassID after);
 
     private:
-        std::vector<PassNode>       m_Passes;      // AddPass で増える
-        std::vector<VirtualResource> m_VResources;  // Builder::CreateResource などで増える
+        /// @brief 実行前バリアの適用（初期ステート → パス用ステート）
+        void ApplyPassBarriersBegin(Renderer& renderer, CommandContext* cmd, const PassNode& pass);
 
-        std::vector<uint32_t> m_SortedPasses;      // トポロジカルソート結果
+        /// @brief 実行後バリアの適用（パス用ステート → 初期ステート）
+        void ApplyPassBarriersEnd(Renderer& renderer, CommandContext* cmd, const PassNode& pass);
 
-        // 名前→ResourceHandle
+    private:
+        /// @brief パス群
+        std::vector<PassNode>        m_Passes;
+
+        /// @brief 仮想リソース群
+        std::vector<VirtualResource> m_VResources;
+
+        /// @brief トポロジカルソート済みパスインデックス
+        std::vector<uint32_t>        m_SortedPasses;
+
+        /// @brief 名前 → リソースハンドル
         std::unordered_map<std::string, ResourceHandle> m_NameToResource;
+
+        /// @brief 物理リソース（=仮想リソース）ごとの現在ステート
+        /// 実行時にのみ更新し、Compile では触らない。
+        std::vector<FGState> m_CurrentStates;
     };
-};
+}

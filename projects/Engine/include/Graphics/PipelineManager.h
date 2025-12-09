@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <array>
+#include <unordered_map>
 #include "include/Utility/FVector.h"
 #include "include/Graphics/GpuBuffer.h"
 #include "include/Graphics/DescriptorAllocator.h"
@@ -62,7 +63,7 @@ namespace Theatria::Graphics
         ComPtr<ID3D12CommandSignature> commandSignature = nullptr;
         // Indirect Args Buffer
         RWStructuredBuffer<RBasicIndirectCommand> argsBuffer;
-        DescriptorAllocator::TableID argsDescriptorTableID;
+        DescriptorAllocator::TableID argsDescriptorTableID{};
         // Shader names
         std::string vs = "";///< Vertex Shader
         std::string ps = "";///< Pixel Shader
@@ -104,6 +105,24 @@ namespace Theatria::Graphics
         [[nodiscard]] bool Initialize(ID3D12Device* device, ShaderCompiler* compiler, DescriptorAllocator* descriptorAllocator);
 
         void CreateDefaultPipelines(ID3D12Device* device, ShaderCompiler* compiler);
+
+        GraphicsPipelineSettings* GetGraphicsPipelineByName(const std::string& name)
+        {
+            if (m_GraphicsPipelineNameToIndex.contains(name))
+            {
+                return &m_GraphicsPipelines[m_GraphicsPipelineNameToIndex[name]];
+            }
+            return nullptr;
+        }
+
+        ComputePipelineSettings* GetComputePipelineByName(const std::string& name)
+        {
+            if (m_ComputePipelineNameToIndex.contains(name))
+            {
+                return &m_ComputePipelines[m_ComputePipelineNameToIndex[name]];
+            }
+            return nullptr;
+        }
     private:
         void CreateGraphicsPipeline(ID3D12Device* device, GraphicsPipelineSettings& setting, ShaderCompiler* compiler);
         void GetReflectionRootParms(ID3D12ShaderReflection* shaderRef,
@@ -118,8 +137,11 @@ namespace Theatria::Graphics
         DescriptorAllocator* m_pDescriptorAllocator = nullptr;
 
         Utility::FVector<GraphicsPipelineSettings> m_GraphicsPipelines;
+        std::unordered_map<std::string, uint32_t> m_GraphicsPipelineNameToIndex;
         Utility::FVector<ComputePipelineSettings> m_ComputePipelines;
+        std::unordered_map<std::string, uint32_t> m_ComputePipelineNameToIndex;
         Utility::FVector<MeshPipelineSettings> m_MeshPipelines;
+        std::unordered_map<std::string, uint32_t> m_MeshPipelineNameToIndex;
     };
 }
 

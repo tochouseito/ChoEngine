@@ -82,10 +82,10 @@ namespace Theatria::Graphics
         void RemakeIntegratedVBIB(const std::vector<Assets::VertexData>& vertices, const std::vector<uint32_t>& indices);
         /*=============== TextureBuffer ===============*/
         [[nodiscard]]
-        uint32_t CreateTextureBuffer(D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES& state)
+        uint32_t CreateTextureBuffer(D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE* clearValue)
         {
             auto buffer = std::make_shared<TextureBuffer>();
-            buffer->CreateBuffer(m_pDevice->GetDevice(), desc, clearValue, state);
+            buffer->CreateBuffer(m_pDevice->GetDevice(), desc, clearValue);
             uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
             return idx;
         }
@@ -110,7 +110,7 @@ namespace Theatria::Graphics
             clearValue.Color[2] = Config::Graphics::kClearColor[2];
             clearValue.Color[3] = Config::Graphics::kClearColor[3];
             auto buffer = std::make_shared<TextureBuffer>();
-            buffer->CreateBuffer(m_pDevice->GetDevice(), resourceDesc, &clearValue, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            buffer->CreateBuffer(m_pDevice->GetDevice(), resourceDesc, &clearValue);
             uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
             return idx;
         }
@@ -129,7 +129,7 @@ namespace Theatria::Graphics
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
             auto buffer = std::make_shared<DepthBuffer>();
-            buffer->CreateBuffer(m_pDevice->GetDevice(), resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+            buffer->CreateBuffer(m_pDevice->GetDevice(), resourceDesc);
             uint32_t idx = static_cast<uint32_t>(m_TextureBuffers.emplace_back(buffer));
             return idx;
         }
@@ -232,6 +232,15 @@ namespace Theatria::Graphics
                 Core::LogAssert::Check(false, "ResourceManager", "GetGlobalBuffer: Unsupported GlobalBufferType");
                 return m_GlobalObjectBuffer.GetGpuBuffer(frameIndex);
             }
+        }
+
+        GpuBuffer& GetIndirectCommandCountBuffer() noexcept
+        {
+            return m_IndirectCommandCountBuffer;
+        }
+        DescriptorAllocator::TableID GetIndirectCommandCountBufferDescriptorID() const noexcept
+        {
+            return m_IndirectCommandCountBufferDescriptorIDs;
         }
     private:
         RenderDevice* m_pDevice = nullptr; ///< レンダーデバイス

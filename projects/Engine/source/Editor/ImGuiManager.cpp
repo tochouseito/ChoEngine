@@ -39,7 +39,7 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Dockingを有効化
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;    // マルチビューポートを有効化
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // キーボードナビゲーションを有効化
-    io.IniFilename = nullptr; // 設定ファイルを無効化
+    // io.IniFilename = nullptr; // 設定ファイルを無効化
     // 設定ファイルの読み込み
     LoadIni();
     // プラットフォームのバックエンドを設定する

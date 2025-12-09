@@ -33,6 +33,7 @@ void Theatria::Graphics::PipelineManager::CreateDefaultPipelines(ID3D12Device* d
     // テスト
     {
         GraphicsPipelineSettings& testSetting = m_GraphicsPipelines[0];
+        m_GraphicsPipelineNameToIndex[testSetting.name] = 0;
 
         // シェーダーコンパイル
         ShaderCompileDesc vsDesc;
@@ -270,6 +271,7 @@ void Theatria::Graphics::PipelineManager::CreateDefaultPipelines(ID3D12Device* d
 
         // テスト
         ComputePipelineSettings& ctestSetting = m_ComputePipelines[0];
+        m_ComputePipelineNameToIndex[ctestSetting.name] = 0;
 
         // シェーダーコンパイル
         ShaderCompileDesc csDesc;

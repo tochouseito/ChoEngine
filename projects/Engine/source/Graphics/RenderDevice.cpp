@@ -525,9 +525,6 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
         DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
 
     // バックバッファの取得とRTVの作成
-    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-    rtvDesc.Format = m_SwapChainContext.m_Desc.Format;
-    rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;// 2dテクスチャとして書き込む
     for (uint32_t i = 0; i < Config::Graphics::BufferingCount; ++i)
     {
         SwapChainBuffer backBuffer = {};
@@ -544,8 +541,7 @@ bool Theatria::Graphics::RenderDevice::CreateSwapChain(DescriptorAllocator* desc
         backBuffer.rtvTableID = descAllocator->Allocate(DescriptorAllocator::TableKind::RenderTargets);
         descAllocator->CreateRTV(
             backBuffer.rtvTableID,
-            backBuffer.pResource.get(),
-            rtvDesc);
+            backBuffer.pResource.get());
         m_SwapChainContext.m_BackBuffers.push_back(std::move(backBuffer));
     }
 

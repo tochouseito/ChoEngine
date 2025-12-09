@@ -32,9 +32,9 @@ namespace Theatria::Graphics
         /// @brief テーブルID
         struct TableID final
         {
-            TableKind kind;
-            uint16_t  generation;  // テーブルの世代（ブロック移動で ++）
-            uint32_t  index;       // テーブル内のローカルindex（0..capacity-1）
+            TableKind kind = TableKind::Buffers;
+            uint16_t  generation{};  // テーブルの世代（ブロック移動で ++）
+            uint32_t  index{};       // テーブル内のローカルindex（0..capacity-1）
             static constexpr uint32_t Invalid = 0xFFFFFFFF;
             bool valid() const { return index != Invalid; }
         };
@@ -52,19 +52,19 @@ namespace Theatria::Graphics
         void    Free(const TableID& id);
 
         void CreateCBV(TableID& id, GpuBuffer* buf);  
-        void CreateSRVTexture2D(TableID& id, GpuBuffer* buf, const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
         void CreateSRVBuffer(TableID& id, GpuBuffer* buf);
         void CreateUAVBuffer(TableID& id, GpuBuffer* buf);
         void CreateUAVRawBuffer(TableID& id, GpuBuffer* buf);
 
-        void CreateRTV(TableID& id, GpuResource* res, const D3D12_RENDER_TARGET_VIEW_DESC& desc);
+        void CreateSRVTexture2D(TableID& id, GpuResource* res);
+        void CreateRTV(TableID& id, GpuResource* res);
 
         /// @brief テーブルベースアドレス取得
         D3D12_GPU_DESCRIPTOR_HANDLE GetTableBaseGPU(TableKind k);
         /// @brief Handle取得
-        D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(TableID& id);
+        D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(TableID id);
         /// @brief CPUハンドル取得
-        D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(TableID& id);
+        D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(TableID id);
 
         /// @brief ヒープ取得
         ID3D12DescriptorHeap* GetDescriptorHeap(HeapType type) const noexcept
