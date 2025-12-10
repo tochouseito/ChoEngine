@@ -487,13 +487,13 @@
       <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
-copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"
+      <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
+copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler_GameRuntime.dll"
+copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil_GameRuntime.dll"
 copy /Y "$(TargetDir)$(TargetName).dll" "$(TargetDir)$(TargetName)_GameRuntime.dll"
 copy /Y "$(TargetDir)$(TargetName).lib" "$(TargetDir)$(TargetName)_GameRuntime.lib"
 copy /Y "$(TargetDir)$(TargetName).exp" "$(TargetDir)$(TargetName)_GameRuntime.exp"
-copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler_GameRuntime.dll"
-copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil_GameRuntime.dll"
 xcopy "$(SolutionDir)Cho\Resources\EngineAssets" "$(TargetDir)Cho\Resources\EngineAssets" /E /I /Y
 copy "$(SolutionDir)imgui.ini" "$(TargetDir)imgui.ini"
 xcopy "$(SolutionDir)Cho\GameCore\Marionnette" "$(TargetDir)Cho\GameCore\Marionnette" /E /I /Y
@@ -555,13 +555,13 @@ xcopy "$(SolutionDir)Cho\TheaReflectDeclare.h" "$(TargetDir)Cho\" /E /I /Y</Comm
       <AdditionalOptions>/ignore:4049 /ignore:4048 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
-copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"
+      <Command>copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil.dll"
+copy "$(SolutionDir)External\dxc\dxcompiler.dll" "$(TargetDir)dxcompiler_GameRuntime.dll"
+copy "$(SolutionDir)External\dxc\dxil.dll" "$(TargetDir)dxil_GameRuntime.dll"
 copy /Y "$(TargetDir)$(TargetName).dll" "$(TargetDir)$(TargetName)_GameRuntime.dll"
 copy /Y "$(TargetDir)$(TargetName).lib" "$(TargetDir)$(TargetName)_GameRuntime.lib"
 copy /Y "$(TargetDir)$(TargetName).exp" "$(TargetDir)$(TargetName)_GameRuntime.exp"
-copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler_GameRuntime.dll"
-copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil_GameRuntime.dll"
 xcopy "$(SolutionDir)Cho\Resources\EngineAssets" "$(TargetDir)Cho\Resources\EngineAssets" /E /I /Y
 copy "$(SolutionDir)imgui.ini" "$(TargetDir)imgui.ini"
 xcopy "$(SolutionDir)Cho\GameCore\Marionnette" "$(TargetDir)Cho\GameCore\Marionnette" /E /I /Y

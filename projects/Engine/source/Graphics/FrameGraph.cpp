@@ -163,21 +163,22 @@ void FrameGraph::CreateDefaultPasses()
             // トポロジ設定（ここでは何も描画していないが雛形として）
             cmdCtx.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-            // TODO: パイプライン設定 / DrawCall など
-            GraphicsPipelineSettings* pipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
-            cmdCtx.SetPipelineState(pipeline->pso[static_cast<size_t>(BlendMode::Normal)].Get());
-            cmdCtx.SetGraphicsRootSignature(pipeline->rootSignature.Get());
+            //// TODO: パイプライン設定 / DrawCall など
+            //GraphicsPipelineSettings* pipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
+            //cmdCtx.SetPipelineState(pipeline->pso[static_cast<size_t>(BlendMode::Normal)].Get());
+            //cmdCtx.SetGraphicsRootSignature(pipeline->rootSignature.Get());
 
-            auto& devCam = passCtx.m_ResourceManager.GetDebugCamBuf(frameIdx);
-            cmdCtx.SetGraphicsRootConstantBufferView(0, devCam->GetGPUVirtualAddress());
+            //auto& devCam = passCtx.m_ResourceManager.GetDebugCamBuf(frameIdx);
+            //cmdCtx.SetGraphicsRootConstantBufferView(0, devCam->GetGPUVirtualAddress());
 
-            auto& gObjBuf = passCtx.m_ResourceManager.GetGlobalObjectBuffer<ShaderStruct::SObject>();
-            auto& objBuf = gObjBuf.GetGpuBuffer(frameIdx);
-            auto& gTransBuf = passCtx.m_ResourceManager.GetGlobalTransformBuffer<ShaderStruct::STransform>();
-            auto& transBuf = gTransBuf.GetGpuBuffer(frameIdx);
-            auto& gMeshBuf = passCtx.m_ResourceManager.GetGlobalMeshInfoBuffer<ShaderStruct::SMeshInfo>();
-            auto& meshBuf = gMeshBuf.GetGpuBuffer(frameIdx);
-            auto& integratedVB = passCtx.m_ResourceManager.GetVerte
+            //auto& gObjBuf = passCtx.m_ResourceManager.GetGlobalObjectBuffer<ShaderStruct::SObject>();
+            //auto& objBuf = gObjBuf.GetGpuBuffer(frameIdx);
+            //auto& gTransBuf = passCtx.m_ResourceManager.GetGlobalTransformBuffer<ShaderStruct::STransform>();
+            //auto& transBuf = gTransBuf.GetGpuBuffer(frameIdx);
+            //auto& gMeshBuf = passCtx.m_ResourceManager.GetGlobalMeshInfoBuffer<ShaderStruct::SMeshInfo>();
+            //auto& meshBuf = gMeshBuf.GetGpuBuffer(frameIdx);
+            //auto& integratedVB = passCtx.m_ResourceManager.GetVerte
+            frameIdx;
         });
 }
 
