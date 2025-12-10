@@ -39,18 +39,10 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
 {
 #ifndef NDEBUG
     std::lock_guard debuglock(m_DebugVPMutex);
-#endif // !NDEBUG
-
     for (uint32_t i = 0; i < Config::Graphics::BufferingCount; i++)
     {
-        m_GlobalObjectBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 1024);
-        m_GlobalTransformBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 1024);
-        m_GlobalMeshInfoBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 256);
-#ifndef NDEBUG
         m_DebugVP[i].CreateBuffer(m_pDevice->GetDevice());
-#endif
     }
-#ifndef NDEBUG
     m_DebugVPUploadBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);
     auto span = m_DebugVPUploadBuffer.GetMappedData();
     Math::float3 debugCamPos = { 0.0f, 0.0f, -5.0f };
@@ -60,6 +52,16 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
     span[0].view = Math::float4x4::Inverse(matW);
     span[0].projection = Math::PerspectiveFovMatrix(45.0f * Math::PI / 180.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 #endif
+    for (uint32_t i = 0; i < Config::Graphics::BufferingCount; i++)
+    {
+        // SRVのテーブル順番が正しくなるように注意
+        m_GlobalObjectBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 1024, i);
+        m_GlobalTransformBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 1024, i);
+        m_GlobalMeshInfoBuffer.Create(m_pDevice->GetDevice(), m_pDescAllocator, 256, i);
+    }
+    m_GlobalObjectBuffer.CreateUploadBuffer(m_pDevice->GetDevice(), 1024);
+    m_GlobalTransformBuffer.CreateUploadBuffer(m_pDevice->GetDevice(), 1024);
+    m_GlobalMeshInfoBuffer.CreateUploadBuffer(m_pDevice->GetDevice(), 256);
     m_IndirectCommandCountBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);
     m_IndirectCommandCountBufferDescriptorIDs = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
     m_pDescAllocator->CreateUAVRawBuffer(m_IndirectCommandCountBufferDescriptorIDs, &m_IndirectCommandCountBuffer);

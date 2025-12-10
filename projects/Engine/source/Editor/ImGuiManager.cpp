@@ -23,7 +23,7 @@ using namespace Theatria::Editor;
 using namespace Theatria::Platform;
 using namespace Theatria::Graphics;
 
-bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
+bool ImGuiManager::Initialize(RenderDevice& rdevice, Graphics::DescriptorAllocator& da)
 {
     // imgui バージョン表示
     IMGUI_CHECKVERSION();
@@ -45,14 +45,21 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, DescriptorAllocator& da)
     // プラットフォームのバックエンドを設定する
     ImGui_ImplWin32_Init(WinApp::m_HWND);
     // レンダラーのバックエンドを設定する
-    DescriptorAllocator::TableID tableID = da.Allocate(DescriptorAllocator::TableKind::Textures);
+    DescriptorAllocator::TableID tableId = da.Allocate(DescriptorAllocator::TableKind::Buffers);
+    ID3D12DescriptorHeap* cbvSrvHeap = da.GetDescriptorHeap(HeapType::CBV_SRV_UAV);
+    D3D12_CPU_DESCRIPTOR_HANDLE imguiCpu =
+        cbvSrvHeap->GetCPUDescriptorHandleForHeapStart();
+    D3D12_GPU_DESCRIPTOR_HANDLE imguiGpu =
+        cbvSrvHeap->GetGPUDescriptorHandleForHeapStart();
+    
     ImGui_ImplDX12_Init(
-        rdevice.GetDevice()
-        , Config::Graphics::BufferingCount,
+        rdevice.GetDevice(),
+        Config::Graphics::BufferingCount,
         Config::Graphics::DefaultDXGIFormat,
-        da.GetDescriptorHeap(HeapType::CBV_SRV_UAV),
-        da.GetCPUHandle(tableID),
-        da.GetGPUHandle(tableID));
+        cbvSrvHeap, // ★ GPU 可視ヒープ
+        imguiCpu,           // ★ 同じヒープの CPU ハンドル
+        imguiGpu            // ★ 同じヒープの GPU ハンドル
+    );
 
     // フォントの設定
     ImFontConfig font_config;

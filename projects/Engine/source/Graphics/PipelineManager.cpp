@@ -120,9 +120,8 @@ void Theatria::Graphics::PipelineManager::CreateDefaultPipelines(ID3D12Device* d
             testSetting.rootSignature.Get(),              // RootConstants を触るのでグラフィックス用RSを渡す
             IID_PPV_ARGS(&testSetting.commandSignature));
         // コマンド引数バッファの生成
-        const UINT maxCmdCount = 256;
         //const UINT64 bufferSize = static_cast<UINT64>(byteStride * maxCmdCount);
-        testSetting.argsBuffer.CreateBuffer(device, maxCmdCount);
+        testSetting.argsBuffer.CreateBuffer(device, testSetting.indirectCommandCount);
         testSetting.argsDescriptorTableID = m_pDescriptorAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
         m_pDescriptorAllocator->CreateUAVBuffer(
             testSetting.argsDescriptorTableID,

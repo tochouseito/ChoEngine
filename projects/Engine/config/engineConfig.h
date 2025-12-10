@@ -32,6 +32,7 @@ namespace Theatria::Config
 
         extern const float kClearColor[4]; ///< クリアカラー
         extern DXGI_FORMAT DefaultDXGIFormat;
+        extern DXGI_FORMAT DefaultDepthDXGIFormat;
         extern bool EnableVSync;          ///< VSync有効化フラグ
 
         extern D3D_SHADER_MODEL HighestShaderModel;  ///< 利用可能な最高シェーダーモデル

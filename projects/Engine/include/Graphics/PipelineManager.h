@@ -62,6 +62,7 @@ namespace Theatria::Graphics
         std::array<ComPtr<ID3D12PipelineState>, static_cast<size_t>(BlendMode::kCount)> pso;
         ComPtr<ID3D12CommandSignature> commandSignature = nullptr;
         // Indirect Args Buffer
+        UINT indirectCommandCount = 256;
         RWStructuredBuffer<RBasicIndirectCommand> argsBuffer;
         DescriptorAllocator::TableID argsDescriptorTableID{};
         // Shader names

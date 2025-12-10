@@ -336,8 +336,7 @@ bool Theatria::Engine::Initialize()
 #ifndef NDEBUG
     // ImGuiの初期化
     m_pImpl->m_pImGuiManager->Initialize(
-        *m_pImpl->m_pRenderDevice.get(),
-        *m_pImpl->m_pDescriptorAllocator.get());
+        *m_pImpl->m_pRenderDevice.get(), *m_pImpl->m_pDescriptorAllocator.get());
     // Rendererにセット
     m_pImpl->m_pRenderer->SetImGuiManager(m_pImpl->m_pImGuiManager.get());
     // エディタマネージャ初期化

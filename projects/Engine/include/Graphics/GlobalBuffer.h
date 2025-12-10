@@ -23,18 +23,16 @@ namespace Theatria::Graphics
         GlobalBuffer() = default;
         ~GlobalBuffer() = default;
 
-        void Create(ID3D12Device* device, DescriptorAllocator* da, UINT numElements)
+        void Create(ID3D12Device* device, DescriptorAllocator* da, UINT numElements, uint32_t frameIdx)
         {
-            std::scoped_lock lock(
-                m_Mutexes[0],
-                m_Mutexes[1],
-                m_Mutexes[2]);
-            for (uint32_t i = 0; i < Config::Graphics::BufferingCount; i++)
-            {
-                m_Buffers[i].CreateBuffer(device, numElements);
-                m_DescriptorTableIDs[i] = da->Allocate(DescriptorAllocator::TableKind::Buffers);
-                da->CreateSRVBuffer(m_DescriptorTableIDs[i], &m_Buffers[i]);
-            }
+            std::lock_guard<std::mutex> lock(m_Mutexes[frameIdx]);
+            m_Buffers[frameIdx].CreateBuffer(device, numElements);
+            m_DescriptorTableIDs[frameIdx] = da->Allocate(DescriptorAllocator::TableKind::Buffers);
+            da->CreateSRVBuffer(m_DescriptorTableIDs[frameIdx], &m_Buffers[frameIdx]);
+        }
+
+        void CreateUploadBuffer(ID3D12Device* device, UINT numElements)
+        {
             m_UploadBuffer.CreateBuffer(device, numElements);
         }
 

@@ -64,6 +64,15 @@ void FrameGraph::CreateDefaultPasses()
                 D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
 
+            // デスクリプタヒープ設定
+            ID3D12DescriptorHeap* heap =
+                passCtx.m_DescriptorAllocator.GetDescriptorHeap(HeapType::CBV_SRV_UAV);
+            cmdCtx.SetDescriptorHeap(heap);
+
+            // パイプライン
+            cmdCtx.SetPipelineState(pipeline->pso.Get());
+            cmdCtx.SetComputeRootSignature(pipeline->rootSignature.Get());
+
             // CommandCount バッファのクリア
             UINT clearValues[4] = { 0, 0, 0, 0 };
             GpuBuffer& u1 = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
@@ -76,15 +85,6 @@ void FrameGraph::CreateDefaultPasses()
                 u1.GetResource(),
                 clearValues,
                 0, nullptr);
-
-            // デスクリプタヒープ設定
-            ID3D12DescriptorHeap* heap =
-                passCtx.m_DescriptorAllocator.GetDescriptorHeap(HeapType::CBV_SRV_UAV);
-            cmdCtx.SetDescriptorHeap(heap);
-
-            // パイプライン
-            cmdCtx.SetPipelineState(pipeline->pso.Get());
-            cmdCtx.SetComputeRootSignature(pipeline->rootSignature.Get());
 
             // バインド
             D3D12_GPU_DESCRIPTOR_HANDLE gpuSrvHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(gObjBuf.GetDescriptorTableID(frameIdx));
@@ -123,6 +123,16 @@ void FrameGraph::CreateDefaultPasses()
 
             // このパスでは RenderTarget として書き込む
             builder.Write("finalColor");
+
+            builder.Create("finalDepth", ResourceDesc{
+                Config::Graphics::ResolutionWidth,
+                Config::Graphics::ResolutionHeight,
+                DXGI_FORMAT_D24_UNORM_S8_UINT,
+                FGUsage::DepthStencil
+            }, FGState::ShaderRead);
+
+            // このパスでは DepthStencil として書き込む
+            builder.Write("finalDepth");
         },
         [&](PassContext& passCtx, CommandContext& cmdCtx, uint32_t frameIdx)
         {
@@ -137,9 +147,16 @@ void FrameGraph::CreateDefaultPasses()
             D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle =
                 passCtx.m_DescriptorAllocator.GetCPUHandle(vr.rtvTableId);
 
-            // RTV 設定 & クリア
-            cmdCtx.SetRenderTargets(1, &rtvHandle, false, nullptr);
+            // finalDepth の DSV を取得
+            ResourceHandle dh = passCtx.m_FrameGraph.FindResourceHandle("finalDepth");
+            const VirtualResource& dvr = passCtx.m_FrameGraph.GetVirtualResource(dh);
+            D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle =
+                passCtx.m_DescriptorAllocator.GetCPUHandle(dvr.dsvTableId);
+
+            // RTV&DSV 設定 & クリア
+            cmdCtx.SetRenderTargets(1, &rtvHandle, false, &dsvHandle);
             cmdCtx.ClearRenderTargetView(rtvHandle, Config::Graphics::kClearColor, 0, nullptr);
+            cmdCtx.ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
             // ビューポートとシザー矩形の設定
             D3D12_VIEWPORT viewport{
@@ -163,22 +180,63 @@ void FrameGraph::CreateDefaultPasses()
             // トポロジ設定（ここでは何も描画していないが雛形として）
             cmdCtx.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-            //// TODO: パイプライン設定 / DrawCall など
-            //GraphicsPipelineSettings* pipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
-            //cmdCtx.SetPipelineState(pipeline->pso[static_cast<size_t>(BlendMode::Normal)].Get());
-            //cmdCtx.SetGraphicsRootSignature(pipeline->rootSignature.Get());
+            // TODO: パイプライン設定 / DrawCall など
+            GraphicsPipelineSettings* pipeline = passCtx.m_PipelineManager.GetGraphicsPipelineByName("BasicPipeline");
+            cmdCtx.SetPipelineState(pipeline->pso[static_cast<size_t>(BlendMode::Normal)].Get());
+            cmdCtx.SetGraphicsRootSignature(pipeline->rootSignature.Get());
 
-            //auto& devCam = passCtx.m_ResourceManager.GetDebugCamBuf(frameIdx);
-            //cmdCtx.SetGraphicsRootConstantBufferView(0, devCam->GetGPUVirtualAddress());
+            auto& devCam = passCtx.m_ResourceManager.GetDebugCamBuf(frameIdx);
+            cmdCtx.SetGraphicsRootConstantBufferView(0, devCam->GetGPUVirtualAddress());
 
-            //auto& gObjBuf = passCtx.m_ResourceManager.GetGlobalObjectBuffer<ShaderStruct::SObject>();
-            //auto& objBuf = gObjBuf.GetGpuBuffer(frameIdx);
-            //auto& gTransBuf = passCtx.m_ResourceManager.GetGlobalTransformBuffer<ShaderStruct::STransform>();
-            //auto& transBuf = gTransBuf.GetGpuBuffer(frameIdx);
-            //auto& gMeshBuf = passCtx.m_ResourceManager.GetGlobalMeshInfoBuffer<ShaderStruct::SMeshInfo>();
-            //auto& meshBuf = gMeshBuf.GetGpuBuffer(frameIdx);
-            //auto& integratedVB = passCtx.m_ResourceManager.GetVerte
-            frameIdx;
+            auto& gObjBuf = passCtx.m_ResourceManager.GetGlobalObjectBuffer<ShaderStruct::SObject>();
+            auto& objBuf = gObjBuf.GetGpuBuffer(frameIdx);
+            auto& gTransBuf = passCtx.m_ResourceManager.GetGlobalTransformBuffer<ShaderStruct::STransform>();
+            auto& transBuf = gTransBuf.GetGpuBuffer(frameIdx);
+            auto& gMeshBuf = passCtx.m_ResourceManager.GetGlobalMeshInfoBuffer<ShaderStruct::SMeshInfo>();
+            auto& meshBuf = gMeshBuf.GetGpuBuffer(frameIdx);
+            auto& integratedVB = passCtx.m_ResourceManager.GetIntegratedVertexBuffer();
+            auto& integratedIB = passCtx.m_ResourceManager.GetIntegratedIndexBuffer();
+
+            // バッファバリア
+            cmdCtx.BarrierTransition(
+                &objBuf,
+                objBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            cmdCtx.BarrierTransition(
+                &transBuf,
+                transBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            cmdCtx.BarrierTransition(
+                &meshBuf,
+                meshBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            cmdCtx.BarrierTransition(
+                &integratedVB,
+                integratedVB.GetUseState(),
+                D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            cmdCtx.BarrierTransition(
+                &integratedIB,
+                integratedIB.GetUseState(),
+                D3D12_RESOURCE_STATE_INDEX_BUFFER);
+
+            D3D12_GPU_DESCRIPTOR_HANDLE gpuSrvHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(gObjBuf.GetDescriptorTableID(frameIdx));
+            cmdCtx.SetGraphicsRootDescriptorTable(2, gpuSrvHandle);
+
+            D3D12_VERTEX_BUFFER_VIEW* vbv = integratedVB.GetVertexBufferView();
+            D3D12_INDEX_BUFFER_VIEW* ibv = integratedIB.GetIndexBufferView();
+
+            cmdCtx.IASetVertexBuffers(0, 1, vbv);
+            cmdCtx.IASetIndexBuffer(ibv);
+
+            auto& indirectCmdBuf = pipeline->argsBuffer;
+            auto& indirectCmdCountBuf = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
+            cmdCtx.ExecuteIndirect(
+                pipeline->commandSignature.Get(),
+                pipeline->indirectCommandCount,
+                indirectCmdBuf.GetResource(),
+                0,
+                indirectCmdCountBuf.GetResource(),
+                0);
         });
 }
 
@@ -352,6 +410,9 @@ void FrameGraph::Compile(DescriptorAllocator& da, ResourceManager& rm)
             vr.physicalId = rm.CreateDepthBuffer(
                 vr.desc.width,
                 vr.desc.height);
+            vr.dsvTableId =
+                da.Allocate(DescriptorAllocator::TableKind::DepthStencils);
+            da.CreateDSV(vr.dsvTableId, rm.GetTextureBuffer(vr.physicalId));
             break;
         case FGUsage::UnorderedAccess:
             // TODO: UAV 用の割当

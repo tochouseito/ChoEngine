@@ -56,6 +56,21 @@ namespace Theatria::Graphics
             const FLOAT ColorRGBA[4],
             UINT NumRects,
             const D3D12_RECT* pRects);
+        virtual void ClearDepthStencilView(
+            D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView,
+            D3D12_CLEAR_FLAGS ClearFlags,
+            FLOAT Depth,
+            UINT8 Stencil,
+            UINT NumRects,
+            const D3D12_RECT* pRects);
+
+        virtual void IASetVertexBuffers(
+            UINT StartSlot,
+            UINT NumViews,
+            const D3D12_VERTEX_BUFFER_VIEW* pViews);
+
+        virtual void IASetIndexBuffer(
+            const D3D12_INDEX_BUFFER_VIEW* pView);
 
         virtual void ClearUnorderedAccessViewUint(
             D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap,

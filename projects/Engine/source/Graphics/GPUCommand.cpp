@@ -87,6 +87,11 @@ void Theatria::Graphics::CommandContext::ResourceBarrier(UINT NumBarriers, const
 
 void Theatria::Graphics::CommandContext::BarrierTransition(GpuResource* pResource, D3D12_RESOURCE_STATES Before, D3D12_RESOURCE_STATES After)
 {
+    if (Before == After)
+    {
+        // ステートが変化しない場合はバリアを張らない
+        return;
+    }
     // TransitionBarrierの設定
     D3D12_RESOURCE_BARRIER barrier{};
     // 今回のバリアはTransition
@@ -149,6 +154,30 @@ void Theatria::Graphics::CommandContext::ClearRenderTargetView(D3D12_CPU_DESCRIP
         ColorRGBA,
         NumRects,
         pRects);
+}
+
+void Theatria::Graphics::CommandContext::ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView, D3D12_CLEAR_FLAGS ClearFlags, FLOAT Depth, UINT8 Stencil, UINT NumRects, const D3D12_RECT* pRects)
+{
+    m_List->ClearDepthStencilView(
+        DepthStencilView,
+        ClearFlags,
+        Depth,
+        Stencil,
+        NumRects,
+        pRects);
+}
+
+void Theatria::Graphics::CommandContext::IASetVertexBuffers(UINT StartSlot, UINT NumViews, const D3D12_VERTEX_BUFFER_VIEW* pViews)
+{
+    m_List->IASetVertexBuffers(
+        StartSlot,
+        NumViews,
+        pViews);
+}
+
+void Theatria::Graphics::CommandContext::IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* pView)
+{
+    m_List->IASetIndexBuffer(pView);
 }
 
 void Theatria::Graphics::CommandContext::ClearUnorderedAccessViewUint(D3D12_GPU_DESCRIPTOR_HANDLE ViewGPUHandleInCurrentHeap, D3D12_CPU_DESCRIPTOR_HANDLE ViewCPUHandle, ID3D12Resource* pResource, const UINT Values[4], UINT NumRects, const D3D12_RECT* pRects)
