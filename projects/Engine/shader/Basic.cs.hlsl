@@ -22,9 +22,9 @@ struct MeshData
 struct IndirectCommand
 {
     uint ObjectId;
-    uint _pad0;
-    uint _pad1;
-    uint _pad2;
+    //uint _pad0;
+    //uint _pad1;
+    //uint _pad2;
 
     uint IndexCountPerInstance;
     uint InstanceCount;
@@ -32,9 +32,9 @@ struct IndirectCommand
     int BaseVertexLocation;
     uint StartInstanceLocation;
 
-    uint _pad3;
-    uint _pad4;
-    uint _pad5;
+    //uint _pad3;
+    //uint _pad4;
+    //uint _pad5;
 };
 
 // SRV
@@ -69,9 +69,9 @@ void CSMain(uint3 dtid : SV_DispatchThreadID)
     g_CommandCount.InterlockedAdd(0, 1, dstIndex);
 
     g_IndirectCommands[dstIndex].ObjectId = objIndex;
-    g_IndirectCommands[dstIndex]._pad0 = 0;
-    g_IndirectCommands[dstIndex]._pad1 = 0;
-    g_IndirectCommands[dstIndex]._pad2 = 0;
+    //g_IndirectCommands[dstIndex]._pad0 = 0;
+    //g_IndirectCommands[dstIndex]._pad1 = 0;
+    //g_IndirectCommands[dstIndex]._pad2 = 0;
 
     g_IndirectCommands[dstIndex].IndexCountPerInstance = model.indexCount;
     g_IndirectCommands[dstIndex].InstanceCount = 1;
@@ -79,7 +79,7 @@ void CSMain(uint3 dtid : SV_DispatchThreadID)
     g_IndirectCommands[dstIndex].BaseVertexLocation = model.baseVertex;
     g_IndirectCommands[dstIndex].StartInstanceLocation = 0;
 
-    g_IndirectCommands[dstIndex]._pad3 = 0;
-    g_IndirectCommands[dstIndex]._pad4 = 0;
-    g_IndirectCommands[dstIndex]._pad5 = 0;
+    //g_IndirectCommands[dstIndex]._pad3 = 0;
+    //g_IndirectCommands[dstIndex]._pad4 = 0;
+    //g_IndirectCommands[dstIndex]._pad5 = 0;
 }

@@ -250,14 +250,14 @@ namespace Theatria::Graphics
             }
         }
 
-        GpuBuffer& GetIndirectCommandCountBuffer() noexcept
+        /*GpuBuffer& GetIndirectCommandCountBuffer() noexcept
         {
             return m_IndirectCommandCountBuffer;
         }
         DescriptorAllocator::TableID GetIndirectCommandCountBufferDescriptorID() const noexcept
         {
             return m_IndirectCommandCountBufferDescriptorIDs;
-        }
+        }*/
 
         VertexBuffer<Assets::VertexData>& GetIntegratedVertexBuffer() noexcept
         {
@@ -312,9 +312,9 @@ namespace Theatria::Graphics
         GlobalBuffer<ShaderStruct::STransform> m_GlobalTransformBuffer;
         GlobalBuffer<ShaderStruct::SMeshInfo> m_GlobalMeshInfoBuffer;
 
-        RWStructuredBuffer<uint32_t> m_IndirectCommandCountBuffer;
-        DescriptorAllocator::TableID m_IndirectCommandCountBufferDescriptorIDs;
-        std::mutex m_IndirectCommandCountBufferMutex;
+        //RWStructuredBuffer<uint32_t> m_IndirectCommandCountBuffer;
+        //DescriptorAllocator::TableID m_IndirectCommandCountBufferDescriptorIDs;
+        //std::mutex m_IndirectCommandCountBufferMutex;
 
 #ifndef NDEBUG
         std::array<ConstantBuffer<ShaderStruct::SViewProjection>, Config::Graphics::kMaxBufferingCount> m_DebugVP;

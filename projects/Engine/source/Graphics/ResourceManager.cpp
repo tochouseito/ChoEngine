@@ -62,9 +62,9 @@ void Theatria::Graphics::ResourceManager::CreateGlobalBuffers()
     m_GlobalObjectBuffer.CreateUploadBuffer(m_pDevice->GetDevice(), 1024);
     m_GlobalTransformBuffer.CreateUploadBuffer(m_pDevice->GetDevice(), 1024);
     m_GlobalMeshInfoBuffer.CreateUploadBuffer(m_pDevice->GetDevice(), 256);
-    m_IndirectCommandCountBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);
-    m_IndirectCommandCountBufferDescriptorIDs = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
-    m_pDescAllocator->CreateUAVRawBuffer(m_IndirectCommandCountBufferDescriptorIDs, &m_IndirectCommandCountBuffer);
+    //m_IndirectCommandCountBuffer.CreateBuffer(m_pDevice->GetDevice(), 1);/*
+    //m_IndirectCommandCountBufferDescriptorIDs = m_pDescAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
+    //m_pDescAllocator->CreateUAVRawBuffer(m_IndirectCommandCountBufferDescriptorIDs, &m_IndirectCommandCountBuffer);*/
 }
 
 [[nodiscard]]

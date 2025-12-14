@@ -45,7 +45,7 @@ bool ImGuiManager::Initialize(RenderDevice& rdevice, Graphics::DescriptorAllocat
     // プラットフォームのバックエンドを設定する
     ImGui_ImplWin32_Init(WinApp::m_HWND);
     // レンダラーのバックエンドを設定する
-    DescriptorAllocator::TableID tableId = da.Allocate(DescriptorAllocator::TableKind::Buffers);
+    DescriptorAllocator::TableID tableId = da.Allocate(DescriptorAllocator::TableKind::Textures);
     ID3D12DescriptorHeap* cbvSrvHeap = da.GetDescriptorHeap(HeapType::CBV_SRV_UAV);
     D3D12_CPU_DESCRIPTOR_HANDLE imguiCpu =
         cbvSrvHeap->GetCPUDescriptorHandleForHeapStart();

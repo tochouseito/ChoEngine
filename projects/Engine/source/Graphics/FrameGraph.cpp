@@ -38,7 +38,7 @@ void FrameGraph::CreateDefaultPasses()
             auto& transBuf = gTransBuf.GetGpuBuffer(frameIdx);
             auto& gMeshBuf = passCtx.m_ResourceManager.GetGlobalMeshInfoBuffer<ShaderStruct::SMeshInfo>();
             auto& meshBuf = gMeshBuf.GetGpuBuffer(frameIdx);
-            auto& indirectCmdCountBuf = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
+            auto& indirectCmdCountBuf = gPipeline->argsCountBuffer;
             auto& indirectCmdBuf = gPipeline->argsBuffer;
 
             // バリア
@@ -75,8 +75,8 @@ void FrameGraph::CreateDefaultPasses()
 
             // CommandCount バッファのクリア
             UINT clearValues[4] = { 0, 0, 0, 0 };
-            GpuBuffer& u1 = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
-            DescriptorAllocator::TableID u1Handle = passCtx.m_ResourceManager.GetIndirectCommandCountBufferDescriptorID();
+            GpuBuffer& u1 = gPipeline->argsCountBuffer;
+            DescriptorAllocator::TableID u1Handle = gPipeline->argsCountDescriptorTableID;
             D3D12_GPU_DESCRIPTOR_HANDLE u1GPUHandle = passCtx.m_DescriptorAllocator.GetGPUHandle(u1Handle);
             D3D12_CPU_DESCRIPTOR_HANDLE u1CPUHandle = passCtx.m_DescriptorAllocator.GetCPUHandle(u1Handle);
             cmdCtx.ClearUnorderedAccessViewUint(
@@ -229,7 +229,7 @@ void FrameGraph::CreateDefaultPasses()
             cmdCtx.IASetIndexBuffer(ibv);
 
             auto& indirectCmdBuf = pipeline->argsBuffer;
-            auto& indirectCmdCountBuf = passCtx.m_ResourceManager.GetIndirectCommandCountBuffer();
+            auto& indirectCmdCountBuf = pipeline->argsCountBuffer;
             cmdCtx.ExecuteIndirect(
                 pipeline->commandSignature.Get(),
                 pipeline->indirectCommandCount,
@@ -237,6 +237,19 @@ void FrameGraph::CreateDefaultPasses()
                 0,
                 indirectCmdCountBuf.GetResource(),
                 0);
+
+            cmdCtx.BarrierTransition(
+                &objBuf,
+                objBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_COMMON);
+            cmdCtx.BarrierTransition(
+                &transBuf,
+                transBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_COMMON);
+            cmdCtx.BarrierTransition(
+                &meshBuf,
+                meshBuf.GetUseState(),
+                D3D12_RESOURCE_STATE_COMMON);
         });
 }
 

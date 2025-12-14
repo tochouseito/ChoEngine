@@ -261,7 +261,7 @@ namespace Theatria::Graphics
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // Tが構造体、クラスの時、サイズチェック
-            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
+            //static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
@@ -352,7 +352,7 @@ namespace Theatria::Graphics
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // Tが構造体、クラスの時、サイズチェック
-            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
+            //static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定
@@ -393,7 +393,7 @@ namespace Theatria::Graphics
         void CreateBuffer(ID3D12Device* device, UINT numElements)
         {
             // Tが構造体、クラスの時、サイズチェック
-            static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
+            //static_assert(!std::is_class_v<T> || sizeof(T) % 16 == 0, "The size of T must be a multiple of 16 bytes.");
             // リソースのサイズ
             UINT structureByteStride = static_cast<UINT>(sizeof(T));
             // リソース用のヒープの設定

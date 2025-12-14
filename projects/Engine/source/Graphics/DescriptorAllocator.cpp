@@ -48,6 +48,7 @@ bool DescriptorAllocator::Initialize(RenderDevice* pRenderDevice,
             m_Buffers.heapType = HeapType::CBV_SRV_UAV;
 
             m_Textures.capacity = texCap;
+            m_Textures.baseIndex = 0;
             m_Textures.freeList.reserve(m_Textures.capacity);
             for (uint32_t j = 0; j < texCap; ++j)
             {
@@ -55,6 +56,7 @@ bool DescriptorAllocator::Initialize(RenderDevice* pRenderDevice,
             }
 
             m_Buffers.capacity = bufCap;
+            m_Buffers.baseIndex = texCap;
             m_Buffers.freeList.reserve(m_Buffers.capacity);
             for (uint32_t j = 0; j < bufCap; ++j)
             {

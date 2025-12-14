@@ -126,6 +126,11 @@ void Theatria::Graphics::PipelineManager::CreateDefaultPipelines(ID3D12Device* d
         m_pDescriptorAllocator->CreateUAVBuffer(
             testSetting.argsDescriptorTableID,
             &testSetting.argsBuffer);
+        testSetting.argsCountBuffer.CreateBuffer(device, 1);
+        testSetting.argsCountDescriptorTableID = m_pDescriptorAllocator->Allocate(DescriptorAllocator::TableKind::Buffers);
+        m_pDescriptorAllocator->CreateUAVRawBuffer(
+            testSetting.argsCountDescriptorTableID,
+            &testSetting.argsCountBuffer);
 
         // InputLayout
         D3D12_INPUT_ELEMENT_DESC inputElementDesc[3] = {};
