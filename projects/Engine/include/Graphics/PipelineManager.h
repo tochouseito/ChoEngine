@@ -34,12 +34,12 @@ namespace Theatria::Graphics
     struct RBasicIndirectCommand
     {
         uint32_t ObjectId;
-        //uint32_t _pad[3]; // 16バイトアライメント用パディング
+        //uint32_t _pad[2]; // 16バイトアライメント用パディング
 
         // DrawIndexed
         D3D12_DRAW_INDEXED_ARGUMENTS DrawArgs;
 
-        // uint32_t _pad2[3]; // 16バイトアライメント用パディング
+        uint32_t _pad2[2]; // 16バイトアライメント用パディング
     };
     // static_assert(sizeof(RBasicIndirectCommand) % 4 == 0, "RBasicIndirectCommand size must be multiple of 4 bytes.");
 

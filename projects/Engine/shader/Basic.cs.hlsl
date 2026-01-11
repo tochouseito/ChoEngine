@@ -32,8 +32,8 @@ struct IndirectCommand
     int BaseVertexLocation;
     uint StartInstanceLocation;
 
-    //uint _pad3;
-    //uint _pad4;
+    uint _pad3;
+    uint _pad4;
     //uint _pad5;
 };
 
@@ -79,7 +79,7 @@ void CSMain(uint3 dtid : SV_DispatchThreadID)
     g_IndirectCommands[dstIndex].BaseVertexLocation = model.baseVertex;
     g_IndirectCommands[dstIndex].StartInstanceLocation = 0;
 
-    //g_IndirectCommands[dstIndex]._pad3 = 0;
-    //g_IndirectCommands[dstIndex]._pad4 = 0;
+    g_IndirectCommands[dstIndex]._pad3 = 0;
+    g_IndirectCommands[dstIndex]._pad4 = 0;
     //g_IndirectCommands[dstIndex]._pad5 = 0;
 }
