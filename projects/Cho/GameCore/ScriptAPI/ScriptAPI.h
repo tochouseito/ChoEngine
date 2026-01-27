@@ -359,6 +359,31 @@ namespace theatriaSystem
         }
         EmitterComponent* data = nullptr;
     };
+
+    // Sprite
+    class THEATRIA_API UISprite : public IComponentInterface
+    {
+        friend class Marionnette;
+    public:
+        UISprite(Entity e, ECSManager* ecs) : IComponentInterface(e, ecs) {}
+        ~UISprite() = default;
+        UISpriteComponent* operator->()
+        {
+            UpdatePtr();
+            return data;
+        }
+        operator bool() noexcept
+        {
+            UpdatePtr();
+            return data != nullptr;
+        }
+    private:
+        void UpdatePtr()
+        {
+            data = m_ECS->GetComponent<UISpriteComponent>(m_Entity);
+        }
+        UISpriteComponent* data = nullptr;
+    };
 }
 
 //struct CHO_API TransformAPI

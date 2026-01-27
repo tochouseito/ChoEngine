@@ -120,7 +120,6 @@ Global
 		{82929D92-C4EC-4A4B-820E-83591CA9D833}.Editor|x64.ActiveCfg = Editor|x64
 		{82929D92-C4EC-4A4B-820E-83591CA9D833}.Editor|x64.Build.0 = Editor|x64
 		{82929D92-C4EC-4A4B-820E-83591CA9D833}.Release|x64.ActiveCfg = Release|x64
-		{82929D92-C4EC-4A4B-820E-83591CA9D833}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
